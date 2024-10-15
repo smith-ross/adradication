@@ -1,0 +1,22 @@
+@namespace svg "http://www.w3.org/2000/svg";
+
+#react-root {
+  all: unset;
+  line-height: normal;
+
+  *:not(svg) {
+    all: unset;
+    // font-family: Arial, Helvetica, sans-serif;
+  }
+
+  #embedded-tracker-app div[contenteditable] {
+    -webkit-user-modify: read-write;
+    overflow-wrap: break-word;
+    -webkit-line-break: after-white-space;
+    line-break: after-white-space;
+  }
+
+  .hidden {
+    display: none;
+  }
+}

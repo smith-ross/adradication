@@ -1,0 +1,89 @@
+#react-root {
+  --window-color: #ffffff;
+  --shadow-color: #333333;
+  --text-color: #000000;
+  --border-color: #dddddd;
+
+  .floatwindow {
+    color: var(--text-color);
+    background-color: var(--window-color);
+    position: fixed;
+    border-radius: 0.25rem;
+    border: 1.5px solid var(--border-color);
+    overflow: hidden;
+    user-select: none;
+
+    .floatwindow-header {
+      border-top-left-radius: 0.25rem;
+      border-top-right-radius: 0.25rem;
+      text-align: center;
+      font-size: 18px;
+      display: block;
+      height: 0;
+      padding-bottom: 0.575rem;
+      padding-top: 0.35rem;
+
+      &:has(.floatwindow-title) {
+        height: auto;
+        padding-bottom: 0.4rem;
+        border-bottom: 1.5px solid var(--border-color);
+      }
+
+      .floatwindow-title {
+        width: 100%;
+        padding-bottom: 0.35rem;
+        display: block;
+        transform: translateY(17.5%);
+      }
+
+      &.floatwindow-no-title {
+        height: 2.5rem;
+        border-top-left-radius: none;
+        border-top-right-radius: none;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        float: left;
+        // position: absolute;
+
+        // .floatwindow-collapse {
+        //   position: relative;
+        // }
+      }
+
+      &.floatwindow-collapsed {
+        height: 30px;
+        width: 40px;
+      }
+
+      .floatwindow-collapse {
+        position: absolute;
+        left: 7.5px;
+        top: 8.75px;
+        color: #555555;
+        background-color: var(--window-color);
+        border-radius: 0.25rem;
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        transition: background-color 0.25s;
+        border: 1px solid var(--border-color);
+
+        &:hover {
+          background-color: var(--border-color);
+        }
+
+        span {
+          display: block;
+          height: 100%;
+          width: 100%;
+        }
+      }
+    }
+
+    .floatwindow-container {
+      padding: 10px;
+    }
+  }
+}

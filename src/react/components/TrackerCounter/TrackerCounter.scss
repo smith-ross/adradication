@@ -1,0 +1,22 @@
+#react-root {
+    width: auto;
+    .tracker-count-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        padding-left: 10px;
+        padding-right: 10px;
+        white-space: nowrap;
+
+        .tracker-count-header {
+            font-size: 32px;
+            font-weight: bold;
+        }
+        
+        .tracker-count-number {
+            text-align: center;
+            font-size: 32px;
+        }
+    }
+}
