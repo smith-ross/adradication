@@ -25,4 +25,4 @@ build-job:       # This job runs in the build stage, which runs first.
         - build
       expire_in: 30 mins
   dependencies:
-      - install
+      - install-job
