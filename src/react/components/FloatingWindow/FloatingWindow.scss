@@ -82,8 +82,9 @@
       }
     }
 
-    .floatwindow-container {
-      padding: 10px;
+    .floatwindow-container:not(.hidden) {
+      padding: 5px;
+      display: block;
     }
   }
 }

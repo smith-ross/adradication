@@ -1,8 +1,8 @@
+import Adradication from "../../game/core/Adradication";
+import GameView from "./GameComponents/GameView";
 import TrackerCounter from "./TrackerCounter";
 
 const App = () => {
-  return (
-      <TrackerCounter />
-  );
+  return <GameView game={new Adradication()} />;
 };
 export default App;
