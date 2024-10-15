@@ -1,0 +1,28 @@
+stages:          # List of stages for jobs, and their order of execution
+  - install
+  - build
+
+install-job:
+    stage: install
+    script:
+      - echo "Installing..."
+      - npm install
+    artifacts:
+      name: "artifacts"
+      untracked: true
+      expire_in: 30 mins
+      paths:
+        - .npm/
+        - node_modules/
+
+build-job:       # This job runs in the build stage, which runs first.
+  stage: build
+  script:
+      - echo "Compiling..."
+      - CI=false npm run build
+  artifacts:
+      paths:
+        - build
+      expire_in: 30 mins
+  dependencies:
+      - install
