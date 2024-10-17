@@ -10,7 +10,10 @@ export default class Adradication {
   #canvas?: HTMLCanvasElement;
   context?: CanvasRenderingContext2D;
   size: Vector = GAME_SIZE;
+
   loadedScene: Scene | undefined;
+  running: boolean = false;
+  frameTime: number = 0;
 
   get canvas() {
     if (!this.#canvas)
@@ -27,8 +30,23 @@ export default class Adradication {
     this.context = context;
   }
 
+  update(time: number, game?: Adradication) {
+    if (!game) {
+      game = this;
+    }
+    if (!game.canvas) return;
+    if (!document.body.contains(game.canvas)) return;
+    if (!game.context) return;
+    const deltaTime = time - this.frameTime;
+    game.frameTime = time;
+    game.loadedScene?.recursiveUpdate(deltaTime);
+    game.loadedScene?.recursiveRender(game.context, deltaTime);
+    window.requestAnimationFrame((deltaTime) => {
+      (game || this).update(deltaTime, game);
+    });
+  }
+
   start() {
-    const [w, h] = GAME_SIZE.asCoords();
     if (!this.context) return;
     this.loadedScene = new Scene({
       id: "TestScene",
@@ -49,6 +67,8 @@ export default class Adradication {
         }),
       ],
     });
-    this.loadedScene.recursiveRender(this.context);
+
+    // Start game loop
+    this.update(0);
   }
 }

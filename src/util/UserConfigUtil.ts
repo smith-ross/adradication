@@ -24,14 +24,17 @@ export const initialiseConfigs = () => {
 export const getConfigSetting = (configKey: string) => {
   if (!initialised) initialiseConfigs();
   return getFromStorage(STORAGE_KEY).then((configObject) => {
-    return configObject[configKey] || (configKey.includes("draggedPosition") ? DEFAULT.draggedPosition : undefined);
+    return (
+      configObject[configKey] ||
+      (configKey.includes("draggedPosition")
+        ? DEFAULT.draggedPosition
+        : undefined)
+    );
   });
 };
 
 export const setConfigSetting = (configKey: string, value: any) => {
-  console.log(configKey);
   if (!initialised) initialiseConfigs();
-  console.log(configKey);
   transformStorage({
     key: STORAGE_KEY,
     modifierFn: (userConfig) => {

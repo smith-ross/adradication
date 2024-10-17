@@ -32,14 +32,14 @@ export default abstract class RenderableGameObject
     this.#color = newColor;
   }
 
-  recursiveRender(context: CanvasRenderingContext2D) {
-    this.render(context);
+  recursiveRender(context: CanvasRenderingContext2D, deltaTime: number) {
+    this.render(context, deltaTime);
     for (const child of this.children) {
       if (child instanceof RenderableGameObject) {
-        child.recursiveRender(context);
+        child.recursiveRender(context, deltaTime);
       }
     }
   }
 
-  abstract render(context: CanvasRenderingContext2D): void;
+  abstract render(context: CanvasRenderingContext2D, deltaTime: number): void;
 }

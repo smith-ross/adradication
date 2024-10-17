@@ -77,4 +77,13 @@ export default abstract class GameObject {
     if (!this.parent) return this.position;
     return this.position.add(this.parent.getWorldPosition());
   }
+
+  recursiveUpdate(deltaTime: number) {
+    this.onUpdate(deltaTime);
+    for (const child of this.children) {
+      child.recursiveUpdate(deltaTime);
+    }
+  }
+
+  onUpdate(deltaTime: number) {}
 }

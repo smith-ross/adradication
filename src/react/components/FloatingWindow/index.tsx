@@ -40,6 +40,7 @@ const FloatingWindow = ({
   children,
 }: PartialFloatingWindowProps) => {
   const [windowCollapsed, setWindowCollapsed] = useState(false);
+  const [isLoaded, setLoaded] = useState(false);
   const [_, setBasePosition] = useState({ x: x, y: y });
   const windowRef: RefObject<HTMLDivElement> = useRef(null);
   const windowHeaderRef: RefObject<HTMLDivElement> = useRef(null);
@@ -53,6 +54,7 @@ const FloatingWindow = ({
     getConfigSetting("isMinimized-" + id).then((value) => {
       if (!value || typeof value !== "boolean") return;
       setWindowCollapsed(value);
+      setLoaded(true);
     });
   }, []);
 
@@ -178,6 +180,8 @@ const FloatingWindow = ({
     }
   }, [windowCollapsed]);
 
+  if (!isLoaded) return <div />;
+
   return (
     <div
       className="floatwindow"
@@ -221,7 +225,7 @@ const FloatingWindow = ({
           windowCollapsed && "hidden",
         ])}
       >
-        {children}
+        {!windowCollapsed && children}
       </div>
     </div>
   );

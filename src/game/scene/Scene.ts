@@ -47,14 +47,25 @@ export default class Scene extends RenderableGameObject {
     });
   }
 
-  render(context: CanvasRenderingContext2D) {
-    draw(context, this.position, this.size, "Box", this.color);
+  onUpdate(deltaTime: number) {
+    const sortedLayers = this.sortLayers();
+    sortedLayers.forEach((layer) => {
+      layer.recursiveUpdate(deltaTime);
+    });
+  }
 
-    const sortedLayers = this.layers.sort((layerA: Layer, layerB: Layer) => {
+  sortLayers() {
+    return this.layers.sort((layerA: Layer, layerB: Layer) => {
       return layerA.zIndex - layerB.zIndex;
     });
+  }
+
+  render(context: CanvasRenderingContext2D, deltaTime: number) {
+    draw(context, this.position, this.size, "Box", this.color);
+
+    const sortedLayers = this.sortLayers();
     sortedLayers.forEach((layer) => {
-      layer.recursiveRender(context);
+      layer.recursiveRender(context, deltaTime);
     });
   }
 }
