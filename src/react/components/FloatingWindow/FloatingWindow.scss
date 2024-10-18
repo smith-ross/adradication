@@ -4,6 +4,8 @@
   --text-color: #000000;
   --border-color: #dddddd;
 
+
+  // TODO: Convert rem to px
   .floatwindow {
     color: var(--text-color);
     background-color: var(--window-color);
@@ -17,11 +19,11 @@
       border-top-left-radius: 0.25rem;
       border-top-right-radius: 0.25rem;
       text-align: center;
-      font-size: 18px;
+      font-size: 18px !important;
       display: block;
       height: 0;
       padding-bottom: 0.575rem;
-      padding-top: 0.35rem;
+      padding-top: 8px;
 
       &:has(.floatwindow-title) {
         height: auto;
@@ -31,7 +33,7 @@
 
       .floatwindow-title {
         width: 100%;
-        padding-bottom: 0.35rem;
+        padding-bottom: 8px;
         display: block;
         transform: translateY(17.5%);
       }
@@ -79,6 +81,7 @@
           display: block;
           height: 100%;
           width: 100%;
+          font-size: 20px;
         }
       }
     }

@@ -12,17 +12,7 @@ export default class Box extends RenderableGameObject {
     });
   }
 
-  onUpdate(deltaTime: number): void {
-    console.log("Box update");
-    this.color = new Color(
-      Math.random() * 255,
-      Math.random() * 255,
-      Math.random() * 255
-    );
-  }
-
   render(context: CanvasRenderingContext2D) {
-    console.log("Rendering Box");
-    draw(context, this.position, this.size, "Box", this.color);
+    draw(context, this.getWorldPosition(), this.size, "Box", this.color);
   }
 }

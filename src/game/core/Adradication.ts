@@ -1,4 +1,5 @@
 import Box from "../objects/Box";
+import Player from "../objects/player/Player";
 import Layer from "../scene/Layer";
 import Scene from "../scene/Scene";
 import Color from "../types/Color";
@@ -42,7 +43,7 @@ export default class Adradication {
     game.loadedScene?.recursiveUpdate(deltaTime);
     game.loadedScene?.recursiveRender(game.context, deltaTime);
     window.requestAnimationFrame((deltaTime) => {
-      (game || this).update(deltaTime, game);
+      (game || this).update(deltaTime / 1000, game);
     });
   }
 
@@ -57,11 +58,10 @@ export default class Adradication {
           id: "Layer1",
           zIndex: 1,
           children: [
-            new Box({
-              id: "TestBox",
+            new Player({
+              id: "TestPlayer",
               position: new Vector(40, 40),
-              size: new Vector(50, 20),
-              color: new Color(200, 100, 150),
+              size: new Vector(30, 45),
             }),
           ],
         }),

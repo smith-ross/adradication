@@ -52,8 +52,9 @@ const FloatingWindow = ({
 
   useLayoutEffect(() => {
     getConfigSetting("isMinimized-" + id).then((value) => {
-      if (!value || typeof value !== "boolean") return;
-      setWindowCollapsed(value);
+      if (value && typeof value === "boolean") {
+        setWindowCollapsed(value);
+      }
       setLoaded(true);
     });
   }, []);
@@ -87,7 +88,6 @@ const FloatingWindow = ({
         event.target === windowCollapseButtonRef.current
       )
         return;
-      console.log(event.target);
       dragging.current = true;
       offset.current = {
         x: event.nativeEvent.offsetX,

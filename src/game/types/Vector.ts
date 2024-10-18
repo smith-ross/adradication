@@ -17,8 +17,8 @@ export default class Vector {
   }
 
   get magnitude() {
-    if (this.magnitude === -1)
-      this.#magnitude = Math.sqrt(this.x * this.x + this.y * this.y);
+    if (this.#magnitude === -1)
+      this.#magnitude = Math.sqrt(this.#x * this.#x + this.#y * this.#y);
     return this.#magnitude;
   }
 

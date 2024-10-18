@@ -31,6 +31,10 @@ export default class Scene extends RenderableGameObject {
       color: color,
     });
     this.#layers = layers || [];
+    this.#layers.forEach((layer: Layer) => {
+      layer.size = this.size;
+      layer.parent = this.parent;
+    });
   }
 
   get layers() {
@@ -38,6 +42,7 @@ export default class Scene extends RenderableGameObject {
   }
 
   addLayer(newLayer: Layer) {
+    newLayer.size = this.size;
     this.layers.push(newLayer);
   }
 

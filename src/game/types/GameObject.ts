@@ -15,7 +15,7 @@ export interface GameObjectProps extends ImplementedObjectProps {
 export default abstract class GameObject {
   #id: string;
   #className: string;
-  #parent: GameObject | undefined;
+  parent: GameObject | undefined;
   #children: GameObject[];
   #position: Vector;
   #size: Vector;
@@ -30,19 +30,19 @@ export default abstract class GameObject {
   }: GameObjectProps) {
     this.#id = id;
     this.#className = className;
-    this.#parent = parent;
+    this.parent = this.parent || parent;
     this.#children = children || [];
     this.#position = position || new Vector();
     this.#size = size || new Vector();
+    children?.forEach((gameObject: GameObject) => {
+      gameObject.parent = this;
+    });
   }
 
   get id() {
     return this.#id;
   }
 
-  get parent() {
-    return this.#parent;
-  }
   get className() {
     return this.#className;
   }
@@ -56,6 +56,21 @@ export default abstract class GameObject {
 
   get size() {
     return this.#size;
+  }
+
+  set position(value: Vector) {
+    this.#position = value;
+  }
+
+  set size(value: Vector) {
+    this.#size = value;
+  }
+
+  getRoot(): GameObject {
+    if (this.parent) {
+      return this.parent.getRoot();
+    }
+    return this;
   }
 
   getChild(childId: string) {
@@ -85,5 +100,7 @@ export default abstract class GameObject {
     }
   }
 
+  // Triggered before anything is rendered
+  // Put any important pre-frame calculations here
   onUpdate(deltaTime: number) {}
 }

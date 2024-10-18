@@ -19,7 +19,5 @@ export default class Layer extends RenderableGameObject {
     this.zIndex = zIndex;
   }
 
-  render(_: CanvasRenderingContext2D) {
-    console.log("Rendering Layer " + this.id);
-  }
+  render(_: CanvasRenderingContext2D) {}
 }
