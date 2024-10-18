@@ -30,6 +30,10 @@ export default class Vector {
     return new Vector(this.#x - otherVec.#x, this.#y - otherVec.#y);
   }
 
+  eq(otherVec: Vector): boolean {
+    return this.x == otherVec.x && this.y == otherVec.y;
+  }
+
   mul(multiplier: Vector | number) {
     if (typeof multiplier == "number")
       return new Vector(this.#x * multiplier, this.#y * multiplier);

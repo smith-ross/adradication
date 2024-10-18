@@ -89,6 +89,9 @@
     .floatwindow-container:not(.hidden) {
       padding: 5px;
       display: block;
+      &:has(#adradication) {
+        height: 300px;
+      }
     }
   }
 }

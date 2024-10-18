@@ -84,20 +84,23 @@ export default class Player extends RenderableGameObject {
       return;
     }
     this.position = this.position.add(
-      this.#rollingInfo.rollDir.mul(
-        deltaTime *
-          (MOVE_SPEED +
-            ROLL_SPEED * (this.#rollingInfo.rollDuration / ROLL_DURATION))
-      )
+      this.#rollingInfo.rollDir
+        .add(this.getMovementVector().div(2))
+        .mul(
+          deltaTime *
+            (MOVE_SPEED +
+              ROLL_SPEED * (this.#rollingInfo.rollDuration / ROLL_DURATION))
+        )
     );
     this.#rollingInfo.rollDuration -= deltaTime;
   }
 
   onUpdate(deltaTime: number): void {
     if (!this.#rollingInfo.isRolling) {
-      if (InputService.isKeyDown("Shift")) {
+      const moveVec = this.getMovementVector();
+      if (InputService.isKeyDown("Shift") && !moveVec.eq(new Vector())) {
         this.#rollingInfo.isRolling = true;
-        this.#rollingInfo.rollDir = this.getMovementVector();
+        this.#rollingInfo.rollDir = moveVec;
         this.#rollingInfo.rollDuration = ROLL_DURATION;
         this.#roll(deltaTime);
       } else {
