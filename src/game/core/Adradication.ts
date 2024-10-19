@@ -29,6 +29,7 @@ export default class Adradication {
     const context = canvas.getContext("2d");
     if (!context) throw "Game Error: Could not retrieve Canvas context";
     this.context = context;
+    context.imageSmoothingEnabled = false;
   }
 
   update(time: number, game?: Adradication) {
@@ -61,7 +62,7 @@ export default class Adradication {
             new Player({
               id: "TestPlayer",
               position: new Vector(40, 40),
-              size: new Vector(30, 45),
+              size: new Vector(40, 80),
             }),
           ],
         }),

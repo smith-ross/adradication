@@ -6,11 +6,67 @@ import RenderableGameObject, {
   ImplementedRenderableObjectProps,
 } from "../../types/RenderableGameObject";
 import Vector from "../../types/Vector";
+import AnimatedSprite, { AnimationProps } from "../AnimatedSprite";
 import Box from "../Box";
+import Sprite from "../Sprite";
 
 const MOVE_SPEED = 100;
 const ROLL_DURATION = 0.6;
 const ROLL_SPEED = 100;
+const BASE_SPRITE = "res/character-sprites/Run.png";
+const INVERTED_SPRITE = "res/character-sprites/ReversedRun.png";
+
+enum PlayerMovementAction {
+  RUN,
+  ROLL,
+  IDLE,
+}
+const ANIMATIONS: {
+  [k: number]: { left: AnimationProps; right: AnimationProps };
+} = {
+  [PlayerMovementAction.ROLL]: {
+    right: {
+      sheetPath: `res/character-sprites/Roll.png`,
+      dimensions: new Vector(11, 1),
+      timeBetweenFrames: 0.05,
+      cellSize: new Vector(120, 80),
+    },
+    left: {
+      sheetPath: `res/character-sprites/ReversedRoll.png`,
+      dimensions: new Vector(11, 1),
+      timeBetweenFrames: 0.05,
+      cellSize: new Vector(120, 80),
+    },
+  },
+  [PlayerMovementAction.RUN]: {
+    right: {
+      sheetPath: "res/character-sprites/Run.png",
+      dimensions: new Vector(10, 1),
+      timeBetweenFrames: 0.1,
+      cellSize: new Vector(120, 80),
+    },
+    left: {
+      sheetPath: "res/character-sprites/ReversedRun.png",
+      dimensions: new Vector(10, 1),
+      timeBetweenFrames: 0.1,
+      cellSize: new Vector(120, 80),
+    },
+  },
+  [PlayerMovementAction.IDLE]: {
+    right: {
+      sheetPath: "res/character-sprites/Idle.png",
+      dimensions: new Vector(10, 1),
+      timeBetweenFrames: 0.1,
+      cellSize: new Vector(120, 80),
+    },
+    left: {
+      sheetPath: "res/character-sprites/ReversedIdle.png",
+      dimensions: new Vector(10, 1),
+      timeBetweenFrames: 0.1,
+      cellSize: new Vector(120, 80),
+    },
+  },
+};
 
 export default class Player extends RenderableGameObject {
   #rollingInfo = {
@@ -18,37 +74,52 @@ export default class Player extends RenderableGameObject {
     rollDuration: 0,
     rollDir: new Vector(),
   };
+  #sprite: AnimatedSprite | undefined;
+  #lastDirection = 1;
 
-  constructor(boxProps: ImplementedRenderableObjectProps) {
+  constructor(playerProps: ImplementedRenderableObjectProps) {
     super({
-      ...boxProps,
+      ...playerProps,
       children: [
-        ...(boxProps.children || []),
+        ...(playerProps.children || []),
         new Box({
-          id: `${boxProps.id}-Sprite`,
-          color: new Color(100, 100, 255),
-          size: boxProps.size,
+          id: "Test",
+          size: playerProps.size,
+          color: new Color(255),
         }),
       ],
       className: "Player",
     });
+    if (!playerProps.size) return;
+    const spriteSize = new Vector(240, 160);
+    console.log(spriteSize.toString());
+    this.#sprite = new AnimatedSprite({
+      id: `${playerProps.id}-Sprite`,
+      color: new Color(100, 100, 255),
+      position: new Vector(0.375 * -spriteSize.x, -spriteSize.y / 2),
+      size: spriteSize,
+      sheetPath: BASE_SPRITE,
+      dimensions: new Vector(10, 1),
+      timeBetweenFrames: 0.1,
+      cellSize: new Vector(120, 80),
+      parent: this,
+    });
+    this.children.push(this.#sprite);
+  }
+
+  setAnimation(animationType: PlayerMovementAction, dir: "right" | "left") {
+    const target = ANIMATIONS[animationType][dir];
+    if (this.#sprite?.sheetPath === target.sheetPath) return;
+    this.#sprite?.updateSheet(target);
   }
 
   getMovementVector(): Vector {
-    let xMove = 0;
-    let yMove = 0;
-    if (InputService.isKeyDown("D")) {
-      xMove += 1;
-    }
-    if (InputService.isKeyDown("A")) {
-      xMove -= 1;
-    }
-    if (InputService.isKeyDown("W")) {
-      yMove -= 1;
-    }
-    if (InputService.isKeyDown("S")) {
-      yMove += 1;
-    }
+    const xMove =
+      (InputService.isKeyDown("D") ? 1 : 0) -
+      (InputService.isKeyDown("A") ? 1 : 0);
+    const yMove =
+      (InputService.isKeyDown("S") ? 1 : 0) -
+      (InputService.isKeyDown("W") ? 1 : 0);
     return new Vector(xMove, yMove).normalize();
   }
 
@@ -56,18 +127,14 @@ export default class Player extends RenderableGameObject {
     const rootSize = this.getRoot().size;
     const topLeftCorner = this.getCornerWorldPosition(Corner.TOP_LEFT);
     const botRightCorner = this.getCornerWorldPosition(Corner.BOTTOM_RIGHT);
-    let newX = this.position.x;
-    let newY = this.position.y;
-    if (topLeftCorner.x < 0) {
-      newX = 0;
-    } else if (botRightCorner.x > rootSize.x) {
-      newX = topLeftCorner.x - (botRightCorner.x - rootSize.x);
-    }
-    if (topLeftCorner.y < 0) {
-      newY = 0;
-    } else if (botRightCorner.y > rootSize.y) {
-      newY = topLeftCorner.y - (botRightCorner.y - rootSize.y);
-    }
+    const newX = Math.max(
+      0,
+      topLeftCorner.x - Math.max(0, botRightCorner.x - rootSize.x)
+    );
+    const newY = Math.max(
+      0,
+      topLeftCorner.y - Math.max(0, botRightCorner.y - rootSize.y)
+    );
     this.position = new Vector(newX, newY);
   }
 
@@ -75,6 +142,25 @@ export default class Player extends RenderableGameObject {
     this.position = this.position.add(
       this.getMovementVector().mul(deltaTime * MOVE_SPEED)
     );
+    if (!this.#sprite) return;
+    const [x, y] = this.getMovementVector().asCoords();
+    if (x < 0) {
+      this.#lastDirection = -1;
+      this.setAnimation(PlayerMovementAction.RUN, "left");
+    } else if (x > 0) {
+      this.#lastDirection = 1;
+      this.setAnimation(PlayerMovementAction.RUN, "right");
+    } else if (y !== 0) {
+      this.setAnimation(
+        PlayerMovementAction.RUN,
+        this.#lastDirection === 1 ? "right" : "left"
+      );
+    } else {
+      this.setAnimation(
+        PlayerMovementAction.IDLE,
+        this.#lastDirection === 1 ? "right" : "left"
+      );
+    }
   }
 
   #roll(deltaTime: number): void {
@@ -99,9 +185,16 @@ export default class Player extends RenderableGameObject {
     if (!this.#rollingInfo.isRolling) {
       const moveVec = this.getMovementVector();
       if (InputService.isKeyDown("Shift") && !moveVec.eq(new Vector())) {
-        this.#rollingInfo.isRolling = true;
-        this.#rollingInfo.rollDir = moveVec;
-        this.#rollingInfo.rollDuration = ROLL_DURATION;
+        this.#rollingInfo = {
+          isRolling: true,
+          rollDir: moveVec,
+          rollDuration: ROLL_DURATION,
+        };
+        if (moveVec.x > 0) {
+          this.setAnimation(PlayerMovementAction.ROLL, "right");
+        } else {
+          this.setAnimation(PlayerMovementAction.ROLL, "left");
+        }
         this.#roll(deltaTime);
       } else {
         this.#baseMovement(deltaTime);

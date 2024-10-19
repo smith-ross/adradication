@@ -9,8 +9,8 @@ const DEFAULT = {
 
 let initialised = false;
 
-export const initialiseConfigs = () => {
-  transformStorage({
+export const initialiseConfigs = async () => {
+  await transformStorage({
     key: STORAGE_KEY,
     modifierFn: (userConfig) => {
       if (!userConfig) {
@@ -21,9 +21,12 @@ export const initialiseConfigs = () => {
   });
 };
 
-export const getConfigSetting = (configKey: string) => {
+export const getConfigSetting = async (configKey: string) => {
   if (!initialised) initialiseConfigs();
   return getFromStorage(STORAGE_KEY).then((configObject) => {
+    if (!configObject) {
+      configObject = DEFAULT;
+    }
     return (
       configObject[configKey] ||
       (configKey.includes("draggedPosition")

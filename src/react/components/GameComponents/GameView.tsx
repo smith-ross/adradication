@@ -1,5 +1,6 @@
 import { MutableRefObject, useCallback, useRef } from "react";
 import Adradication from "../../../game/core/Adradication";
+import "./GameView.scss";
 
 type ImplementedGame = Adradication;
 
