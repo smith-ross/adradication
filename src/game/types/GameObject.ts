@@ -66,6 +66,11 @@ export default abstract class GameObject {
     this.#size = value;
   }
 
+  addChild(child: GameObject) {
+    child.parent = this;
+    this.children.push(child);
+  }
+
   getRoot(): GameObject {
     if (this.parent) {
       return this.parent.getRoot();

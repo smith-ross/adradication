@@ -1,11 +1,13 @@
 import Box from "../objects/Box";
+import Empty from "../objects/Empty";
+import Adbomination from "../objects/enemy/Adbomination";
 import Player from "../objects/player/Player";
 import Layer from "../scene/Layer";
 import Scene from "../scene/Scene";
 import Color from "../types/Color";
 import Vector from "../types/Vector";
 
-const GAME_SIZE = new Vector(400, 300);
+const GAME_SIZE = new Vector(600, 450);
 
 export default class Adradication {
   #canvas?: HTMLCanvasElement;
@@ -50,6 +52,11 @@ export default class Adradication {
 
   start() {
     if (!this.context) return;
+
+    const monsterContainer = new Empty({
+      id: "MonsterContainer",
+    });
+
     this.loadedScene = new Scene({
       id: "TestScene",
       size: GAME_SIZE,
@@ -59,15 +66,25 @@ export default class Adradication {
           id: "Layer1",
           zIndex: 1,
           children: [
+            monsterContainer,
             new Player({
               id: "TestPlayer",
-              position: new Vector(40, 40),
+              position: GAME_SIZE.div(2).sub(new Vector(20, 40)),
               size: new Vector(40, 80),
             }),
           ],
         }),
       ],
     });
+
+    for (let i = 0; i < 10; i++) {
+      const newMonster = new Adbomination({
+        id: `Monster-${i}`,
+        size: new Vector(50, 50),
+      });
+      newMonster.spawnAtRandomPoint(GAME_SIZE);
+      monsterContainer.addChild(newMonster);
+    }
 
     // Start game loop
     this.update(0);

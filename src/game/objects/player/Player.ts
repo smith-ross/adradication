@@ -27,13 +27,13 @@ const ANIMATIONS: {
   [PlayerMovementAction.ROLL]: {
     right: {
       sheetPath: `res/character-sprites/Roll.png`,
-      dimensions: new Vector(11, 1),
+      dimensions: new Vector(12, 1),
       timeBetweenFrames: 0.05,
       cellSize: new Vector(120, 80),
     },
     left: {
       sheetPath: `res/character-sprites/ReversedRoll.png`,
-      dimensions: new Vector(11, 1),
+      dimensions: new Vector(12, 1),
       timeBetweenFrames: 0.05,
       cellSize: new Vector(120, 80),
     },
@@ -82,11 +82,11 @@ export default class Player extends RenderableGameObject {
       ...playerProps,
       children: [
         ...(playerProps.children || []),
-        new Box({
-          id: "Test",
-          size: playerProps.size,
-          color: new Color(255),
-        }),
+        // new Box({
+        //   id: "Test",
+        //   size: playerProps.size,
+        //   color: new Color(255),
+        // }),
       ],
       className: "Player",
     });
@@ -104,7 +104,7 @@ export default class Player extends RenderableGameObject {
       cellSize: new Vector(120, 80),
       parent: this,
     });
-    this.children.push(this.#sprite);
+    this.addChild(this.#sprite);
   }
 
   setAnimation(animationType: PlayerMovementAction, dir: "right" | "left") {
@@ -192,8 +192,13 @@ export default class Player extends RenderableGameObject {
         };
         if (moveVec.x > 0) {
           this.setAnimation(PlayerMovementAction.ROLL, "right");
-        } else {
+        } else if (moveVec.x < 0) {
           this.setAnimation(PlayerMovementAction.ROLL, "left");
+        } else {
+          this.setAnimation(
+            PlayerMovementAction.ROLL,
+            this.#lastDirection === 1 ? "right" : "left"
+          );
         }
         this.#roll(deltaTime);
       } else {

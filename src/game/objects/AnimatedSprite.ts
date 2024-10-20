@@ -49,42 +49,21 @@ export default class AnimatedSprite extends RenderableGameObject {
     };
   }
 
-  // onUpdate(deltaTime: number) {
-  //   if (!this.#animationData || !this.cellSize) return;
-  //   if (this.#animationData.elapsedFrameTime >= this.timeBetweenFrames) {
-  //     const nextRow = this.#animationData.currentFrame.x === this.dimensions?.x;
-  //     this.#animationData.currentFrame = new Vector(
-  //       nextRow ? 1 : this.#animationData.currentFrame.x + 1,
-  //       nextRow
-  //         ? this.#animationData.currentFrame.y === this.dimensions?.y
-  //           ? 1
-  //           : this.#animationData.currentFrame.y + 1
-  //         : this.#animationData.currentFrame.y
-  //     );
-  //   }
-  //   this.#animationData.elapsedFrameTime =
-  //     (this.#animationData.elapsedFrameTime % this.timeBetweenFrames) +
-  //     deltaTime;
-  // }
-
   onUpdate(deltaTime: number) {
     if (!this.#animationData || !this.cellSize) return;
     this.#animationData.elapsedFrameTime += deltaTime;
 
-    // Update the frame if the elapsed time exceeds the time between frames
     if (this.#animationData.elapsedFrameTime >= this.timeBetweenFrames) {
-      const maxFramesX = this.dimensions?.x || 1; // 10 frames in this case
+      const maxFramesX = this.dimensions?.x || 1;
 
-      // Move to the next frame
       let nextFrameX = this.#animationData.currentFrame.x + 1;
 
-      // Wrap around if we reach the end of the row
       if (nextFrameX >= maxFramesX) {
-        nextFrameX = 0; // Reset to the first frame
+        nextFrameX = 0;
       }
 
       this.#animationData.currentFrame = new Vector(nextFrameX, 0);
-      this.#animationData.elapsedFrameTime = 0; // Reset the elapsed time
+      this.#animationData.elapsedFrameTime = 0;
     }
   }
 
@@ -94,12 +73,12 @@ export default class AnimatedSprite extends RenderableGameObject {
 
     drawAnimated(
       context,
-      this.getWorldPosition(), // Consistent canvas position
+      this.getWorldPosition(),
       this.size,
       chrome.runtime.getURL(this.sheetPath),
       w,
       h,
-      this.#animationData.currentFrame // Use current frame to get the source
+      this.#animationData.currentFrame
     );
   }
 }
