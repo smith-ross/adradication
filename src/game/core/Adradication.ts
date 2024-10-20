@@ -1,3 +1,4 @@
+import { getFromStorage } from "../../util/StorageUtil";
 import WorldMap from "../map/WorldMap";
 import Box from "../objects/Box";
 import Empty from "../objects/Empty";
@@ -19,6 +20,12 @@ export default class Adradication {
   worldMap: WorldMap | undefined;
   running: boolean = false;
   frameTime: number = 0;
+  monsterCount: number = 0;
+
+  #onMessageCallback = (
+    message: any,
+    sender: chrome.runtime.MessageSender
+  ) => {};
 
   get canvas() {
     if (!this.#canvas)
@@ -83,16 +90,44 @@ export default class Adradication {
       ],
     });
 
-    for (let i = 0; i < 10; i++) {
+    getFromStorage("TrackerCounter").then((value) => {
+      if (!this.worldMap) return;
+      for (let i = 0; i < value; i++) {
+        this.monsterCount++;
+        const newMonster = new Adbomination({
+          id: `Monster-${this.monsterCount}`,
+          size: new Vector(50, 50),
+        });
+        newMonster.spawnAtRandomPoint(this.worldMap, player);
+        monsterContainer.addChild(newMonster);
+      }
+    });
+
+    this.#onMessageCallback = (
+      message: any,
+      sender: chrome.runtime.MessageSender
+    ) => {
+      if (
+        !this.worldMap ||
+        !message.eventType ||
+        message.eventType !== "SpawnMonster"
+      )
+        return;
+      this.monsterCount++;
       const newMonster = new Adbomination({
-        id: `Monster-${i}`,
+        id: `Monster-${this.monsterCount}`,
         size: new Vector(50, 50),
       });
       newMonster.spawnAtRandomPoint(this.worldMap, player);
       monsterContainer.addChild(newMonster);
-    }
+    };
 
-    // Start game loop
-    this.update(0);
+    chrome.runtime.onMessage.addListener(this.#onMessageCallback);
+
+    this.update(0); // Start game loop
+  }
+
+  stop() {
+    chrome.runtime.onMessage.removeListener(this.#onMessageCallback);
   }
 }

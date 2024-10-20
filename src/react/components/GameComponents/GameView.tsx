@@ -18,6 +18,9 @@ const GameView = ({ game }: GameViewProps) => {
   });
   const canvasRef = useCallback((canvas: HTMLCanvasElement) => {
     if (canvas !== null) {
+      if (gameStateRef.current.currentGame) {
+        gameStateRef.current.currentGame.stop();
+      }
       game.setCanvas(canvas);
       gameStateRef.current.currentGame = game;
       game.start();

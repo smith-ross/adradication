@@ -3,6 +3,7 @@ const TrackerURLs = [
   /.*google-analytics\.com.*/,
   /.*ads\.yahoo\.com.*/,
   /.*pixel.*/,
+  /.*track.*/,
   /.*adservice\.google.*/,
   /.*adroll.*/,
 ];

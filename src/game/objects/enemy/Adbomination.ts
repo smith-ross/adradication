@@ -95,7 +95,10 @@ export default class Adbomination extends RenderableGameObject {
       );
       this.#elapsedWalkTime += deltaTime;
     } else {
-      const moveVec = this.#playerRef.position.sub(this.position).normalize();
+      const moveVec = this.#playerRef.position
+        .add(new Vector(0, this.#playerRef.size.y / 2))
+        .sub(this.position)
+        .normalize();
       this.position = this.position.add(
         moveVec.mul(deltaTime * this.#moveSpeed)
       );
