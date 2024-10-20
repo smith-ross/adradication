@@ -50,6 +50,11 @@ export const transformStorage = async (modifier: StorageModifier) => {
   updateStorage();
 };
 
+export const transformStorageOverwrite = async (modifier: StorageModifier) => {
+  storageQueue.itemQueue = [modifier];
+  updateStorage();
+};
+
 export const setStorage = async (key: string, value: any) => {
   storageQueue.itemQueue.push({
     key: key,

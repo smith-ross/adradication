@@ -1,18 +1,39 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
+import TrackerURLs from "../background/TrackerUrls";
 import EmbeddedApp from "../react/components/EmbeddedApp";
+import {
+  transformStorage,
+  transformStorageOverwrite,
+} from "../util/StorageUtil";
 
-const body = document.querySelector("body");
-const appHolder = document.createElement("div");
+window.addEventListener("beforeunload", () => {
+  transformStorageOverwrite({
+    key: "TrackerCounter",
+    modifierFn: (originalValue) => {
+      return 0;
+    },
+  });
+});
 
-appHolder.id = "react-root";
+transformStorageOverwrite({
+  key: "TrackerCounter",
+  modifierFn: (originalValue) => {
+    return 0;
+  },
+}).then(() => {
+  const body = document.querySelector("body");
+  const appHolder = document.createElement("div");
 
-if (body) {
-  body.append(appHolder);
-}
+  appHolder.id = "react-root";
 
-const root = createRoot(document.getElementById("react-root") as HTMLElement);
+  if (body) {
+    body.append(appHolder);
+  }
 
-root.render(<EmbeddedApp />);
+  const root = createRoot(document.getElementById("react-root") as HTMLElement);
+
+  root.render(<EmbeddedApp />);
+});
 
 export default {};
