@@ -64,7 +64,6 @@ export const drawAnimated = (
   const [x, y] = position.asCoords();
   const [w, h] = size.asCoords();
   const img = imageCache[imagePath] || new Image();
-  console.log(currentFrame.toString());
   if (!imageCache[imagePath]) {
     img.src = imagePath;
     img.onload = () => {

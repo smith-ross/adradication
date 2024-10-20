@@ -92,7 +92,6 @@ export default class Player extends RenderableGameObject {
     });
     if (!playerProps.size) return;
     const spriteSize = new Vector(240, 160);
-    console.log(spriteSize.toString());
     this.#sprite = new AnimatedSprite({
       id: `${playerProps.id}-Sprite`,
       color: new Color(100, 100, 255),

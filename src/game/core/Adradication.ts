@@ -1,3 +1,4 @@
+import WorldMap from "../map/WorldMap";
 import Box from "../objects/Box";
 import Empty from "../objects/Empty";
 import Adbomination from "../objects/enemy/Adbomination";
@@ -15,6 +16,7 @@ export default class Adradication {
   size: Vector = GAME_SIZE;
 
   loadedScene: Scene | undefined;
+  worldMap: WorldMap | undefined;
   running: boolean = false;
   frameTime: number = 0;
 
@@ -57,6 +59,17 @@ export default class Adradication {
       id: "MonsterContainer",
     });
 
+    const player = new Player({
+      id: "TestPlayer",
+      position: GAME_SIZE.div(2).sub(new Vector(20, 40)),
+      size: new Vector(40, 80),
+    });
+
+    this.worldMap = new WorldMap({
+      cellSize: new Vector(75, 75),
+      dimensions: GAME_SIZE.div(75),
+    });
+
     this.loadedScene = new Scene({
       id: "TestScene",
       size: GAME_SIZE,
@@ -65,14 +78,7 @@ export default class Adradication {
         new Layer({
           id: "Layer1",
           zIndex: 1,
-          children: [
-            monsterContainer,
-            new Player({
-              id: "TestPlayer",
-              position: GAME_SIZE.div(2).sub(new Vector(20, 40)),
-              size: new Vector(40, 80),
-            }),
-          ],
+          children: [monsterContainer, player],
         }),
       ],
     });
@@ -82,7 +88,7 @@ export default class Adradication {
         id: `Monster-${i}`,
         size: new Vector(50, 50),
       });
-      newMonster.spawnAtRandomPoint(GAME_SIZE);
+      newMonster.spawnAtRandomPoint(this.worldMap, player);
       monsterContainer.addChild(newMonster);
     }
 
