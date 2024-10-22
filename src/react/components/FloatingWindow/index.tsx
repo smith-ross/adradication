@@ -33,7 +33,7 @@ const FloatingWindow = ({
   y = "10px",
   width = "auto",
   height = "auto",
-  zindex = 10000,
+  zindex = 2147483647,
   draggable,
   id,
   title,

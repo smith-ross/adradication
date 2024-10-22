@@ -1,4 +1,4 @@
-import { draw } from "../../../util/DrawUtil";
+import { draw, load } from "../../../util/DrawUtil";
 import InputService from "../../services/InputService";
 import Color from "../../types/Color";
 import RenderableGameObject, {
@@ -80,14 +80,7 @@ export default class Player extends RenderableGameObject {
   constructor(playerProps: ImplementedRenderableObjectProps) {
     super({
       ...playerProps,
-      children: [
-        ...(playerProps.children || []),
-        // new Box({
-        //   id: "Test",
-        //   size: playerProps.size,
-        //   color: new Color(255),
-        // }),
-      ],
+      children: [...(playerProps.children || [])],
       className: "Player",
     });
     if (!playerProps.size) return;
@@ -104,6 +97,11 @@ export default class Player extends RenderableGameObject {
       parent: this,
     });
     this.addChild(this.#sprite);
+    Object.values(ANIMATIONS).forEach((animationVersion) => {
+      Object.values(animationVersion).forEach((animationProps) => {
+        load(animationProps.sheetPath);
+      });
+    });
   }
 
   setAnimation(animationType: PlayerMovementAction, dir: "right" | "left") {

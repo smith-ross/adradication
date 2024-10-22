@@ -1,4 +1,7 @@
-import { getFromStorage } from "../../util/StorageUtil";
+import {
+  getFromStorage,
+  transformStorageOverwrite,
+} from "../../util/StorageUtil";
 import WorldMap from "../map/WorldMap";
 import Box from "../objects/Box";
 import Empty from "../objects/Empty";
@@ -23,6 +26,7 @@ export default class Adradication {
   frameTime: number = 0;
   monsterCount: number = 0;
   elapsedWaveTime: number = MONSTER_WAVE_GAP;
+  tabId: number = -1;
 
   #onMessageCallback = (
     message: any,
@@ -54,13 +58,12 @@ export default class Adradication {
     if (!game.context) return;
     const deltaTime = time - this.frameTime;
     game.frameTime = time;
-    if (this.elapsedWaveTime >= MONSTER_WAVE_GAP) {
+    if (this.elapsedWaveTime >= MONSTER_WAVE_GAP && this.tabId > 0) {
       this.elapsedWaveTime = 0;
-      getFromStorage("TrackerCounter").then((value) => {
-        console.log("ATTEMPT READ");
+      getFromStorage(`TrackerCounter-${this.tabId}`).then((value) => {
+        if (value === undefined) value = 0;
         if (!this.worldMap || !this.loadedScene) return;
         const diff = value - this.monsterCount;
-        console.log(diff);
         if (diff <= 0) return;
         for (let i = 0; i < diff; i++) {
           this.monsterCount++;
@@ -135,39 +138,17 @@ export default class Adradication {
       monsterContainer.addChild(newMonster);
     };
 
-    // chrome.runtime.onMessage.addListener(this.#onMessageCallback);
-    // chrome.storage.onChanged.addListener((changes) => {
-    //   if (Object.keys(changes).includes("TrackerCounter")) {
-    //     getFromStorage("TrackerCounter").then((value) => {
-    //       if (!this.worldMap) return;
-    //       const diff = value - this.monsterCount;
-    //       if (diff <= 0) return;
-    //       for (let i = 0; i < diff; i++) {
-    //         this.monsterCount++;
-    //         const newMonster = new Adbomination({
-    //           id: `Monster-${this.monsterCount}`,
-    //           size: new Vector(50, 50),
-    //         });
-    //         newMonster.spawnAtRandomPoint(this.worldMap, player);
-    //         monsterContainer.addChild(newMonster);
-    //       }
-    //     });
-    //   }
-    // });
-
-    // getFromStorage("TrackerCounter").then((value) => {
-    //   if (!this.worldMap) return;
-    //   console.log("VALUE:", value);
-    //   for (let i = 0; i < value; i++) {
-    //     this.monsterCount++;
-    //     const newMonster = new Adbomination({
-    //       id: `Monster-${this.monsterCount}`,
-    //       size: new Vector(50, 50),
-    //     });
-    //     newMonster.spawnAtRandomPoint(this.worldMap, player);
-    //     monsterContainer.addChild(newMonster);
-    //   }
-    // });
+    chrome.runtime.sendMessage({ text: "getTabId" }, (tabId) => {
+      this.tabId = tabId.tab;
+      window.addEventListener("beforeunload", () => {
+        transformStorageOverwrite({
+          key: `TrackerCounter-${tabId.tab}`,
+          modifierFn: (originalValue) => {
+            return 0;
+          },
+        });
+      });
+    });
 
     this.update(0); // Start game loop
   }

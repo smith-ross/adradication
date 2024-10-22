@@ -23,8 +23,6 @@ export default class WorldMap {
   }
 
   getTile(position: Vector) {
-    console.log(this.#tiles);
-    console.log(position);
     return this.#tiles[position.x][position.y];
   }
 }

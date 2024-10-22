@@ -5,6 +5,24 @@ type DrawMode = "Box" | "Image" | "Text";
 
 const imageCache: { [key: string]: HTMLImageElement } = {};
 
+export const load = (imagePath: string) => {
+  if (!imageCache[imagePath]) {
+    const img: HTMLImageElement = new Image();
+    img.src = imagePath;
+    img.onerror = () => {
+      console.error(`Failed to load image: ${imagePath}`);
+      delete imageCache[imagePath];
+    };
+    if (!img.complete) {
+      img.onload = () => {
+        imageCache[imagePath] = img;
+      };
+    } else {
+      imageCache[imagePath] = img;
+    }
+  }
+};
+
 export const draw = (
   context: CanvasRenderingContext2D,
   position: Vector,
@@ -68,7 +86,6 @@ export const drawAnimated = (
     img.src = imagePath;
     img.onload = () => {
       imageCache[imagePath] = img;
-      console.log("Image loaded:", img.src);
       context.drawImage(
         img,
         currentFrame.x * cellWidth,

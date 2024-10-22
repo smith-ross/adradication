@@ -3,14 +3,17 @@ import { createRoot } from "react-dom/client";
 import EmbeddedApp from "../react/components/EmbeddedApp";
 import { transformStorageOverwrite } from "../util/StorageUtil";
 
-window.addEventListener("beforeunload", () => {
-  transformStorageOverwrite({
-    key: "TrackerCounter",
-    modifierFn: (originalValue) => {
-      return 0;
-    },
-  });
-});
+// chrome.runtime.sendMessage({ text: "getTabId" }, (tab) => {
+//   const tabId = tab.tab;
+//   window.addEventListener("beforeunload", () => {
+//     transformStorageOverwrite({
+//       key: `TrackerCounter-${tabId}`,
+//       modifierFn: (originalValue) => {
+//         return 0;
+//       },
+//     });
+//   });
+// });
 
 const body = document.querySelector("body");
 const appHolder = document.createElement("div");
