@@ -14,12 +14,15 @@ const MOVE_SPEED = 100;
 const ROLL_DURATION = 0.6;
 const ROLL_SPEED = 100;
 const BASE_SPRITE = "res/character-sprites/Run.png";
+const ATTACK_DURATION = 0.45;
+const ATTACK_COOLDOWN = 0.3;
 const INVERTED_SPRITE = "res/character-sprites/ReversedRun.png";
 
 enum PlayerMovementAction {
   RUN,
   ROLL,
   IDLE,
+  ATTACK,
 }
 const ANIMATIONS: {
   [k: number]: { left: AnimationProps; right: AnimationProps };
@@ -35,6 +38,20 @@ const ANIMATIONS: {
       sheetPath: `res/character-sprites/ReversedRoll.png`,
       dimensions: new Vector(12, 1),
       timeBetweenFrames: 0.05,
+      cellSize: new Vector(120, 80),
+    },
+  },
+  [PlayerMovementAction.ATTACK]: {
+    right: {
+      sheetPath: `res/character-sprites/Attack.png`,
+      dimensions: new Vector(6, 1),
+      timeBetweenFrames: 0.075,
+      cellSize: new Vector(120, 80),
+    },
+    left: {
+      sheetPath: `res/character-sprites/ReversedAttack.png`,
+      dimensions: new Vector(6, 1),
+      timeBetweenFrames: 0.075,
       cellSize: new Vector(120, 80),
     },
   },
@@ -73,6 +90,11 @@ export default class Player extends RenderableGameObject {
     isRolling: false,
     rollDuration: 0,
     rollDir: new Vector(),
+  };
+  #attackInfo = {
+    isAttacking: false,
+    attackDuration: 0,
+    attackCooldown: 0,
   };
   #sprite: AnimatedSprite | undefined;
   #lastDirection = 1;
@@ -160,10 +182,20 @@ export default class Player extends RenderableGameObject {
     }
   }
 
+  #attack(deltaTime: number) {
+    if (this.#attackInfo.attackDuration <= 0) {
+      this.#attackInfo.isAttacking = false;
+      this.onUpdate(deltaTime);
+      return;
+    }
+    // Hitbox/collision detection here
+    this.#attackInfo.attackDuration -= deltaTime;
+  }
+
   #roll(deltaTime: number): void {
     if (this.#rollingInfo.rollDuration <= 0) {
       this.#rollingInfo.isRolling = false;
-      this.#baseMovement(deltaTime);
+      this.onUpdate(deltaTime);
       return;
     }
     this.position = this.position.add(
@@ -179,9 +211,35 @@ export default class Player extends RenderableGameObject {
   }
 
   onUpdate(deltaTime: number): void {
-    if (!this.#rollingInfo.isRolling) {
+    if (!this.#attackInfo.isAttacking && this.#attackInfo.attackCooldown > 0) {
+      this.#attackInfo.attackCooldown = Math.max(
+        this.#attackInfo.attackCooldown - deltaTime,
+        0
+      );
+    }
+    if (!this.#rollingInfo.isRolling && !this.#attackInfo.isAttacking) {
       const moveVec = this.getMovementVector();
-      if (InputService.isKeyDown("Shift") && !moveVec.eq(new Vector())) {
+      if (
+        InputService.isKeyDown(" ") &&
+        this.#attackInfo.attackCooldown === 0
+      ) {
+        this.#attackInfo = {
+          isAttacking: true,
+          attackDuration: ATTACK_DURATION,
+          attackCooldown: ATTACK_COOLDOWN,
+        };
+        if (moveVec.x > 0) {
+          this.setAnimation(PlayerMovementAction.ATTACK, "right");
+        } else if (moveVec.x < 0) {
+          this.setAnimation(PlayerMovementAction.ATTACK, "left");
+        } else {
+          this.setAnimation(
+            PlayerMovementAction.ATTACK,
+            this.#lastDirection === 1 ? "right" : "left"
+          );
+        }
+        this.#attack(deltaTime);
+      } else if (InputService.isKeyDown("Shift") && !moveVec.eq(new Vector())) {
         this.#rollingInfo = {
           isRolling: true,
           rollDir: moveVec,
@@ -201,8 +259,10 @@ export default class Player extends RenderableGameObject {
       } else {
         this.#baseMovement(deltaTime);
       }
-    } else {
+    } else if (this.#rollingInfo.isRolling) {
       this.#roll(deltaTime);
+    } else {
+      this.#attack(deltaTime);
     }
     this.#borderCheck();
   }

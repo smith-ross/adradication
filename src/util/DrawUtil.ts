@@ -6,6 +6,7 @@ type DrawMode = "Box" | "Image" | "Text";
 const imageCache: { [key: string]: HTMLImageElement } = {};
 
 export const load = (imagePath: string) => {
+  imagePath = chrome.runtime.getURL(imagePath);
   if (!imageCache[imagePath]) {
     const img: HTMLImageElement = new Image();
     img.src = imagePath;

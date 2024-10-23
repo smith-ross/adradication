@@ -7,6 +7,7 @@ import RenderableGameObject, {
 } from "../../types/RenderableGameObject";
 import Vector from "../../types/Vector";
 import Box from "../Box";
+import HealthBar from "../entity/HealthBar";
 import Player from "../player/Player";
 
 const MOVE_SPEED = 70;
@@ -32,6 +33,14 @@ export default class Adbomination extends RenderableGameObject {
         }),
       ],
     });
+    this.addChild(
+      new HealthBar({
+        id: "TestEnemyHealthBar",
+        maxHealth: 100,
+        position: new Vector(0, enemyProps.size ? enemyProps.size.y + 8 : 0),
+        parent: this,
+      })
+    );
     this.#moveSpeed = MOVE_SPEED + (Math.random() * 40 - 20);
   }
 
