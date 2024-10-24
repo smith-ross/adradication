@@ -99,6 +99,7 @@ export default class Adradication {
       id: "TestPlayer",
       position: GAME_SIZE.div(2).sub(new Vector(20, 40)),
       size: new Vector(40, 80),
+      enemyContainer: monsterContainer,
     });
 
     this.worldMap = new WorldMap({

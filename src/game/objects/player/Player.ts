@@ -8,6 +8,9 @@ import RenderableGameObject, {
 import Vector from "../../types/Vector";
 import AnimatedSprite, { AnimationProps } from "../AnimatedSprite";
 import Box from "../Box";
+import Empty from "../Empty";
+import Adbomination from "../enemy/Adbomination";
+import Hitbox from "../Hitbox";
 import Sprite from "../Sprite";
 
 const MOVE_SPEED = 100;
@@ -85,26 +88,70 @@ const ANIMATIONS: {
   },
 };
 
+interface PlayerProps extends ImplementedRenderableObjectProps {
+  enemyContainer: Empty;
+}
+
 export default class Player extends RenderableGameObject {
   #rollingInfo = {
     isRolling: false,
     rollDuration: 0,
     rollDir: new Vector(),
   };
-  #attackInfo = {
+  #attackInfo: {
+    isAttacking: boolean;
+    attackDuration: number;
+    attackCooldown: number;
+    hitEnemies: Adbomination[];
+  } = {
     isAttacking: false,
     attackDuration: 0,
     attackCooldown: 0,
+    hitEnemies: [],
   };
   #sprite: AnimatedSprite | undefined;
   #lastDirection = 1;
+  #enemyContainer: Empty;
 
-  constructor(playerProps: ImplementedRenderableObjectProps) {
+  constructor(playerProps: PlayerProps) {
+    const hitboxSize = playerProps.size?.mul(1.5).add(new Vector(30, -40));
+    const hitboxLeftOffset = hitboxSize
+      ?.sub(new Vector(0, hitboxSize.y / 2))
+      .sub((playerProps.size || new Vector()).div(2));
+    const hitboxRightOffset = new Vector(0, hitboxSize?.y)
+      ?.sub(new Vector(0, (hitboxSize?.y || 0) / 2))
+      .sub((playerProps.size || new Vector()).div(2));
+
     super({
       ...playerProps,
-      children: [...(playerProps.children || [])],
+      children: [
+        ...(playerProps.children || []),
+        new Hitbox({
+          id: "LeftAttackHitbox",
+          size: hitboxSize,
+          origin: hitboxLeftOffset,
+        }),
+        new Hitbox({
+          id: "RightAttackHitbox",
+          size: hitboxSize,
+          origin: hitboxRightOffset,
+        }),
+        new Box({
+          id: "RightAttackBox",
+          size: hitboxSize,
+          origin: hitboxRightOffset,
+          color: new Color(255, 0, 0),
+        }),
+        new Box({
+          id: "LeftAttackBox",
+          size: hitboxSize,
+          origin: hitboxLeftOffset,
+          color: new Color(0, 255, 0),
+        }),
+      ],
       className: "Player",
     });
+    this.#enemyContainer = playerProps.enemyContainer;
     if (!playerProps.size) return;
     const spriteSize = new Vector(240, 160);
     this.#sprite = new AnimatedSprite({
@@ -188,6 +235,30 @@ export default class Player extends RenderableGameObject {
       this.onUpdate(deltaTime);
       return;
     }
+
+    const chosenHitbox: Hitbox = this.getChild(
+      this.#lastDirection === 1 ? "RightAttackHitbox" : "LeftAttackHitbox"
+    ) as Hitbox;
+
+    if (
+      this.#attackInfo.attackDuration < 0.375 &&
+      this.#attackInfo.attackDuration > 0.05
+    ) {
+      this.#enemyContainer.children.forEach((enemy) => {
+        if (enemy.className !== "Adbomination") return;
+        const target = enemy as Adbomination;
+        if (
+          !this.#attackInfo.hitEnemies.includes(target) &&
+          !chosenHitbox.intersectsWith(
+            target.getChild("EnemyHurtbox") as Hitbox
+          )
+        ) {
+          this.#attackInfo.hitEnemies.push(target);
+          target.onHit(34);
+        }
+      });
+    }
+
     // Hitbox/collision detection here
     this.#attackInfo.attackDuration -= deltaTime;
   }
@@ -227,10 +298,13 @@ export default class Player extends RenderableGameObject {
           isAttacking: true,
           attackDuration: ATTACK_DURATION,
           attackCooldown: ATTACK_COOLDOWN,
+          hitEnemies: [],
         };
         if (moveVec.x > 0) {
+          this.#lastDirection = 1;
           this.setAnimation(PlayerMovementAction.ATTACK, "right");
         } else if (moveVec.x < 0) {
+          this.#lastDirection = -1;
           this.setAnimation(PlayerMovementAction.ATTACK, "left");
         } else {
           this.setAnimation(

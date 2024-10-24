@@ -8,6 +8,7 @@ import RenderableGameObject, {
 import Vector from "../../types/Vector";
 import Box from "../Box";
 import HealthBar from "../entity/HealthBar";
+import Hitbox from "../Hitbox";
 import Player from "../player/Player";
 
 const MOVE_SPEED = 70;
@@ -31,11 +32,15 @@ export default class Adbomination extends RenderableGameObject {
           color: new Color(255, 0, 0),
           size: enemyProps.size,
         }),
+        new Hitbox({
+          id: "EnemyHurtbox",
+          size: enemyProps.size,
+        }),
       ],
     });
     this.addChild(
       new HealthBar({
-        id: "TestEnemyHealthBar",
+        id: "EnemyHealthBar",
         maxHealth: 100,
         position: new Vector(0, enemyProps.size ? enemyProps.size.y + 8 : 0),
         parent: this,
@@ -81,6 +86,11 @@ export default class Adbomination extends RenderableGameObject {
     this.position = new Vector(newX, newY);
     if (!topLeftCorner.eq(this.position))
       this.#elapsedWalkTime = DIRECTION_WALK_TIME; // Encourage the AI to walk a different way
+  }
+
+  onHit(damage: number) {
+    const healthBar = this.getChild("EnemyHealthBar") as HealthBar;
+    healthBar.takeDamage(damage);
   }
 
   onUpdate(deltaTime: number) {

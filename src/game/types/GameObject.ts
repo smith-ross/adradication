@@ -6,6 +6,7 @@ export interface ImplementedObjectProps {
   children?: GameObject[];
   position?: Vector; // Offset from parent element,
   size?: Vector;
+  origin?: Vector;
 }
 
 export interface GameObjectProps extends ImplementedObjectProps {
@@ -19,6 +20,7 @@ export default abstract class GameObject {
   #children: GameObject[];
   #position: Vector;
   #size: Vector;
+  #origin: Vector;
 
   constructor({
     id,
@@ -27,6 +29,7 @@ export default abstract class GameObject {
     children,
     position,
     size,
+    origin,
   }: GameObjectProps) {
     this.#id = id;
     this.#className = className;
@@ -34,6 +37,7 @@ export default abstract class GameObject {
     this.#children = children || [];
     this.#position = position || new Vector();
     this.#size = size || new Vector();
+    this.#origin = origin || new Vector();
     children?.forEach((gameObject: GameObject) => {
       gameObject.parent = this;
     });
@@ -84,6 +88,10 @@ export default abstract class GameObject {
     });
   }
 
+  destroy() {
+    this.parent?.children.splice(this.parent?.children.indexOf(this), 1);
+  }
+
   getDescendant(childId: string): GameObject | undefined {
     const foundChild = this.getChild(childId);
     if (foundChild) return foundChild;
@@ -95,7 +103,7 @@ export default abstract class GameObject {
 
   getWorldPosition(): Vector {
     if (!this.parent) return this.position;
-    return this.position.add(this.parent.getWorldPosition());
+    return this.position.sub(this.#origin).add(this.parent.getWorldPosition());
   }
 
   recursiveUpdate(deltaTime: number) {
