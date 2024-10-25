@@ -3,7 +3,6 @@ import {
   transformStorageOverwrite,
 } from "../../util/StorageUtil";
 import WorldMap from "../map/WorldMap";
-import Box from "../objects/Box";
 import Empty from "../objects/Empty";
 import Adbomination from "../objects/enemy/Adbomination";
 import Player from "../objects/player/Player";
@@ -14,6 +13,7 @@ import Vector from "../types/Vector";
 
 const GAME_SIZE = new Vector(600, 450);
 const MONSTER_WAVE_GAP = 5;
+export let GameInstance: Adradication | undefined;
 
 export default class Adradication {
   #canvas?: HTMLCanvasElement;
@@ -90,6 +90,7 @@ export default class Adradication {
 
   start() {
     if (!this.context) return;
+    GameInstance = this;
 
     const monsterContainer = new Empty({
       id: "MonsterContainer",

@@ -136,18 +136,6 @@ export default class Player extends RenderableGameObject {
           size: hitboxSize,
           origin: hitboxRightOffset,
         }),
-        new Box({
-          id: "RightAttackBox",
-          size: hitboxSize,
-          origin: hitboxRightOffset,
-          color: new Color(255, 0, 0),
-        }),
-        new Box({
-          id: "LeftAttackBox",
-          size: hitboxSize,
-          origin: hitboxLeftOffset,
-          color: new Color(0, 255, 0),
-        }),
       ],
       className: "Player",
     });
@@ -242,7 +230,7 @@ export default class Player extends RenderableGameObject {
 
     if (
       this.#attackInfo.attackDuration < 0.375 &&
-      this.#attackInfo.attackDuration > 0.05
+      this.#attackInfo.attackDuration > 0.15
     ) {
       this.#enemyContainer.children.forEach((enemy) => {
         if (enemy.className !== "Adbomination") return;
@@ -253,8 +241,12 @@ export default class Player extends RenderableGameObject {
             target.getChild("EnemyHurtbox") as Hitbox
           )
         ) {
+          const direction = target.position
+            .add(this.size.div(2))
+            .sub(this.position.add(this.size.div(2)))
+            .normalize();
           this.#attackInfo.hitEnemies.push(target);
-          target.onHit(34);
+          target.onHit(34, 0.15, 1200, direction);
         }
       });
     }

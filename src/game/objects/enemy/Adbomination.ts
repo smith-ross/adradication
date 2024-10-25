@@ -13,6 +13,7 @@ import Player from "../player/Player";
 
 const MOVE_SPEED = 70;
 const DIRECTION_WALK_TIME = 0.8;
+const STUN_TIME = 0.125;
 
 export default class Adbomination extends RenderableGameObject {
   #playerRef: Player | undefined;
@@ -20,6 +21,14 @@ export default class Adbomination extends RenderableGameObject {
   #lockedOn: boolean = false;
   #walkDirection: Vector = new Vector();
   #elapsedWalkTime: number = 0;
+
+  #stunInfo = {
+    isStunned: false,
+    stunDuration: 0,
+    activeDuration: 0,
+    knockbarDirection: new Vector(),
+    knockbarForce: 0,
+  };
 
   constructor(enemyProps: ImplementedRenderableObjectProps) {
     super({
@@ -88,14 +97,25 @@ export default class Adbomination extends RenderableGameObject {
       this.#elapsedWalkTime = DIRECTION_WALK_TIME; // Encourage the AI to walk a different way
   }
 
-  onHit(damage: number) {
+  onHit(
+    damage: number,
+    stunDuration: number,
+    force: number,
+    direction: Vector
+  ) {
     const healthBar = this.getChild("EnemyHealthBar") as HealthBar;
     healthBar.takeDamage(damage);
+    this.#stunInfo.stunDuration = stunDuration + STUN_TIME;
+    this.#stunInfo.activeDuration = stunDuration + STUN_TIME;
+    this.#stunInfo.isStunned = true;
+    this.#stunInfo.knockbarForce = force;
+    this.#stunInfo.knockbarDirection = direction;
   }
 
   onUpdate(deltaTime: number) {
     if (!this.#playerRef) return;
     if (
+      !this.#stunInfo.isStunned &&
       !this.#lockedOn &&
       this.#playerRef.position.sub(this.position).magnitude > 150
     ) {
@@ -113,7 +133,7 @@ export default class Adbomination extends RenderableGameObject {
         this.#walkDirection.mul((deltaTime * this.#moveSpeed) / 4)
       );
       this.#elapsedWalkTime += deltaTime;
-    } else {
+    } else if (!this.#stunInfo.isStunned) {
       const moveVec = this.#playerRef.position
         .add(new Vector(0, this.#playerRef.size.y / 2))
         .sub(this.position)
@@ -122,6 +142,31 @@ export default class Adbomination extends RenderableGameObject {
         moveVec.mul(deltaTime * this.#moveSpeed)
       );
       this.#lockedOn = true;
+    } else {
+      console.log("KNOCKBAR DIR", this.#stunInfo.knockbarDirection.toString());
+      console.log(
+        this.#stunInfo.knockbarDirection
+          .mul(
+            this.#stunInfo.knockbarForce *
+              (this.#stunInfo.activeDuration / this.#stunInfo.stunDuration) *
+              deltaTime
+          )
+          .toString()
+      );
+      if (this.#stunInfo.activeDuration > STUN_TIME) {
+        this.position = this.position.add(
+          this.#stunInfo.knockbarDirection.mul(
+            this.#stunInfo.knockbarForce *
+              ((this.#stunInfo.activeDuration - STUN_TIME) /
+                (this.#stunInfo.stunDuration - STUN_TIME)) *
+              deltaTime
+          )
+        );
+      }
+      this.#stunInfo.activeDuration -= deltaTime;
+      if (this.#stunInfo.activeDuration <= 0) {
+        this.#stunInfo.isStunned = false;
+      }
     }
     this.#borderCheck();
   }
