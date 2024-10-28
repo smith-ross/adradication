@@ -4,13 +4,34 @@ import GameObject from "../types/GameObject";
 import RenderableGameObject, {
   ImplementedRenderableObjectProps,
 } from "../types/RenderableGameObject";
+import Vector from "../types/Vector";
+import Box from "./Box";
 
-export default class Hitbox extends GameObject {
-  constructor(hitboxProps: ImplementedRenderableObjectProps) {
+interface HitboxProps extends ImplementedRenderableObjectProps {
+  showVisual?: boolean;
+}
+
+export default class Hitbox extends RenderableGameObject {
+  constructor(hitboxProps: HitboxProps) {
     super({
       ...hitboxProps,
       className: "Hitbox",
     });
+
+    if (hitboxProps.showVisual) {
+      this.addChild(
+        new Box({
+          id: "HitboxVisualBox",
+          size: this.size,
+          color: Color.random(),
+        })
+      );
+    }
+  }
+
+  onUpdate(_: number) {
+    const child = this.getChild("HitboxVisualBox");
+    if (child) child.size = this.size;
   }
 
   intersectsWith(collidingHitbox: Hitbox) {
@@ -25,4 +46,6 @@ export default class Hitbox extends GameObject {
       otherY + otherH < thisY
     );
   }
+
+  render(context: CanvasRenderingContext2D, deltaTime: number): void {}
 }

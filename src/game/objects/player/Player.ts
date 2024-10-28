@@ -153,6 +153,10 @@ export default class Player extends RenderableGameObject {
           size: hitboxSize,
           origin: hitboxRightOffset,
         }),
+        new Hitbox({
+          id: "PlayerHurtbox",
+          size: playerProps.size,
+        }),
       ],
       className: "Player",
     });

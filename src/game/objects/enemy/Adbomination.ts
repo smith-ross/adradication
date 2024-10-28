@@ -13,10 +13,12 @@ import Player from "../player/Player";
 
 const MOVE_SPEED = 70;
 const DIRECTION_WALK_TIME = 0.8;
-const STUN_TIME = 0.125;
+const ATTACK_RANGE = 20;
+const ATTACK_DURATION = 1;
+const DAMAGE_WINDOW = { START: 0.8, END: 0.2 };
 const LOCK_ON_DISTANCE = 150;
 
-enum EnemyState {
+export enum EnemyState {
   IDLE,
   CHASE,
   STUNNED,
@@ -32,7 +34,7 @@ interface KnockbackProps {
 export default class Adbomination extends RenderableGameObject {
   #playerRef: Player | undefined;
   #moveSpeed: number;
-  #walkDirection: Vector = new Vector();
+  walkDirection: Vector = new Vector();
   #elapsedWalkTime: number = 0;
 
   #stunInfo = {
@@ -43,22 +45,43 @@ export default class Adbomination extends RenderableGameObject {
     knockbarForce: 0,
   };
 
+  #attackInfo = {
+    attackDuration: 0,
+    attackCooldown: 0,
+    hit: false,
+  };
+
+  #previousState: EnemyState = EnemyState.IDLE;
   #state: EnemyState = EnemyState.IDLE;
 
   constructor(enemyProps: ImplementedRenderableObjectProps) {
+    const hitboxSize = enemyProps.size?.mul(1.5).add(new Vector(10, 0));
+    const hitboxLeftOffset = hitboxSize
+      ?.sub(new Vector(0, hitboxSize.y / 2))
+      .sub((enemyProps.size || new Vector()).div(2));
+    const hitboxRightOffset = hitboxLeftOffset?.sub(new Vector(hitboxSize?.x));
+
     super({
       ...enemyProps,
       className: "Adbomination",
       children: [
         ...(enemyProps.children || []),
-        new Box({
-          id: "TestEnemyBox",
-          color: new Color(255, 0, 0),
-          size: enemyProps.size,
+        new Hitbox({
+          id: "LeftAttackHitbox",
+          size: hitboxSize,
+          origin: hitboxLeftOffset,
+          showVisual: true,
+        }),
+        new Hitbox({
+          id: "RightAttackHitbox",
+          size: hitboxSize,
+          origin: hitboxRightOffset,
+          showVisual: true,
         }),
         new Hitbox({
           id: "EnemyHurtbox",
           size: enemyProps.size,
+          showVisual: true,
         }),
       ],
     });
@@ -71,6 +94,22 @@ export default class Adbomination extends RenderableGameObject {
       })
     );
     this.#moveSpeed = MOVE_SPEED + (Math.random() * 40 - 20);
+  }
+
+  get state() {
+    return this.#state;
+  }
+
+  calculateHitbox(width: number) {
+    const hitboxSize = this.size?.mul(1.5).add(new Vector(width, 0));
+    const hitboxLeftOffset = hitboxSize
+      ?.sub(new Vector(0, hitboxSize.y / 2))
+      .sub((this.size || new Vector()).div(2));
+    const hitboxRightOffset = hitboxLeftOffset?.sub(new Vector(hitboxSize?.x));
+    (this.getChild("LeftAttackHitbox") as Hitbox).size = hitboxSize;
+    (this.getChild("LeftAttackHitbox") as Hitbox).origin = hitboxLeftOffset;
+    (this.getChild("RightAttackHitbox") as Hitbox).size = hitboxSize;
+    (this.getChild("RightAttackHitbox") as Hitbox).origin = hitboxRightOffset;
   }
 
   spawnAtRandomPoint(worldMap: WorldMap, player: Player) {
@@ -86,6 +125,7 @@ export default class Adbomination extends RenderableGameObject {
   }
 
   switchState(newState: EnemyState) {
+    this.#previousState = this.#state;
     this.#state = newState;
   }
 
@@ -127,22 +167,27 @@ export default class Adbomination extends RenderableGameObject {
 
   distanceFromPlayer() {
     if (!this.#playerRef) return -1;
-    return this.#playerRef.position.sub(this.position).magnitude;
+    return this.#playerRef.position
+      .add(new Vector(0, this.#playerRef.size.y / 4))
+      .sub(this.position).magnitude;
   }
+
+  walkDirectionUpdated() {}
 
   wander(deltaTime: number) {
     if (this.#elapsedWalkTime >= DIRECTION_WALK_TIME && Math.random() > 0.5) {
       this.#elapsedWalkTime = 0;
-      this.#walkDirection =
+      this.walkDirection =
         (Math.random() > 0.5 &&
           new Vector(
             (Math.random() - 0.5) * 2,
             (Math.random() - 0.5) * 2
           ).normalize()) ||
         new Vector(); // Stand still sometimes
+      this.walkDirectionUpdated();
     }
     this.position = this.position.add(
-      this.#walkDirection.mul((deltaTime * this.#moveSpeed) / 4)
+      this.walkDirection.mul((deltaTime * this.#moveSpeed) / 4)
     );
     this.#elapsedWalkTime += deltaTime;
   }
@@ -150,10 +195,43 @@ export default class Adbomination extends RenderableGameObject {
   #chaseUpdate(deltaTime: number) {
     if (!this.#playerRef) return;
     const moveVec = this.#playerRef.position
-      .add(new Vector(0, this.#playerRef.size.y / 2))
+      .add(new Vector(0, this.#playerRef.size.y / 4))
       .sub(this.position)
       .normalize();
+    this.walkDirection = moveVec;
+    this.walkDirectionUpdated();
     this.position = this.position.add(moveVec.mul(deltaTime * this.#moveSpeed));
+    if (this.distanceFromPlayer() <= ATTACK_RANGE) {
+      this.switchState(EnemyState.ATTACK);
+      this.doAttack(deltaTime);
+    }
+  }
+
+  doAttack(deltaTime: number) {
+    this.#attackInfo = {
+      attackDuration: ATTACK_DURATION,
+      attackCooldown: 0.2,
+      hit: false,
+    };
+    this.#attackUpdate(deltaTime);
+  }
+
+  #attackUpdate(deltaTime: number) {
+    if (!this.#playerRef) return;
+    if (this.#attackInfo.attackDuration <= 0) {
+      this.switchState(EnemyState.IDLE);
+      this.onUpdate(deltaTime);
+      return;
+    }
+    if (
+      this.#attackInfo.attackDuration < DAMAGE_WINDOW.START &&
+      this.#attackInfo.attackDuration > DAMAGE_WINDOW.END
+    ) {
+      // Do collision
+    } else {
+      // Don't
+    }
+    this.#attackInfo.attackDuration -= deltaTime;
   }
 
   #stunUpdate(deltaTime: number) {
@@ -170,7 +248,7 @@ export default class Adbomination extends RenderableGameObject {
     }
     this.#stunInfo.activeDuration -= deltaTime;
     if (this.#stunInfo.activeDuration <= 0) {
-      this.switchState(EnemyState.CHASE);
+      this.switchState(this.#previousState);
     }
   }
 
@@ -188,6 +266,10 @@ export default class Adbomination extends RenderableGameObject {
 
       case EnemyState.STUNNED:
         this.#stunUpdate(deltaTime);
+        break;
+
+      case EnemyState.ATTACK:
+        this.#attackUpdate(deltaTime);
         break;
     }
 

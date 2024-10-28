@@ -3,6 +3,14 @@ export default class Color {
   #g: number = 0;
   #b: number = 0;
 
+  static random() {
+    return new Color(
+      Math.random() * 255,
+      Math.random() * 255,
+      Math.random() * 255
+    );
+  }
+
   constructor(r?: number, g?: number, b?: number) {
     this.#r = Math.min(Math.max(r || 0, 0), 255);
     this.#g = Math.min(Math.max(g || 0, 0), 255);

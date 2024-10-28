@@ -5,6 +5,7 @@ import {
 import WorldMap from "../map/WorldMap";
 import Empty from "../objects/Empty";
 import Adbomination from "../objects/enemy/Adbomination";
+import EyeP from "../objects/enemy/EyeP";
 import Player from "../objects/player/Player";
 import Layer from "../scene/Layer";
 import Scene from "../scene/Scene";
@@ -62,7 +63,7 @@ export default class Adradication {
         if (diff <= 0) return;
         for (let i = 0; i < diff; i++) {
           this.monsterCount++;
-          const newMonster = new Adbomination({
+          const newMonster = new EyeP({
             id: `Monster-${this.monsterCount}`,
             size: new Vector(50, 50),
           });

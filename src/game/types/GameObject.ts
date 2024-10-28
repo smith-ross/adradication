@@ -62,6 +62,14 @@ export default abstract class GameObject {
     return this.#size;
   }
 
+  get origin() {
+    return this.#origin;
+  }
+
+  set origin(value: Vector) {
+    this.#origin = value;
+  }
+
   set position(value: Vector) {
     this.#position = value;
   }
