@@ -32,7 +32,6 @@ interface KnockbackProps {
 export default class Adbomination extends RenderableGameObject {
   #playerRef: Player | undefined;
   #moveSpeed: number;
-  #lockedOn: boolean = false;
   #walkDirection: Vector = new Vector();
   #elapsedWalkTime: number = 0;
 
@@ -74,26 +73,13 @@ export default class Adbomination extends RenderableGameObject {
     this.#moveSpeed = MOVE_SPEED + (Math.random() * 40 - 20);
   }
 
-  // TODO: Refactor this.
-  // There is a very small possibility that, if there is a lot of trackers,
-  // some trackers will get stuck trying to spawn.
   spawnAtRandomPoint(worldMap: WorldMap, player: Player) {
-    const targetPoint = new Vector(
-      Math.round(Math.random() * (worldMap.dimensions.x - 1)),
-      Math.round(Math.random() * (worldMap.dimensions.y - 1))
-    );
-    const tile = worldMap.getTile(targetPoint);
+    const tileOptions = worldMap.collectAvailableTiles(player.position);
+    if (tileOptions.length === 0) return;
+    const tile = tileOptions[Math.floor(Math.random() * tileOptions.length)];
     const newPosition = tile.position
       .mul(tile.size)
       .add(tile.size.sub(this.size));
-    if (
-      !tile ||
-      tile.enemySpawned ||
-      newPosition.sub(player.position).magnitude < 100
-    ) {
-      this.spawnAtRandomPoint(worldMap, player);
-      return;
-    }
     tile.enemySpawned = true;
     this.position = newPosition;
     this.#playerRef = player;

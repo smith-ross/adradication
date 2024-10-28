@@ -28,11 +28,6 @@ export default class Adradication {
   elapsedWaveTime: number = MONSTER_WAVE_GAP;
   tabId: number = -1;
 
-  #onMessageCallback = (
-    message: any,
-    sender: chrome.runtime.MessageSender
-  ) => {};
-
   get canvas() {
     if (!this.#canvas)
       throw "Game Error: Attempt to access Canvas before defined";
@@ -78,6 +73,7 @@ export default class Adradication {
           newMonster.spawnAtRandomPoint(this.worldMap, player as Player);
           monsterContainer.addChild(newMonster);
         }
+        this.worldMap.refreshEnemySpawns();
       });
     }
     this.elapsedWaveTime += deltaTime;
@@ -121,25 +117,6 @@ export default class Adradication {
       ],
     });
 
-    this.#onMessageCallback = (
-      message: any,
-      sender: chrome.runtime.MessageSender
-    ) => {
-      if (
-        !this.worldMap ||
-        !message.eventType ||
-        message.eventType !== "SpawnMonster"
-      )
-        return;
-      this.monsterCount++;
-      const newMonster = new Adbomination({
-        id: `Monster-${this.monsterCount}`,
-        size: new Vector(50, 50),
-      });
-      newMonster.spawnAtRandomPoint(this.worldMap, player);
-      monsterContainer.addChild(newMonster);
-    };
-
     chrome.runtime.sendMessage({ text: "getTabId" }, (tabId) => {
       this.tabId = tabId.tab;
       window.addEventListener("beforeunload", () => {
@@ -155,7 +132,5 @@ export default class Adradication {
     this.update(0); // Start game loop
   }
 
-  stop() {
-    chrome.runtime.onMessage.removeListener(this.#onMessageCallback);
-  }
+  stop() {}
 }

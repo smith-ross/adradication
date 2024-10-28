@@ -22,6 +22,20 @@ export default class WorldMap {
     }
   }
 
+  refreshEnemySpawns() {
+    this.#tiles.flat().forEach((tile) => {
+      tile.enemySpawned = false;
+    });
+  }
+
+  collectAvailableTiles(playerPosition: Vector) {
+    return this.#tiles.flat().filter((tile) => {
+      return (
+        !tile.enemySpawned && tile.position.sub(playerPosition).magnitude > 100
+      );
+    });
+  }
+
   getTile(position: Vector) {
     return this.#tiles[position.x][position.y];
   }
