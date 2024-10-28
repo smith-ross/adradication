@@ -4,13 +4,14 @@ import RenderableGameObject, {
 import Box from "../Box";
 import Vector from "../../types/Vector";
 import Color from "../../types/Color";
+import { HealthConstants } from "../../const/ConstantsManager";
 
 interface HealthBarProps extends ImplementedRenderableObjectProps {
   maxHealth: number;
 }
 
-const HEALTH_BAR_SIZE = 8;
-const INNER_HEALTH_BAR_OFFSET = new Vector(2, 2);
+const { HEALTH_BAR_SIZE, INNER_HEALTH_BAR_OFFSET } = HealthConstants;
+const VECTOR_INNER_BAR_OFFSET = new Vector(...INNER_HEALTH_BAR_OFFSET);
 
 export default class HealthBar extends RenderableGameObject {
   #maxHealth: number = 0;
@@ -20,7 +21,7 @@ export default class HealthBar extends RenderableGameObject {
   constructor(healthBarProps: HealthBarProps) {
     if (!healthBarProps.parent) return;
     const healthBarSize = new Vector(
-      healthBarProps.parent.size.x,
+      healthBarProps.size?.x || healthBarProps.parent.size.x,
       HEALTH_BAR_SIZE
     ).div(1.2);
     super({
@@ -35,14 +36,14 @@ export default class HealthBar extends RenderableGameObject {
           children: [
             new Box({
               id: `${healthBarProps.id}-bg-bar`,
-              size: healthBarSize.sub(INNER_HEALTH_BAR_OFFSET.mul(2)),
-              position: INNER_HEALTH_BAR_OFFSET,
+              size: healthBarSize.sub(VECTOR_INNER_BAR_OFFSET.mul(2)),
+              position: VECTOR_INNER_BAR_OFFSET,
               color: new Color(100, 0, 0),
             }),
             new Box({
               id: `${healthBarProps.id}-inner-bar`,
-              size: healthBarSize.sub(INNER_HEALTH_BAR_OFFSET.mul(2)),
-              position: INNER_HEALTH_BAR_OFFSET,
+              size: healthBarSize.sub(VECTOR_INNER_BAR_OFFSET.mul(2)),
+              position: VECTOR_INNER_BAR_OFFSET,
               color: new Color(0, 200, 0),
             }),
           ],
@@ -64,7 +65,7 @@ export default class HealthBar extends RenderableGameObject {
     const innerHealthBar = this.getDescendant(`${this.id}-inner-bar`);
     if (!innerHealthBar) return;
     innerHealthBar.size = this.#healthBarSize
-      .sub(INNER_HEALTH_BAR_OFFSET.mul(2))
+      .sub(VECTOR_INNER_BAR_OFFSET.mul(2))
       .mul(new Vector(this.#currentHealth / this.#maxHealth, 1));
 
     if (this.#currentHealth === 0) this.parent?.destroy();

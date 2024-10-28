@@ -1,6 +1,7 @@
 import { draw, load } from "../../../util/DrawUtil";
 import InputService from "../../services/InputService";
 import Color from "../../types/Color";
+import InstanceTags from "../../types/InstanceTags";
 import RenderableGameObject, {
   Corner,
   ImplementedRenderableObjectProps,
@@ -10,16 +11,24 @@ import AnimatedSprite, { AnimationProps } from "../AnimatedSprite";
 import Box from "../Box";
 import Empty from "../Empty";
 import Adbomination from "../enemy/Adbomination";
+import HealthBar from "../entity/HealthBar";
 import Hitbox from "../Hitbox";
 import Sprite from "../Sprite";
+import { PlayerConstants } from "../../const/ConstantsManager";
 
-const MOVE_SPEED = 100;
-const ROLL_DURATION = 0.6;
-const ROLL_SPEED = 100;
-const BASE_SPRITE = "res/character-sprites/Run.png";
-const ATTACK_DURATION = 0.45;
-const ATTACK_COOLDOWN = 0.3;
-const INVERTED_SPRITE = "res/character-sprites/ReversedRun.png";
+const {
+  MOVE_SPEED,
+  ROLL_DURATION,
+  ROLL_SPEED,
+  BASE_SPRITE,
+  ATTACK_DURATION,
+  ATTACK_COOLDOWN,
+  WEAPON_HIT_WINDOW,
+  WEAPON_DAMAGE,
+  HIT_KNOCKBACK_DURATION,
+  HIT_KNOCKBACK_FORCE,
+  HIT_STUN_DURATION,
+} = PlayerConstants;
 
 enum PlayerState {
   RUN,
@@ -119,6 +128,8 @@ export default class Player extends RenderableGameObject {
 
   #state: PlayerState = PlayerState.IDLE;
 
+  tags: InstanceTags = new InstanceTags();
+
   constructor(playerProps: PlayerProps) {
     const hitboxSize = playerProps.size?.mul(1.5).add(new Vector(30, -40));
     const hitboxLeftOffset = hitboxSize
@@ -147,6 +158,17 @@ export default class Player extends RenderableGameObject {
     });
     this.#enemyContainer = playerProps.enemyContainer;
     if (!playerProps.size) return;
+
+    this.addChild(
+      new HealthBar({
+        id: "PlayerHealthBar",
+        maxHealth: 100,
+        position: new Vector(0, this.size.y + 8),
+        parent: this,
+        size: new Vector(this.size.x * 1.5),
+      })
+    );
+
     const spriteSize = new Vector(240, 160);
     this.#sprite = new AnimatedSprite({
       id: `${playerProps.id}-Sprite`,
@@ -160,6 +182,7 @@ export default class Player extends RenderableGameObject {
       parent: this,
     });
     this.addChild(this.#sprite);
+
     Object.values(ANIMATIONS).forEach((animationVersion) => {
       Object.values(animationVersion).forEach((animationProps) => {
         load(animationProps.sheetPath);
@@ -240,8 +263,8 @@ export default class Player extends RenderableGameObject {
     ) as Hitbox;
 
     if (
-      this.#attackInfo.attackDuration < 0.375 &&
-      this.#attackInfo.attackDuration > 0.15
+      this.#attackInfo.attackDuration < WEAPON_HIT_WINDOW.START &&
+      this.#attackInfo.attackDuration > WEAPON_HIT_WINDOW.END
     ) {
       this.#enemyContainer.children.forEach((enemy) => {
         if (enemy.className !== "Adbomination") return;
@@ -258,9 +281,9 @@ export default class Player extends RenderableGameObject {
             .div(new Vector(1, 2))
             .normalize();
           this.#attackInfo.hitEnemies.push(target);
-          target.onHit(34, 0.35, {
-            duration: 0.15,
-            force: 800,
+          target.onHit(WEAPON_DAMAGE, HIT_STUN_DURATION, {
+            duration: HIT_KNOCKBACK_DURATION,
+            force: HIT_KNOCKBACK_FORCE,
             direction: direction,
           });
         }
