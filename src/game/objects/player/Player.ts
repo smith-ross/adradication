@@ -21,7 +21,7 @@ const ATTACK_DURATION = 0.45;
 const ATTACK_COOLDOWN = 0.3;
 const INVERTED_SPRITE = "res/character-sprites/ReversedRun.png";
 
-enum PlayerMovementAction {
+enum PlayerState {
   RUN,
   ROLL,
   IDLE,
@@ -30,7 +30,7 @@ enum PlayerMovementAction {
 const ANIMATIONS: {
   [k: number]: { left: AnimationProps; right: AnimationProps };
 } = {
-  [PlayerMovementAction.ROLL]: {
+  [PlayerState.ROLL]: {
     right: {
       sheetPath: `res/character-sprites/Roll.png`,
       dimensions: new Vector(12, 1),
@@ -44,7 +44,7 @@ const ANIMATIONS: {
       cellSize: new Vector(120, 80),
     },
   },
-  [PlayerMovementAction.ATTACK]: {
+  [PlayerState.ATTACK]: {
     right: {
       sheetPath: `res/character-sprites/Attack.png`,
       dimensions: new Vector(6, 1),
@@ -58,7 +58,7 @@ const ANIMATIONS: {
       cellSize: new Vector(120, 80),
     },
   },
-  [PlayerMovementAction.RUN]: {
+  [PlayerState.RUN]: {
     right: {
       sheetPath: "res/character-sprites/Run.png",
       dimensions: new Vector(10, 1),
@@ -72,7 +72,7 @@ const ANIMATIONS: {
       cellSize: new Vector(120, 80),
     },
   },
-  [PlayerMovementAction.IDLE]: {
+  [PlayerState.IDLE]: {
     right: {
       sheetPath: "res/character-sprites/Idle.png",
       dimensions: new Vector(10, 1),
@@ -92,19 +92,23 @@ interface PlayerProps extends ImplementedRenderableObjectProps {
   enemyContainer: Empty;
 }
 
+interface RollState {
+  rollDuration: number;
+  rollDir: Vector;
+}
+
+interface AttackState {
+  attackDuration: number;
+  attackCooldown: number;
+  hitEnemies: Adbomination[];
+}
+
 export default class Player extends RenderableGameObject {
-  #rollingInfo = {
-    isRolling: false,
+  #rollingInfo: RollState = {
     rollDuration: 0,
     rollDir: new Vector(),
   };
-  #attackInfo: {
-    isAttacking: boolean;
-    attackDuration: number;
-    attackCooldown: number;
-    hitEnemies: Adbomination[];
-  } = {
-    isAttacking: false,
+  #attackInfo: AttackState = {
     attackDuration: 0,
     attackCooldown: 0,
     hitEnemies: [],
@@ -112,6 +116,8 @@ export default class Player extends RenderableGameObject {
   #sprite: AnimatedSprite | undefined;
   #lastDirection = 1;
   #enemyContainer: Empty;
+
+  #state: PlayerState = PlayerState.IDLE;
 
   constructor(playerProps: PlayerProps) {
     const hitboxSize = playerProps.size?.mul(1.5).add(new Vector(30, -40));
@@ -161,7 +167,7 @@ export default class Player extends RenderableGameObject {
     });
   }
 
-  setAnimation(animationType: PlayerMovementAction, dir: "right" | "left") {
+  setAnimation(animationType: PlayerState, dir: "right" | "left") {
     const target = ANIMATIONS[animationType][dir];
     if (this.#sprite?.sheetPath === target.sheetPath) return;
     this.#sprite?.updateSheet(target);
@@ -198,28 +204,33 @@ export default class Player extends RenderableGameObject {
     );
     if (!this.#sprite) return;
     const [x, y] = this.getMovementVector().asCoords();
+    this.switchState(x === 0 && y === 0 ? PlayerState.IDLE : PlayerState.RUN);
     if (x < 0) {
       this.#lastDirection = -1;
-      this.setAnimation(PlayerMovementAction.RUN, "left");
+      this.setAnimation(PlayerState.RUN, "left");
     } else if (x > 0) {
       this.#lastDirection = 1;
-      this.setAnimation(PlayerMovementAction.RUN, "right");
+      this.setAnimation(PlayerState.RUN, "right");
     } else if (y !== 0) {
       this.setAnimation(
-        PlayerMovementAction.RUN,
+        PlayerState.RUN,
         this.#lastDirection === 1 ? "right" : "left"
       );
     } else {
       this.setAnimation(
-        PlayerMovementAction.IDLE,
+        PlayerState.IDLE,
         this.#lastDirection === 1 ? "right" : "left"
       );
     }
   }
 
-  #attack(deltaTime: number) {
+  switchState(newState: PlayerState) {
+    this.#state = newState;
+  }
+
+  #attackUpdate(deltaTime: number) {
     if (this.#attackInfo.attackDuration <= 0) {
-      this.#attackInfo.isAttacking = false;
+      this.switchState(PlayerState.IDLE);
       this.onUpdate(deltaTime);
       return;
     }
@@ -242,22 +253,26 @@ export default class Player extends RenderableGameObject {
           )
         ) {
           const direction = target.position
-            .add(this.size.div(2))
+            .add(target.size.div(2))
             .sub(this.position.add(this.size.div(2)))
+            .div(new Vector(1, 2))
             .normalize();
           this.#attackInfo.hitEnemies.push(target);
-          target.onHit(34, 0.15, 1200, direction);
+          target.onHit(34, 0.35, {
+            duration: 0.15,
+            force: 800,
+            direction: direction,
+          });
         }
       });
     }
 
-    // Hitbox/collision detection here
     this.#attackInfo.attackDuration -= deltaTime;
   }
 
-  #roll(deltaTime: number): void {
+  #rollUpdate(deltaTime: number): void {
     if (this.#rollingInfo.rollDuration <= 0) {
-      this.#rollingInfo.isRolling = false;
+      this.switchState(PlayerState.IDLE);
       this.onUpdate(deltaTime);
       return;
     }
@@ -273,63 +288,89 @@ export default class Player extends RenderableGameObject {
     this.#rollingInfo.rollDuration -= deltaTime;
   }
 
-  onUpdate(deltaTime: number): void {
-    if (!this.#attackInfo.isAttacking && this.#attackInfo.attackCooldown > 0) {
+  #updateCooldowns(deltaTime: number) {
+    if (
+      this.#state !== PlayerState.ATTACK &&
+      this.#attackInfo.attackCooldown > 0
+    ) {
       this.#attackInfo.attackCooldown = Math.max(
         this.#attackInfo.attackCooldown - deltaTime,
         0
       );
     }
-    if (!this.#rollingInfo.isRolling && !this.#attackInfo.isAttacking) {
-      const moveVec = this.getMovementVector();
-      if (
-        InputService.isKeyDown(" ") &&
-        this.#attackInfo.attackCooldown === 0
-      ) {
-        this.#attackInfo = {
-          isAttacking: true,
-          attackDuration: ATTACK_DURATION,
-          attackCooldown: ATTACK_COOLDOWN,
-          hitEnemies: [],
-        };
-        if (moveVec.x > 0) {
-          this.#lastDirection = 1;
-          this.setAnimation(PlayerMovementAction.ATTACK, "right");
-        } else if (moveVec.x < 0) {
-          this.#lastDirection = -1;
-          this.setAnimation(PlayerMovementAction.ATTACK, "left");
-        } else {
-          this.setAnimation(
-            PlayerMovementAction.ATTACK,
-            this.#lastDirection === 1 ? "right" : "left"
-          );
-        }
-        this.#attack(deltaTime);
-      } else if (InputService.isKeyDown("Shift") && !moveVec.eq(new Vector())) {
-        this.#rollingInfo = {
-          isRolling: true,
-          rollDir: moveVec,
-          rollDuration: ROLL_DURATION,
-        };
-        if (moveVec.x > 0) {
-          this.setAnimation(PlayerMovementAction.ROLL, "right");
-        } else if (moveVec.x < 0) {
-          this.setAnimation(PlayerMovementAction.ROLL, "left");
-        } else {
-          this.setAnimation(
-            PlayerMovementAction.ROLL,
-            this.#lastDirection === 1 ? "right" : "left"
-          );
-        }
-        this.#roll(deltaTime);
-      } else {
-        this.#baseMovement(deltaTime);
-      }
-    } else if (this.#rollingInfo.isRolling) {
-      this.#roll(deltaTime);
+  }
+
+  doAttack(deltaTime: number, moveVec: Vector) {
+    this.switchState(PlayerState.ATTACK);
+    this.#attackInfo = {
+      attackDuration: ATTACK_DURATION,
+      attackCooldown: ATTACK_COOLDOWN,
+      hitEnemies: [],
+    };
+    if (moveVec.x > 0) {
+      this.#lastDirection = 1;
+      this.setAnimation(PlayerState.ATTACK, "right");
+    } else if (moveVec.x < 0) {
+      this.#lastDirection = -1;
+      this.setAnimation(PlayerState.ATTACK, "left");
     } else {
-      this.#attack(deltaTime);
+      this.setAnimation(
+        PlayerState.ATTACK,
+        this.#lastDirection === 1 ? "right" : "left"
+      );
     }
+    this.#attackUpdate(deltaTime);
+  }
+
+  doRoll(deltaTime: number, moveVec: Vector) {
+    this.switchState(PlayerState.ROLL);
+    this.#rollingInfo = {
+      rollDir: moveVec,
+      rollDuration: ROLL_DURATION,
+    };
+    if (moveVec.x > 0) {
+      this.setAnimation(PlayerState.ROLL, "right");
+    } else if (moveVec.x < 0) {
+      this.setAnimation(PlayerState.ROLL, "left");
+    } else {
+      this.setAnimation(
+        PlayerState.ROLL,
+        this.#lastDirection === 1 ? "right" : "left"
+      );
+    }
+    this.#rollUpdate(deltaTime);
+  }
+
+  onUpdate(deltaTime: number): void {
+    this.#updateCooldowns(deltaTime);
+    switch (this.#state) {
+      case PlayerState.ATTACK:
+        this.#attackUpdate(deltaTime);
+        break;
+
+      case PlayerState.ROLL:
+        this.#rollUpdate(deltaTime);
+        break;
+
+      case PlayerState.IDLE:
+      case PlayerState.RUN:
+        const moveVec = this.getMovementVector();
+        if (
+          InputService.isKeyDown(" ") &&
+          this.#attackInfo.attackCooldown === 0
+        ) {
+          this.doAttack(deltaTime, moveVec);
+        } else if (
+          InputService.isKeyDown("Shift") &&
+          !moveVec.eq(new Vector())
+        ) {
+          this.doRoll(deltaTime, moveVec);
+        } else {
+          this.#baseMovement(deltaTime);
+        }
+        break;
+    }
+
     this.#borderCheck();
   }
 
