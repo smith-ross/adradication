@@ -210,7 +210,7 @@ export default class Player extends RenderableGameObject {
     return new Vector(xMove, yMove).normalize();
   }
 
-  #borderCheck() {
+  private borderCheck() {
     const rootSize = this.getRoot().size;
     const topLeftCorner = this.getCornerWorldPosition(Corner.TOP_LEFT);
     const botRightCorner = this.getCornerWorldPosition(Corner.BOTTOM_RIGHT);
@@ -225,7 +225,7 @@ export default class Player extends RenderableGameObject {
     this.position = new Vector(newX, newY);
   }
 
-  #baseMovement(deltaTime: number): void {
+  private baseMovement(deltaTime: number): void {
     this.position = this.position.add(
       this.getMovementVector().mul(deltaTime * MOVE_SPEED)
     );
@@ -255,7 +255,7 @@ export default class Player extends RenderableGameObject {
     this.#state = newState;
   }
 
-  #attackUpdate(deltaTime: number) {
+  private attackUpdate(deltaTime: number) {
     if (this.#attackInfo.attackDuration <= 0) {
       this.switchState(PlayerState.IDLE);
       this.onUpdate(deltaTime);
@@ -297,7 +297,7 @@ export default class Player extends RenderableGameObject {
     this.#attackInfo.attackDuration -= deltaTime;
   }
 
-  #rollUpdate(deltaTime: number): void {
+  private rollUpdate(deltaTime: number): void {
     if (this.#rollingInfo.rollDuration <= 0) {
       this.switchState(PlayerState.IDLE);
       this.onUpdate(deltaTime);
@@ -315,7 +315,7 @@ export default class Player extends RenderableGameObject {
     this.#rollingInfo.rollDuration -= deltaTime;
   }
 
-  #updateCooldowns(deltaTime: number) {
+  private updateCooldowns(deltaTime: number) {
     if (
       this.#state !== PlayerState.ATTACK &&
       this.#attackInfo.attackCooldown > 0
@@ -325,6 +325,11 @@ export default class Player extends RenderableGameObject {
         0
       );
     }
+  }
+
+  onHit(damage: number) {
+    const healthBar = this.getChild("PlayerHealthBar") as HealthBar;
+    healthBar.takeDamage(damage);
   }
 
   doAttack(deltaTime: number, moveVec: Vector) {
@@ -346,7 +351,7 @@ export default class Player extends RenderableGameObject {
         this.#lastDirection === 1 ? "right" : "left"
       );
     }
-    this.#attackUpdate(deltaTime);
+    this.attackUpdate(deltaTime);
   }
 
   doRoll(deltaTime: number, moveVec: Vector) {
@@ -365,18 +370,18 @@ export default class Player extends RenderableGameObject {
         this.#lastDirection === 1 ? "right" : "left"
       );
     }
-    this.#rollUpdate(deltaTime);
+    this.rollUpdate(deltaTime);
   }
 
   onUpdate(deltaTime: number): void {
-    this.#updateCooldowns(deltaTime);
+    this.updateCooldowns(deltaTime);
     switch (this.#state) {
       case PlayerState.ATTACK:
-        this.#attackUpdate(deltaTime);
+        this.attackUpdate(deltaTime);
         break;
 
       case PlayerState.ROLL:
-        this.#rollUpdate(deltaTime);
+        this.rollUpdate(deltaTime);
         break;
 
       case PlayerState.IDLE:
@@ -393,12 +398,12 @@ export default class Player extends RenderableGameObject {
         ) {
           this.doRoll(deltaTime, moveVec);
         } else {
-          this.#baseMovement(deltaTime);
+          this.baseMovement(deltaTime);
         }
         break;
     }
 
-    this.#borderCheck();
+    this.borderCheck();
   }
 
   render(context: CanvasRenderingContext2D) {}

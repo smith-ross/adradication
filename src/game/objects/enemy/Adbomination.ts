@@ -11,11 +11,7 @@ import HealthBar from "../entity/HealthBar";
 import Hitbox from "../Hitbox";
 import Player from "../player/Player";
 
-const MOVE_SPEED = 70;
 const DIRECTION_WALK_TIME = 0.8;
-const ATTACK_RANGE = 20;
-const ATTACK_DURATION = 1;
-const DAMAGE_WINDOW = { START: 0.8, END: 0.2 };
 const LOCK_ON_DISTANCE = 150;
 
 export enum EnemyState {
@@ -31,9 +27,26 @@ interface KnockbackProps {
   force: number;
 }
 
+interface EnemyProps extends ImplementedRenderableObjectProps {
+  moveSpeed: number;
+  moveSpeedVariance?: number;
+  attackRange: number;
+  attackDuration: number;
+  damageWindow: { start: number; end: number };
+  lockOnDistance?: number;
+  attackCooldown: number;
+  attackDamage: number;
+}
+
 export default class Adbomination extends RenderableGameObject {
   #playerRef: Player | undefined;
   #moveSpeed: number;
+  #attackRange: number;
+  #attackDuration: number;
+  #damageWindow: { start: number; end: number };
+  #lockOnDistance: number;
+  #attackCooldown: number;
+  #attackDamage: number;
   walkDirection: Vector = new Vector();
   #elapsedWalkTime: number = 0;
 
@@ -54,7 +67,7 @@ export default class Adbomination extends RenderableGameObject {
   #previousState: EnemyState = EnemyState.IDLE;
   #state: EnemyState = EnemyState.IDLE;
 
-  constructor(enemyProps: ImplementedRenderableObjectProps) {
+  constructor(enemyProps: EnemyProps) {
     const hitboxSize = enemyProps.size?.mul(1.5).add(new Vector(10, 0));
     const hitboxLeftOffset = hitboxSize
       ?.sub(new Vector(0, hitboxSize.y / 2))
@@ -70,18 +83,15 @@ export default class Adbomination extends RenderableGameObject {
           id: "LeftAttackHitbox",
           size: hitboxSize,
           origin: hitboxLeftOffset,
-          showVisual: true,
         }),
         new Hitbox({
           id: "RightAttackHitbox",
           size: hitboxSize,
           origin: hitboxRightOffset,
-          showVisual: true,
         }),
         new Hitbox({
           id: "EnemyHurtbox",
           size: enemyProps.size,
-          showVisual: true,
         }),
       ],
     });
@@ -91,9 +101,20 @@ export default class Adbomination extends RenderableGameObject {
         maxHealth: 100,
         position: new Vector(0, enemyProps.size ? enemyProps.size.y + 8 : 0),
         parent: this,
+        destroyOnZero: true,
       })
     );
-    this.#moveSpeed = MOVE_SPEED + (Math.random() * 40 - 20);
+    this.#moveSpeed =
+      enemyProps.moveSpeed +
+      (Math.random() * ((enemyProps.moveSpeedVariance || 0) * 2) -
+        (enemyProps.moveSpeedVariance || 0));
+
+    this.#attackRange = enemyProps.attackRange;
+    this.#attackCooldown = enemyProps.attackCooldown;
+    this.#attackDuration = enemyProps.attackDuration;
+    this.#damageWindow = enemyProps.damageWindow;
+    this.#lockOnDistance = enemyProps.lockOnDistance || LOCK_ON_DISTANCE;
+    this.#attackDamage = enemyProps.attackDamage;
   }
 
   get state() {
@@ -129,7 +150,7 @@ export default class Adbomination extends RenderableGameObject {
     this.#state = newState;
   }
 
-  #borderCheck() {
+  private borderCheck() {
     const rootSize = this.getRoot().size;
     const topLeftCorner = this.getCornerWorldPosition(Corner.TOP_LEFT);
     const botRightCorner = this.getCornerWorldPosition(Corner.BOTTOM_RIGHT);
@@ -184,7 +205,8 @@ export default class Adbomination extends RenderableGameObject {
             (Math.random() - 0.5) * 2
           ).normalize()) ||
         new Vector(); // Stand still sometimes
-      this.walkDirectionUpdated();
+
+      if (!this.walkDirection.eq(new Vector())) this.walkDirectionUpdated();
     }
     this.position = this.position.add(
       this.walkDirection.mul((deltaTime * this.#moveSpeed) / 4)
@@ -192,7 +214,7 @@ export default class Adbomination extends RenderableGameObject {
     this.#elapsedWalkTime += deltaTime;
   }
 
-  #chaseUpdate(deltaTime: number) {
+  private chaseUpdate(deltaTime: number) {
     if (!this.#playerRef) return;
     const moveVec = this.#playerRef.position
       .add(new Vector(0, this.#playerRef.size.y / 4))
@@ -201,7 +223,7 @@ export default class Adbomination extends RenderableGameObject {
     this.walkDirection = moveVec;
     this.walkDirectionUpdated();
     this.position = this.position.add(moveVec.mul(deltaTime * this.#moveSpeed));
-    if (this.distanceFromPlayer() <= ATTACK_RANGE) {
+    if (this.distanceFromPlayer() <= this.#attackRange) {
       this.switchState(EnemyState.ATTACK);
       this.doAttack(deltaTime);
     }
@@ -209,32 +231,42 @@ export default class Adbomination extends RenderableGameObject {
 
   doAttack(deltaTime: number) {
     this.#attackInfo = {
-      attackDuration: ATTACK_DURATION,
-      attackCooldown: 0.2,
+      attackDuration: this.#attackDuration,
+      attackCooldown: this.#attackCooldown,
       hit: false,
     };
-    this.#attackUpdate(deltaTime);
+    this.attackUpdate(deltaTime);
   }
 
-  #attackUpdate(deltaTime: number) {
+  private attackUpdate(deltaTime: number) {
     if (!this.#playerRef) return;
     if (this.#attackInfo.attackDuration <= 0) {
       this.switchState(EnemyState.IDLE);
       this.onUpdate(deltaTime);
       return;
     }
+
+    const chosenHitbox: Hitbox = this.getChild(
+      this.walkDirection.x > 0 ? "RightAttackHitbox" : "LeftAttackHitbox"
+    ) as Hitbox;
+
     if (
-      this.#attackInfo.attackDuration < DAMAGE_WINDOW.START &&
-      this.#attackInfo.attackDuration > DAMAGE_WINDOW.END
+      this.#attackInfo.attackDuration < this.#damageWindow.start &&
+      this.#attackInfo.attackDuration > this.#damageWindow.end
     ) {
-      // Do collision
-    } else {
-      // Don't
+      const target = this.#playerRef;
+      if (
+        !this.#attackInfo.hit &&
+        !chosenHitbox.intersectsWith(target.getChild("PlayerHurtbox") as Hitbox)
+      ) {
+        this.#attackInfo.hit = true;
+        target.onHit(this.#attackDamage);
+      }
     }
     this.#attackInfo.attackDuration -= deltaTime;
   }
 
-  #stunUpdate(deltaTime: number) {
+  private stunUpdate(deltaTime: number) {
     const knockbackThreshold =
       this.#stunInfo.stunDuration - this.#stunInfo.knockbackDuration;
     if (this.#stunInfo.activeDuration > knockbackThreshold) {
@@ -256,24 +288,24 @@ export default class Adbomination extends RenderableGameObject {
     switch (this.#state) {
       case EnemyState.IDLE:
         this.wander(deltaTime);
-        if (this.distanceFromPlayer() <= LOCK_ON_DISTANCE)
+        if (this.distanceFromPlayer() <= this.#lockOnDistance)
           this.switchState(EnemyState.CHASE);
         break;
 
       case EnemyState.CHASE:
-        this.#chaseUpdate(deltaTime);
+        this.chaseUpdate(deltaTime);
         break;
 
       case EnemyState.STUNNED:
-        this.#stunUpdate(deltaTime);
+        this.stunUpdate(deltaTime);
         break;
 
       case EnemyState.ATTACK:
-        this.#attackUpdate(deltaTime);
+        this.attackUpdate(deltaTime);
         break;
     }
 
-    this.#borderCheck();
+    this.borderCheck();
   }
 
   render(context: CanvasRenderingContext2D) {}

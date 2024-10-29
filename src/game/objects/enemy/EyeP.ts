@@ -38,15 +38,15 @@ const ANIMATIONS: {
   },
   [EnemyState.ATTACK]: {
     right: {
-      sheetPath: `res/enemy-sprites/EyeP/IdleReversed.png`,
+      sheetPath: `res/enemy-sprites/EyeP/AttackReversed.png`,
       dimensions: new Vector(8, 1),
-      timeBetweenFrames: 0.035,
+      timeBetweenFrames: 0.125,
       cellSize: new Vector(120, 80),
     },
     left: {
-      sheetPath: `res/enemy-sprites/EyeP/Idle.png`,
+      sheetPath: `res/enemy-sprites/EyeP/Attack.png`,
       dimensions: new Vector(8, 1),
-      timeBetweenFrames: 0.035,
+      timeBetweenFrames: 0.125,
       cellSize: new Vector(120, 80),
     },
   },
@@ -70,7 +70,19 @@ export default class EyeP extends Adbomination {
   #sprite: AnimatedSprite | undefined;
 
   constructor(enemyProps: ImplementedRenderableObjectProps) {
-    super(enemyProps);
+    super({
+      ...enemyProps,
+      moveSpeed: 90,
+      attackRange: 45,
+      attackDuration: 1,
+      damageWindow: {
+        start: 0.15,
+        end: 0,
+      },
+      attackCooldown: 1,
+      moveSpeedVariance: 15,
+      attackDamage: 12,
+    });
     const spriteSize = new Vector(160, 120);
     this.#sprite = new AnimatedSprite({
       id: `${enemyProps.id}-Sprite`,
@@ -110,6 +122,7 @@ export default class EyeP extends Adbomination {
   }
 
   walkDirectionUpdated() {
+    if (this.walkDirection.x === 0) return;
     this.setAnimation(this.state, this.walkDirection.x > 0 ? "right" : "left");
   }
 }

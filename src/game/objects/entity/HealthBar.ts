@@ -8,6 +8,7 @@ import { HealthConstants } from "../../const/ConstantsManager";
 
 interface HealthBarProps extends ImplementedRenderableObjectProps {
   maxHealth: number;
+  destroyOnZero?: boolean;
 }
 
 const { HEALTH_BAR_SIZE, INNER_HEALTH_BAR_OFFSET } = HealthConstants;
@@ -17,6 +18,7 @@ export default class HealthBar extends RenderableGameObject {
   #maxHealth: number = 0;
   #currentHealth: number = 0;
   #healthBarSize: Vector = new Vector();
+  #destroyOnZero: boolean = false;
 
   constructor(healthBarProps: HealthBarProps) {
     if (!healthBarProps.parent) return;
@@ -55,6 +57,7 @@ export default class HealthBar extends RenderableGameObject {
         )
       ),
     });
+    this.#destroyOnZero = !!healthBarProps.destroyOnZero;
     this.#maxHealth = healthBarProps.maxHealth;
     this.#currentHealth = healthBarProps.maxHealth;
     this.#healthBarSize = healthBarSize;
@@ -68,7 +71,8 @@ export default class HealthBar extends RenderableGameObject {
       .sub(VECTOR_INNER_BAR_OFFSET.mul(2))
       .mul(new Vector(this.#currentHealth / this.#maxHealth, 1));
 
-    if (this.#currentHealth === 0) this.parent?.destroy();
+    if (this.#currentHealth === 0 && this.#destroyOnZero)
+      this.parent?.destroy();
   }
 
   render(context: CanvasRenderingContext2D, deltaTime: number): void {}
