@@ -15,6 +15,7 @@ import HealthBar from "../entity/HealthBar";
 import Hitbox from "../Hitbox";
 import Sprite from "../Sprite";
 import { PlayerConstants } from "../../const/ConstantsManager";
+import Shadow from "../entity/Shadow";
 
 const {
   MOVE_SPEED,
@@ -163,6 +164,14 @@ export default class Player extends RenderableGameObject {
     this.#enemyContainer = playerProps.enemyContainer;
     if (!playerProps.size) return;
 
+    this.addChild(
+      new Shadow({
+        id: "Shadow",
+        size: new Vector(playerProps.size?.x * 1.5, 35),
+        position: new Vector(0, this.size.y - 21),
+        parent: this,
+      })
+    );
     this.addChild(
       new HealthBar({
         id: "PlayerHealthBar",

@@ -241,7 +241,7 @@ export default class Adbomination extends RenderableGameObject {
   private attackUpdate(deltaTime: number) {
     if (!this.#playerRef) return;
     if (this.#attackInfo.attackDuration <= 0) {
-      this.switchState(EnemyState.IDLE);
+      this.switchState(EnemyState.CHASE);
       this.onUpdate(deltaTime);
       return;
     }

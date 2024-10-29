@@ -3,6 +3,8 @@ import Color from "../../types/Color";
 import { ImplementedRenderableObjectProps } from "../../types/RenderableGameObject";
 import Vector from "../../types/Vector";
 import AnimatedSprite, { AnimationProps } from "../AnimatedSprite";
+import HealthBar from "../entity/HealthBar";
+import Shadow from "../entity/Shadow";
 import Adbomination, { EnemyState } from "./Adbomination";
 
 const ANIMATIONS: {
@@ -83,6 +85,19 @@ export default class EyeP extends Adbomination {
       moveSpeedVariance: 15,
       attackDamage: 12,
     });
+
+    this.addChild(
+      new Shadow({
+        id: "Shadow",
+        size: new Vector(this.size.x * 0.75, 25),
+        position: new Vector(0, this.size.y),
+        parent: this,
+      })
+    );
+
+    const healthBar = this.getChild("EnemyHealthBar") as HealthBar;
+    healthBar.position = healthBar.position.add(new Vector(0, 15));
+
     const spriteSize = new Vector(160, 120);
     this.#sprite = new AnimatedSprite({
       id: `${enemyProps.id}-Sprite`,
