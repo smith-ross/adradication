@@ -1,5 +1,5 @@
 import "./EmbeddedApp.scss";
-import FloatingWindow from "./FloatingWindow";
+import FloatingWindow from "./FloatingWindow/FloatingWindow";
 import App from "./App";
 
 const EmbeddedApp = () => {

@@ -1,8 +1,6 @@
-import Adradication from "../../game/core/Adradication";
-import GameView from "./GameComponents/GameView";
-import TrackerCounter from "./TrackerCounter";
+import LoginController from "./UserAuth/LoginController/LoginController";
 
 const App = () => {
-  return <GameView game={Adradication.getGame()} />;
+  return <LoginController />;
 };
 export default App;
