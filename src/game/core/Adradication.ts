@@ -29,6 +29,12 @@ export default class Adradication {
   elapsedWaveTime: number = MONSTER_WAVE_GAP;
   tabId: number = -1;
 
+  static getGame() {
+    if (GameInstance) return GameInstance;
+    GameInstance = new Adradication();
+    return GameInstance;
+  }
+
   get canvas() {
     if (!this.#canvas)
       throw "Game Error: Attempt to access Canvas before defined";
@@ -87,7 +93,12 @@ export default class Adradication {
 
   start() {
     if (!this.context) return;
+    if (this.running) {
+      this.update(this.frameTime);
+      return;
+    }
     GameInstance = this;
+    this.running = true;
 
     const monsterContainer = new Empty({
       id: "MonsterContainer",

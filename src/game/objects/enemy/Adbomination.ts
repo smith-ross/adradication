@@ -222,10 +222,15 @@ export default class Adbomination extends RenderableGameObject {
       .normalize();
     this.walkDirection = moveVec;
     this.walkDirectionUpdated();
-    this.position = this.position.add(moveVec.mul(deltaTime * this.#moveSpeed));
     if (this.distanceFromPlayer() <= this.#attackRange) {
-      this.switchState(EnemyState.ATTACK);
-      this.doAttack(deltaTime);
+      if (this.#attackInfo.attackCooldown <= 0) {
+        this.switchState(EnemyState.ATTACK);
+        this.doAttack(deltaTime);
+      }
+    } else {
+      this.position = this.position.add(
+        moveVec.mul(deltaTime * this.#moveSpeed)
+      );
     }
   }
 
@@ -285,6 +290,15 @@ export default class Adbomination extends RenderableGameObject {
   }
 
   onUpdate(deltaTime: number) {
+    if (
+      this.#state !== EnemyState.ATTACK &&
+      this.#attackInfo.attackCooldown > 0
+    ) {
+      this.#attackInfo.attackCooldown = Math.max(
+        this.#attackInfo.attackCooldown - deltaTime,
+        0
+      );
+    }
     switch (this.#state) {
       case EnemyState.IDLE:
         this.wander(deltaTime);
