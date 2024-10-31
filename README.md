@@ -1,6 +1,9 @@
-# AdRadification
+# AdRadication
 
 ### An Extension Based Top-Down Action Game with Ad Trackers
+
+### Server-Side
+You can find the corresponding server-side repository [here!](https://stgit.dcs.gla.ac.uk/2652064s/adradication-api)
 
 #### Set Up
 
