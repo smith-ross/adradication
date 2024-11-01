@@ -1,6 +1,7 @@
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const path = require("path");
+const Dotenv = require("dotenv-webpack")
 
 module.exports = {
   mode: "development",
@@ -16,6 +17,7 @@ module.exports = {
     clean: true,
   },
   plugins: [
+    new Dotenv(),
     new HtmlWebpackPlugin({
       inject: false,
       template: "./src/index.html",

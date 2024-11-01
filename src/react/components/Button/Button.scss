@@ -1,0 +1,26 @@
+#react-root {
+  .adradication-button {
+    padding: 10px;
+    border-radius: 5px;
+
+    &.primary {
+      background-color: rgb(19, 93, 205);
+      color: white;
+      transition: background-color 0.25s;
+      cursor: pointer;
+      &:hover {
+        background-color: rgb(22, 70, 141);
+      }
+    }
+
+    &.secondary {
+      background-color: rgb(225, 225, 225);
+      color: rgb(100, 100, 100);
+      transition: background-color 0.25s;
+      cursor: pointer;
+      &:hover {
+        background-color: rgb(200, 200, 200);
+      }
+    }
+  }
+}

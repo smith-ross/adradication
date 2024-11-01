@@ -5,6 +5,7 @@ import { getFromStorage } from "../../../../util/StorageUtil";
 import GameView from "../../GameComponents/GameView";
 import PageView from "../../PageView/PageView";
 import LoginPage from "../LoginPage/LoginPage";
+import RegisterPage from "../RegisterPage/RegisterPage";
 
 const LoginController = () => {
   const [isLoaded, setLoaded] = useState(false);
@@ -33,6 +34,7 @@ const LoginController = () => {
           <PageView
             pages={{
               login: LoginPage,
+              register: RegisterPage,
             }}
             startingPage="login"
             setLoggedIn={(value) => setAlreadyLoggedIn(value)}

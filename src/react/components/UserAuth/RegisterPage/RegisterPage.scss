@@ -1,5 +1,5 @@
 #react-root {
-  #login-page {
+  #register-page {
     width: 600px;
     height: 450px;
     background-color: darkkhaki;
@@ -7,7 +7,7 @@
     align-items: center;
     justify-content: center;
 
-    .login-card {
+    .register-card {
       border-radius: 10px;
       display: flex;
       background-color: white;
@@ -15,21 +15,21 @@
       justify-content: center;
       flex-direction: column;
       width: 350px;
-      height: 250px;
+      height: 300px;
       box-shadow: 0px 0px 20px rgb(96, 106, 25);
     }
 
-    .login-page-header {
+    .register-page-header {
       font-size: 32px;
     }
 
-    .login-button {
+    .register-button {
       margin: 7px;
       width: 75px;
       text-align: center;
     }
 
-    .login-field {
+    .register-field {
       width: 75%;
     }
   }
