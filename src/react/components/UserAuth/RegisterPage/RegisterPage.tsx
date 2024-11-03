@@ -5,12 +5,14 @@ import TextInput from "../../TextInput/TextInput";
 import { useCallback, useState } from "react";
 import { apiPost } from "../../../../util/FetchUtil";
 
-const RegisterPage = ({ changePage, setLoggedIn }: PageProps) => {
+const RegisterPage = ({ changePage, setLoggedIn, addAlert }: PageProps) => {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [pending, setPending] = useState(false);
 
   const registerAccount = useCallback(() => {
+    setPending(true);
     apiPost("/auth/register", false, {
       body: {
         username: username,
@@ -18,7 +20,23 @@ const RegisterPage = ({ changePage, setLoggedIn }: PageProps) => {
         email: email,
       },
     }).then((response) => {
-      console.log(response);
+      switch (response.status) {
+        case 201:
+          response.json().then((json) => {
+            addAlert("success", json.message);
+          });
+          break;
+
+        case 400:
+        case 401:
+        case 500:
+          response.json().then((json) => {
+            addAlert("error", json.error);
+          });
+          break;
+      }
+
+      setPending(false);
     });
   }, [email, password, username]);
 
@@ -53,6 +71,7 @@ const RegisterPage = ({ changePage, setLoggedIn }: PageProps) => {
               changePage("login");
             }}
             buttonType="secondary"
+            disabled={pending}
           >
             Login
           </Button>
@@ -60,6 +79,7 @@ const RegisterPage = ({ changePage, setLoggedIn }: PageProps) => {
             className="register-button"
             buttonType="primary"
             onClick={registerAccount}
+            disabled={pending}
           >
             Register
           </Button>

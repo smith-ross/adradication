@@ -1,7 +1,11 @@
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import Adradication from "../../../../game/core/Adradication";
 import { apiGet } from "../../../../util/FetchUtil";
 import { getFromStorage } from "../../../../util/StorageUtil";
+import Alert from "../../Alert/Alert";
+import AlertContainer, {
+  AlertSchema,
+} from "../../AlertContainer/AlertContainer";
 import GameView from "../../GameComponents/GameView";
 import PageView from "../../PageView/PageView";
 import LoginPage from "../LoginPage/LoginPage";
@@ -26,7 +30,7 @@ const LoginController = () => {
   }, []);
 
   return (
-    <>
+    <div>
       {isLoaded ? (
         alreadyLoggedIn ? (
           <GameView game={Adradication.getGame()} />
@@ -43,7 +47,7 @@ const LoginController = () => {
       ) : (
         <div>Loading...</div>
       )}
-    </>
+    </div>
   );
 };
 

@@ -3,7 +3,7 @@ import { PageProps } from "../../PageView/PageView";
 import Button from "../../Button/Button";
 import TextInput from "../../TextInput/TextInput";
 
-const LoginPage = ({ changePage, setLoggedIn }: PageProps) => {
+const LoginPage = ({ changePage, setLoggedIn, addAlert }: PageProps) => {
   return (
     <div id="login-page">
       <div className="login-card">
