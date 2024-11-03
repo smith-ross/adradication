@@ -2,8 +2,46 @@ import "./LoginPage.scss";
 import { PageProps } from "../../PageView/PageView";
 import Button from "../../Button/Button";
 import TextInput from "../../TextInput/TextInput";
+import { useCallback, useState } from "react";
+import { apiPost } from "../../../../util/FetchUtil";
+import { deleteStorage, setStorage } from "../../../../util/StorageUtil";
 
 const LoginPage = ({ changePage, setLoggedIn, addAlert }: PageProps) => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [pending, setPending] = useState(false);
+
+  const loginAccount = useCallback(() => {
+    setPending(true);
+    apiPost("/auth/login", false, {
+      body: {
+        username: username,
+        password: password,
+      },
+    }).then((response) => {
+      switch (response.status) {
+        case 200:
+          response.json().then((json) => {
+            setStorage("authToken", json.token).then(() => {
+              setLoggedIn(true);
+            });
+          });
+          break;
+
+        case 400:
+        case 401:
+        case 500:
+          response.json().then((json) => {
+            addAlert("error", json.error);
+          });
+          deleteStorage("authToken");
+          break;
+      }
+
+      setPending(false);
+    });
+  }, [password, username]);
+
   return (
     <div id="login-page">
       <div className="login-card">
@@ -12,20 +50,19 @@ const LoginPage = ({ changePage, setLoggedIn, addAlert }: PageProps) => {
           className="login-field"
           name="username"
           placeholderText="Username"
+          onChange={(event) => setUsername(event.target.value)}
         />
         <TextInput
           className="login-field"
           name="password"
+          typeOverride="password"
           placeholderText="Password"
+          onChange={(event) => setPassword(event.target.value)}
         />
         <span id="login-controls">
           <Button
             className="login-button"
-            onClick={() => {
-              console.log(setLoggedIn);
-              setLoggedIn(true);
-              console.log("Logged in");
-            }}
+            onClick={loginAccount}
             buttonType="primary"
           >
             Login

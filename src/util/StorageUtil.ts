@@ -55,6 +55,10 @@ export const transformStorageOverwrite = async (modifier: StorageModifier) => {
   updateStorage();
 };
 
+export const deleteStorage = async (key: string) => {
+  return chrome.storage.local.remove(key);
+};
+
 export const setStorage = async (key: string, value: any) => {
   storageQueue.itemQueue.push({
     key: key,

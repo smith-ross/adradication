@@ -26,7 +26,8 @@ const authenticatedRequest = async (
       Authorization: (authToken && `Bearer ${authToken}`) || undefined,
       ...(requestConfig?.headers || []),
     },
-    body: JSON.stringify(requestConfig?.body || {}),
+    body:
+      (requestConfig?.body && JSON.stringify(requestConfig?.body)) || undefined,
   });
 };
 

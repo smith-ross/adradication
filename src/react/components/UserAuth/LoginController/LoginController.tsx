@@ -22,7 +22,7 @@ const LoginController = () => {
         setLoaded(true);
         return;
       }
-      apiGet("/auth/currentUser").then((response) => {
+      apiGet("/auth/currentUser", true).then((response) => {
         setAlreadyLoggedIn(response.status === 200);
         setLoaded(true);
       });
@@ -33,7 +33,10 @@ const LoginController = () => {
     <div>
       {isLoaded ? (
         alreadyLoggedIn ? (
-          <GameView game={Adradication.getGame()} />
+          <GameView
+            game={Adradication.getGame()}
+            setLoggedIn={(value) => setAlreadyLoggedIn(value)}
+          />
         ) : (
           <PageView
             pages={{

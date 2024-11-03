@@ -1,18 +1,20 @@
 import { MutableRefObject, useCallback, useRef } from "react";
 import Adradication from "../../../game/core/Adradication";
 import "./GameView.scss";
+import UILayout from "./UI/UILayout/UILayout";
 
 type ImplementedGame = Adradication;
 
 interface GameViewProps {
   game: ImplementedGame;
+  setLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface GameState {
   currentGame?: ImplementedGame;
 }
 
-const GameView = ({ game }: GameViewProps) => {
+const GameView = ({ game, setLoggedIn }: GameViewProps) => {
   const gameStateRef: MutableRefObject<GameState> = useRef({
     currentGame: undefined,
   });
@@ -26,7 +28,12 @@ const GameView = ({ game }: GameViewProps) => {
       game.start();
     }
   }, []);
-  return <canvas ref={canvasRef} id="adradication" />;
+  return (
+    <div className="adradication-container">
+      <UILayout setLoggedIn={setLoggedIn} />
+      <canvas ref={canvasRef} id="adradication" />
+    </div>
+  );
 };
 
 export default GameView;

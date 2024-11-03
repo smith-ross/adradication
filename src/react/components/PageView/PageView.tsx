@@ -17,7 +17,6 @@ const PageView = ({ pages, startingPage, setLoggedIn }: PageViewProps) => {
   const [selectedPage, selectPage] = useState(startingPage);
   const [alerts, setAlerts] = useState<AlertSchema[]>([]);
   if (!pages[selectedPage]) selectPage(startingPage);
-  console.log("Set Logged In:", setLoggedIn);
   return (
     <>
       <AlertContainer
