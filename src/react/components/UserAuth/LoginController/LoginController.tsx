@@ -7,14 +7,16 @@ import PageView from "../../PageView/PageView";
 import LoginPage from "../LoginPage/LoginPage";
 import RegisterPage from "../RegisterPage/RegisterPage";
 import { GameAuthContextProvider } from "../../../context/GameAuthContext";
-import { AlertsContextProvider } from "../../../context/AlertsContext";
+import {
+  AlertsContextProvider,
+  useAlertsContext,
+} from "../../../context/AlertsContext";
 import "./LoginController.scss";
 
 const LoginController = () => {
   const [isLoaded, setLoaded] = useState(false);
   const [alreadyLoggedIn, setAlreadyLoggedIn] = useState(false);
-  const [tickAmount, setTicks] = useState(1);
-  const tickString = useMemo(() => ".".repeat(tickAmount), [tickAmount]);
+  const { addAlert } = useAlertsContext();
 
   useEffect(() => {
     getFromStorage("authToken").then((authToken) => {
@@ -23,28 +25,29 @@ const LoginController = () => {
         setLoaded(true);
         return;
       }
-      apiGet("/auth/currentUser", true).then((response) => {
-        setAlreadyLoggedIn(response.status === 200);
-        setLoaded(true);
-      });
+      apiGet("/auth/currentUser", true)
+        .then((response) => {
+          setAlreadyLoggedIn(response.status === 200);
+          setLoaded(true);
+        })
+        .catch((reason: Error) => {
+          addAlert({
+            type: "warn",
+            content:
+              "Failed to automatically log in, please try logging in manually. If the issue persists, try a different website.",
+          });
+          setLoaded(true);
+        });
     });
   }, []);
 
-  useEffect(() => {
-    if (isLoaded) return;
-    setTimeout(() => {
-      if (isLoaded) return;
-      setTicks(tickAmount === 3 ? 0 : tickAmount + 1);
-    }, 100);
-  }, [tickAmount]);
-
   return (
-    <AlertsContextProvider>
-      <GameAuthContextProvider value={{ setLoggedIn: setAlreadyLoggedIn }}>
-        {isLoaded ? (
-          alreadyLoggedIn ? (
-            <GameView game={Adradication.getGame()} />
-          ) : (
+    <GameAuthContextProvider value={{ setLoggedIn: setAlreadyLoggedIn }}>
+      {isLoaded ? (
+        alreadyLoggedIn ? (
+          <GameView game={Adradication.getGame()} />
+        ) : (
+          <>
             <PageView
               pages={{
                 login: LoginPage,
@@ -52,20 +55,26 @@ const LoginController = () => {
               }}
               startingPage="login"
             />
-          )
-        ) : (
-          <div className="loader">
-            <>
-              Loading{tickString}
-              <div>
-                For the best experience, turn off any
-                <b> AdBlock</b> extensions
-              </div>
-            </>
-          </div>
-        )}
-      </GameAuthContextProvider>
-    </AlertsContextProvider>
+            <div className="adblocker-warning">
+              Please disable all <b>AdBlock</b> extensions before playing.
+            </div>
+          </>
+        )
+      ) : (
+        <div className="loader">
+          <>
+            <img
+              className="spinner"
+              src={chrome.runtime.getURL("res/spinner.svg")}
+            />
+            <div>
+              For the best experience, turn off any
+              <b> AdBlock</b> extensions
+            </div>
+          </>
+        </div>
+      )}
+    </GameAuthContextProvider>
   );
 };
 

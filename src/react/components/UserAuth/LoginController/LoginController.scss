@@ -12,5 +12,17 @@
       flex-direction: column;
       font-size: 32px;
       text-align: center;
+      .spinner {
+        height: 60px;
+        width: 60px;
+      }
+    }
+    .adblocker-warning {
+        position: absolute;
+        bottom: 20px;
+        width: 100%;
+        text-align: center;
+        color: white;
+        text-shadow: 0 0 2px black;
     }
 }
