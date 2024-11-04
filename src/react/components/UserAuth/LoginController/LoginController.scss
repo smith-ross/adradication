@@ -1,0 +1,16 @@
+#react-root {
+    b {
+        font-weight: bold;
+        font-size: inherit
+    }
+    .loader {
+      width: 600px;
+      height: 450px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      font-size: 32px;
+      text-align: center;
+    }
+}

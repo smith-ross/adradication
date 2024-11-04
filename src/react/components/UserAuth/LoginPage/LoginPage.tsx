@@ -5,10 +5,12 @@ import TextInput from "../../TextInput/TextInput";
 import { useCallback, useState } from "react";
 import { apiPost } from "../../../../util/FetchUtil";
 import { deleteStorage, setStorage } from "../../../../util/StorageUtil";
+import { useAlertsContext } from "../../../context/AlertsContext";
 import { useGameAuthContext } from "../../../context/GameAuthContext";
 
 const LoginPage = ({ changePage }: PageProps) => {
-  const { setLoggedIn, addAlert, clearAlerts } = useGameAuthContext();
+  const { setLoggedIn } = useGameAuthContext();
+  const { addAlert, clearAlerts } = useAlertsContext();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [pending, setPending] = useState(false);

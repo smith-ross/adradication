@@ -4,10 +4,10 @@ import Button from "../../Button/Button";
 import TextInput from "../../TextInput/TextInput";
 import { useCallback, useState } from "react";
 import { apiPost } from "../../../../util/FetchUtil";
-import { useGameAuthContext } from "../../../context/GameAuthContext";
+import { useAlertsContext } from "../../../context/AlertsContext";
 
 const RegisterPage = ({ changePage }: PageProps) => {
-  const { setLoggedIn, addAlert } = useGameAuthContext();
+  const { addAlert } = useAlertsContext();
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");

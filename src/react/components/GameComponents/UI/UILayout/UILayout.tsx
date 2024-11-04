@@ -1,4 +1,3 @@
-import { Dispatch, SetStateAction } from "react";
 import Logout from "../Logout/Logout";
 import NameDisplay from "../NameDisplay/NameDisplay";
 import "./UILayout.scss";

@@ -14,14 +14,9 @@ interface PageViewProps {
 const PageView = ({ pages, startingPage }: PageViewProps) => {
   const [selectedPage, selectPage] = useState(startingPage);
   if (!pages[selectedPage]) selectPage(startingPage);
-  return (
-    <>
-      <AlertContainer />
-      {createElement(pages[selectedPage], {
-        changePage: selectPage,
-      })}
-    </>
-  );
+  return createElement(pages[selectedPage], {
+    changePage: selectPage,
+  });
 };
 
 export default PageView;

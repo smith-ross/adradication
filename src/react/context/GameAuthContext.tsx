@@ -1,11 +1,4 @@
-import {
-  createContext,
-  ReactNode,
-  useCallback,
-  useContext,
-  useState,
-} from "react";
-import { AlertSchema } from "../components/AlertContainer/AlertContainer";
+import { createContext, ReactNode, useContext } from "react";
 
 interface GameAuthContextProps {
   setLoggedIn: (value: boolean) => void;
@@ -18,10 +11,6 @@ interface GameAuthContextProviderProps {
 
 const defaultContext = {
   setLoggedIn: (value: boolean) => {},
-  addAlert: (value: AlertSchema) => {},
-  removeAlert: (index: number) => {},
-  clearAlerts: () => {},
-  alerts: [] as AlertSchema[],
 };
 
 const GameAuthContext = createContext(defaultContext);
@@ -36,39 +25,8 @@ export const GameAuthContextProvider = ({
   value,
   children,
 }: GameAuthContextProviderProps) => {
-  const [alerts, setAlerts] = useState<AlertSchema[]>([]);
-
-  const removeAlert = useCallback(
-    (index: number) => {
-      setAlerts(
-        alerts.filter((_, i) => {
-          return i !== index;
-        })
-      );
-    },
-    [alerts]
-  );
-
-  const addAlert = useCallback(({ type, content }: AlertSchema) => {
-    setAlerts((alerts) => {
-      return [...alerts, { type: type, content: content }];
-    });
-  }, []);
-
-  const clearAlerts = useCallback(() => {
-    setAlerts([]);
-  }, []);
-
   return (
-    <GameAuthContext.Provider
-      value={{
-        ...value,
-        alerts: alerts,
-        addAlert: addAlert,
-        removeAlert: removeAlert,
-        clearAlerts: clearAlerts,
-      }}
-    >
+    <GameAuthContext.Provider value={value}>
       {children}
     </GameAuthContext.Provider>
   );
