@@ -1,42 +1,24 @@
 import { createElement, FunctionComponent, ReactNode, useState } from "react";
 import AlertContainer, { AlertSchema } from "../AlertContainer/AlertContainer";
+import { GameAuthContextProvider } from "../../context/GameAuthContext";
 
 export interface PageProps {
   changePage: (pageId: string) => void;
-  setLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
-  addAlert: (type: "error" | "success" | "warn", text: ReactNode) => void;
 }
 
 interface PageViewProps {
   startingPage: string;
   pages: { [pageId: string]: FunctionComponent<PageProps> };
-  setLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const PageView = ({ pages, startingPage, setLoggedIn }: PageViewProps) => {
+const PageView = ({ pages, startingPage }: PageViewProps) => {
   const [selectedPage, selectPage] = useState(startingPage);
-  const [alerts, setAlerts] = useState<AlertSchema[]>([]);
   if (!pages[selectedPage]) selectPage(startingPage);
   return (
     <>
-      <AlertContainer
-        alerts={alerts}
-        removeAlert={(index: number) => {
-          setAlerts(
-            alerts.filter((_, i) => {
-              return i !== index;
-            })
-          );
-        }}
-      />
+      <AlertContainer />
       {createElement(pages[selectedPage], {
         changePage: selectPage,
-        setLoggedIn: setLoggedIn,
-        addAlert: (type: "error" | "success" | "warn", text: ReactNode) => {
-          setAlerts((alerts) => {
-            return [...alerts, { type: type, content: text }];
-          });
-        },
       })}
     </>
   );

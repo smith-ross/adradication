@@ -4,8 +4,10 @@ import Button from "../../Button/Button";
 import TextInput from "../../TextInput/TextInput";
 import { useCallback, useState } from "react";
 import { apiPost } from "../../../../util/FetchUtil";
+import { useGameAuthContext } from "../../../context/GameAuthContext";
 
-const RegisterPage = ({ changePage, setLoggedIn, addAlert }: PageProps) => {
+const RegisterPage = ({ changePage }: PageProps) => {
+  const { setLoggedIn, addAlert } = useGameAuthContext();
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -23,7 +25,7 @@ const RegisterPage = ({ changePage, setLoggedIn, addAlert }: PageProps) => {
       switch (response.status) {
         case 201:
           response.json().then((json) => {
-            addAlert("success", json.message);
+            addAlert({ type: "success", content: json.message });
           });
           break;
 
@@ -31,7 +33,7 @@ const RegisterPage = ({ changePage, setLoggedIn, addAlert }: PageProps) => {
         case 401:
         case 500:
           response.json().then((json) => {
-            addAlert("error", json.error);
+            addAlert({ type: "error", content: json.error });
           });
           break;
       }

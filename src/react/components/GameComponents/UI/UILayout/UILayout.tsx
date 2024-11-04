@@ -3,15 +3,11 @@ import Logout from "../Logout/Logout";
 import NameDisplay from "../NameDisplay/NameDisplay";
 import "./UILayout.scss";
 
-interface UILayoutProps {
-  setLoggedIn: Dispatch<SetStateAction<boolean>>;
-}
-
-const UILayout = ({ setLoggedIn }: UILayoutProps) => {
+const UILayout = () => {
   return (
     <div className="adradication-ui">
       <NameDisplay />
-      <Logout setLoggedIn={setLoggedIn} />
+      <Logout />
     </div>
   );
 };

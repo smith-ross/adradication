@@ -7,14 +7,13 @@ type ImplementedGame = Adradication;
 
 interface GameViewProps {
   game: ImplementedGame;
-  setLoggedIn: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 interface GameState {
   currentGame?: ImplementedGame;
 }
 
-const GameView = ({ game, setLoggedIn }: GameViewProps) => {
+const GameView = ({ game }: GameViewProps) => {
   const gameStateRef: MutableRefObject<GameState> = useRef({
     currentGame: undefined,
   });
@@ -30,7 +29,7 @@ const GameView = ({ game, setLoggedIn }: GameViewProps) => {
   }, []);
   return (
     <div className="adradication-container">
-      <UILayout setLoggedIn={setLoggedIn} />
+      <UILayout />
       <canvas ref={canvasRef} id="adradication" />
     </div>
   );

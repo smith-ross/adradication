@@ -2,12 +2,10 @@ import { Dispatch, SetStateAction } from "react";
 import { deleteStorage, setStorage } from "../../../../../util/StorageUtil";
 import Button from "../../../Button/Button";
 import "./Logout.scss";
+import { useGameAuthContext } from "../../../../context/GameAuthContext";
 
-interface LogoutProps {
-  setLoggedIn: Dispatch<SetStateAction<boolean>>;
-}
-
-const Logout = ({ setLoggedIn }: LogoutProps) => {
+const Logout = () => {
+  const { setLoggedIn } = useGameAuthContext();
   return (
     <Button
       className="logout"

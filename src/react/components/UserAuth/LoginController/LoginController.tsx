@@ -10,6 +10,7 @@ import GameView from "../../GameComponents/GameView";
 import PageView from "../../PageView/PageView";
 import LoginPage from "../LoginPage/LoginPage";
 import RegisterPage from "../RegisterPage/RegisterPage";
+import { GameAuthContextProvider } from "../../../context/GameAuthContext";
 
 const LoginController = () => {
   const [isLoaded, setLoaded] = useState(false);
@@ -30,13 +31,10 @@ const LoginController = () => {
   }, []);
 
   return (
-    <div>
+    <GameAuthContextProvider value={{ setLoggedIn: setAlreadyLoggedIn }}>
       {isLoaded ? (
         alreadyLoggedIn ? (
-          <GameView
-            game={Adradication.getGame()}
-            setLoggedIn={(value) => setAlreadyLoggedIn(value)}
-          />
+          <GameView game={Adradication.getGame()} />
         ) : (
           <PageView
             pages={{
@@ -44,13 +42,12 @@ const LoginController = () => {
               register: RegisterPage,
             }}
             startingPage="login"
-            setLoggedIn={(value) => setAlreadyLoggedIn(value)}
           />
         )
       ) : (
         <div>Loading...</div>
       )}
-    </div>
+    </GameAuthContextProvider>
   );
 };
 

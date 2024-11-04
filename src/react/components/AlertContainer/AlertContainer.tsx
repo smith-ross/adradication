@@ -1,17 +1,15 @@
 import { ReactNode } from "react";
 import Alert from "../Alert/Alert";
 import "./AlertContainer.scss";
+import { useGameAuthContext } from "../../context/GameAuthContext";
 
 export type AlertSchema = {
   type: "error" | "success" | "warn";
   content: ReactNode;
 };
-interface AlertContainerProps {
-  alerts: AlertSchema[];
-  removeAlert: (id: number) => void;
-}
 
-const AlertContainer = ({ alerts, removeAlert }: AlertContainerProps) => {
+const AlertContainer = () => {
+  const { alerts, removeAlert } = useGameAuthContext();
   return (
     <div className="alert-container">
       {alerts.map((alertDetails, index) => {

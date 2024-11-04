@@ -5,8 +5,10 @@ import TextInput from "../../TextInput/TextInput";
 import { useCallback, useState } from "react";
 import { apiPost } from "../../../../util/FetchUtil";
 import { deleteStorage, setStorage } from "../../../../util/StorageUtil";
+import { useGameAuthContext } from "../../../context/GameAuthContext";
 
-const LoginPage = ({ changePage, setLoggedIn, addAlert }: PageProps) => {
+const LoginPage = ({ changePage }: PageProps) => {
+  const { setLoggedIn, addAlert, clearAlerts } = useGameAuthContext();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [pending, setPending] = useState(false);
@@ -24,6 +26,7 @@ const LoginPage = ({ changePage, setLoggedIn, addAlert }: PageProps) => {
           response.json().then((json) => {
             setStorage("authToken", json.token).then(() => {
               setLoggedIn(true);
+              clearAlerts();
             });
           });
           break;
@@ -32,7 +35,7 @@ const LoginPage = ({ changePage, setLoggedIn, addAlert }: PageProps) => {
         case 401:
         case 500:
           response.json().then((json) => {
-            addAlert("error", json.error);
+            addAlert({ type: "error", content: json.error });
           });
           deleteStorage("authToken");
           break;
