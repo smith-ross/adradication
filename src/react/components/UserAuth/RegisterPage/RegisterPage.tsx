@@ -21,25 +21,33 @@ const RegisterPage = ({ changePage }: PageProps) => {
         password: password,
         email: email,
       },
-    }).then((response) => {
-      switch (response.status) {
-        case 201:
-          response.json().then((json) => {
-            addAlert({ type: "success", content: json.message });
-          });
-          break;
+    })
+      .then((response) => {
+        switch (response.status) {
+          case 201:
+            response.json().then((json) => {
+              addAlert({ type: "success", content: json.message });
+            });
+            break;
 
-        case 400:
-        case 401:
-        case 500:
-          response.json().then((json) => {
-            addAlert({ type: "error", content: json.error });
-          });
-          break;
-      }
+          case 400:
+          case 401:
+          case 500:
+            response.json().then((json) => {
+              addAlert({ type: "error", content: json.error });
+            });
+            break;
+        }
 
-      setPending(false);
-    });
+        setPending(false);
+      })
+      .catch((error) => {
+        addAlert({
+          type: "error",
+          content:
+            "Failed to register, If the issue persists, try a different website.",
+        });
+      });
   }, [email, password, username]);
 
   return (

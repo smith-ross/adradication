@@ -22,29 +22,37 @@ const LoginPage = ({ changePage }: PageProps) => {
         username: username,
         password: password,
       },
-    }).then((response) => {
-      switch (response.status) {
-        case 200:
-          response.json().then((json) => {
-            setStorage("authToken", json.token).then(() => {
-              setLoggedIn(true);
-              clearAlerts();
+    })
+      .then((response) => {
+        switch (response.status) {
+          case 200:
+            response.json().then((json) => {
+              setStorage("authToken", json.token).then(() => {
+                setLoggedIn(true);
+                clearAlerts();
+              });
             });
-          });
-          break;
+            break;
 
-        case 400:
-        case 401:
-        case 500:
-          response.json().then((json) => {
-            addAlert({ type: "error", content: json.error });
-          });
-          deleteStorage("authToken");
-          break;
-      }
+          case 400:
+          case 401:
+          case 500:
+            response.json().then((json) => {
+              addAlert({ type: "error", content: json.error });
+            });
+            deleteStorage("authToken");
+            break;
+        }
 
-      setPending(false);
-    });
+        setPending(false);
+      })
+      .catch((error) => {
+        addAlert({
+          type: "error",
+          content:
+            "Failed to log in. If the issue persists, try a different website.",
+        });
+      });
   }, [password, username]);
 
   return (

@@ -17,11 +17,15 @@ const NameDisplay = () => {
 
   useEffect(() => {
     updateName();
-    chrome.storage.onChanged.addListener((changes) => {
+    const onNameUpdate = (changes: {
+      [key: string]: chrome.storage.StorageChange;
+    }) => {
       if (Object.keys(changes).includes("authToken")) {
         updateName();
       }
-    });
+    };
+    chrome.storage.onChanged.addListener(onNameUpdate);
+    return () => chrome.storage.onChanged.removeListener(onNameUpdate);
   }, []);
   return <span className="name-display">{username}</span>;
 };

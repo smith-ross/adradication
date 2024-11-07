@@ -1,4 +1,15 @@
-import { createContext, ReactNode, useContext } from "react";
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import {
+  getFromStorage,
+  transformStorageOverwrite,
+} from "../../util/StorageUtil";
 
 interface GameAuthContextProps {
   setLoggedIn: (value: boolean) => void;
@@ -9,8 +20,16 @@ interface GameAuthContextProviderProps {
   value: GameAuthContextProps;
 }
 
+export interface GameAuthContextType {
+  setLoggedIn: (value: boolean) => void;
+  score: number;
+  setScore: (amount: number) => void;
+}
+
 const defaultContext = {
   setLoggedIn: (value: boolean) => {},
+  score: 0,
+  setScore: (amount: number) => {},
 };
 
 const GameAuthContext = createContext(defaultContext);
@@ -25,8 +44,49 @@ export const GameAuthContextProvider = ({
   value,
   children,
 }: GameAuthContextProviderProps) => {
+  const [score, setScore] = useState(0);
+  const updateScore = useCallback(
+    (id: number) => {
+      getFromStorage(`pageScore-${id}`).then((value) => {
+        console.log("VALUE", value);
+        setScore(value);
+      });
+    },
+    [score]
+  );
+
+  useEffect(() => {
+    let id = 0;
+    const onNameUpdate = (changes: {
+      [key: string]: chrome.storage.StorageChange;
+    }) => {
+      if (Object.keys(changes).includes(`pageScore-${id}`)) {
+        updateScore(id);
+      }
+    };
+
+    chrome.runtime.sendMessage({ text: "getTabId" }, (tabId) => {
+      id = tabId.tab;
+      console.log("ID", id);
+      window.addEventListener("beforeunload", () => {
+        transformStorageOverwrite({
+          key: `pageScore-${tabId.tab}`,
+          modifierFn: (originalValue) => {
+            return 0;
+          },
+        });
+      });
+      updateScore(id);
+      chrome.storage.onChanged.addListener(onNameUpdate);
+    });
+
+    return () => chrome.storage.onChanged.removeListener(onNameUpdate);
+  }, []);
+
   return (
-    <GameAuthContext.Provider value={value}>
+    <GameAuthContext.Provider
+      value={{ ...value, score: score, setScore: setScore }}
+    >
       {children}
     </GameAuthContext.Provider>
   );

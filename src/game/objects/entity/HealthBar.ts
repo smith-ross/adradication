@@ -16,7 +16,7 @@ const VECTOR_INNER_BAR_OFFSET = new Vector(...INNER_HEALTH_BAR_OFFSET);
 
 export default class HealthBar extends RenderableGameObject {
   #maxHealth: number = 0;
-  #currentHealth: number = 0;
+  currentHealth: number = 0;
   #healthBarSize: Vector = new Vector();
   #destroyOnZero: boolean = false;
 
@@ -59,20 +59,19 @@ export default class HealthBar extends RenderableGameObject {
     });
     this.#destroyOnZero = !!healthBarProps.destroyOnZero;
     this.#maxHealth = healthBarProps.maxHealth;
-    this.#currentHealth = healthBarProps.maxHealth;
+    this.currentHealth = healthBarProps.maxHealth;
     this.#healthBarSize = healthBarSize;
   }
 
   takeDamage(damage: number) {
-    this.#currentHealth = Math.max(this.#currentHealth - damage, 0);
+    this.currentHealth = Math.max(this.currentHealth - damage, 0);
     const innerHealthBar = this.getDescendant(`${this.id}-inner-bar`);
     if (!innerHealthBar) return;
     innerHealthBar.size = this.#healthBarSize
       .sub(VECTOR_INNER_BAR_OFFSET.mul(2))
-      .mul(new Vector(this.#currentHealth / this.#maxHealth, 1));
+      .mul(new Vector(this.currentHealth / this.#maxHealth, 1));
 
-    if (this.#currentHealth === 0 && this.#destroyOnZero)
-      this.parent?.destroy();
+    if (this.currentHealth === 0 && this.#destroyOnZero) this.parent?.destroy();
   }
 
   render(context: CanvasRenderingContext2D, deltaTime: number): void {}

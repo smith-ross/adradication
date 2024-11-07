@@ -1,4 +1,5 @@
 import { draw } from "../../../util/DrawUtil";
+import { transformStorage } from "../../../util/StorageUtil";
 import WorldMap from "../../map/WorldMap";
 import Color from "../../types/Color";
 import RenderableGameObject, {
@@ -172,6 +173,16 @@ export default class Adbomination extends RenderableGameObject {
     healthBar.takeDamage(damage);
     this.stun(stunDuration);
     if (knockback) this.applyKnockback(knockback);
+    if (healthBar.currentHealth <= 0) {
+      chrome.runtime.sendMessage({ text: "getTabId" }, (tabId) => {
+        transformStorage({
+          key: "pageScore-" + tabId.tab,
+          modifierFn(originalValue) {
+            return (originalValue || 0) + 1;
+          },
+        });
+      });
+    }
   }
 
   stun(duration: number) {
