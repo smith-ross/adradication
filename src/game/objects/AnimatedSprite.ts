@@ -11,6 +11,7 @@ export interface AnimationProps {
   cellSize: Vector;
   dimensions: Vector;
   timeBetweenFrames: number;
+  stopAtLastFrame?: boolean;
 }
 
 interface AnimatedSpriteProps
@@ -27,6 +28,7 @@ export default class AnimatedSprite extends RenderableGameObject {
   cellSize: Vector | undefined;
   dimensions: Vector | undefined;
   timeBetweenFrames: number = 1;
+  stopAtLastFrame: boolean = false;
 
   #animationData: AnimationData | undefined;
 
@@ -43,6 +45,7 @@ export default class AnimatedSprite extends RenderableGameObject {
     this.cellSize = imgProps.cellSize;
     this.dimensions = imgProps.dimensions;
     this.timeBetweenFrames = imgProps.timeBetweenFrames;
+    this.stopAtLastFrame = !!imgProps.stopAtLastFrame;
     this.#animationData = {
       currentFrame: new Vector(0, 0),
       elapsedFrameTime: 0,
@@ -58,8 +61,10 @@ export default class AnimatedSprite extends RenderableGameObject {
 
       let nextFrameX = this.#animationData.currentFrame.x + 1;
 
-      if (nextFrameX >= maxFramesX) {
+      if (nextFrameX >= maxFramesX && !this.stopAtLastFrame) {
         nextFrameX = 0;
+      } else if (nextFrameX >= maxFramesX && this.stopAtLastFrame) {
+        nextFrameX = maxFramesX - 1;
       }
 
       this.#animationData.currentFrame = new Vector(nextFrameX, 0);

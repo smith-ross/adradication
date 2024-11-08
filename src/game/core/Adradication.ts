@@ -57,7 +57,16 @@ export default class Adradication {
   private onComplete() {
     this.waves.splice(0, 1);
     if (this.waves[0]) this.waves[0].setActive();
-    console.log(this.waves);
+    if (!this.waves[0]) {
+      chrome.runtime.sendMessage({ text: "getTabId" }, (tabId) => {
+        transformStorage({
+          key: "pageResult-" + tabId.tab,
+          modifierFn(originalValue) {
+            return "win";
+          },
+        });
+      });
+    }
   }
 
   update(time: number, game?: Adradication) {
@@ -82,12 +91,6 @@ export default class Adradication {
             id: `Monster-${this.monsterCount}`,
             size: new Vector(50, 50),
           });
-          // const player = this.loadedScene.layers[0].getDescendant("TestPlayer");
-          // const monsterContainer =
-          //   this.loadedScene.layers[0].getDescendant("MonsterContainer");
-          // if (!player || !monsterContainer) return;
-          // newMonster.spawnAtRandomPoint(this.worldMap, player as Player);
-          // monsterContainer.addChild(newMonster);
           this.addMonster(newMonster);
         }
       });

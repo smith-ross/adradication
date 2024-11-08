@@ -67,8 +67,8 @@ export const GameAuthContextProvider = ({
   const updateWaves = useCallback(
     (id: number) => {
       getFromStorage(`pageWaves-${id}`).then((value) => {
-        setCurrentWave(value[0]);
-        setTotalWaves(value[1]);
+        setCurrentWave(value ? value[0] : 0);
+        setTotalWaves(value ? value[1] : 0);
       });
     },
     [currentWave, totalWaves]

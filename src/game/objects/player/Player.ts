@@ -16,6 +16,7 @@ import Hitbox from "../Hitbox";
 import Sprite from "../Sprite";
 import { PlayerConstants } from "../../const/ConstantsManager";
 import Shadow from "../entity/Shadow";
+import { transformStorage } from "../../../util/StorageUtil";
 
 const {
   MOVE_SPEED,
@@ -36,6 +37,7 @@ enum PlayerState {
   ROLL,
   IDLE,
   ATTACK,
+  DEAD,
 }
 const ANIMATIONS: {
   [k: number]: { left: AnimationProps; right: AnimationProps };
@@ -94,6 +96,22 @@ const ANIMATIONS: {
       dimensions: new Vector(10, 1),
       timeBetweenFrames: 0.1,
       cellSize: new Vector(120, 80),
+    },
+  },
+  [PlayerState.DEAD]: {
+    right: {
+      sheetPath: "res/character-sprites/Death.png",
+      dimensions: new Vector(10, 1),
+      timeBetweenFrames: 0.1,
+      cellSize: new Vector(120, 80),
+      stopAtLastFrame: true,
+    },
+    left: {
+      sheetPath: "res/character-sprites/ReversedDeath.png",
+      dimensions: new Vector(10, 1),
+      timeBetweenFrames: 0.1,
+      cellSize: new Vector(120, 80),
+      stopAtLastFrame: true,
     },
   },
 };
@@ -338,7 +356,23 @@ export default class Player extends RenderableGameObject {
 
   onHit(damage: number) {
     const healthBar = this.getChild("PlayerHealthBar") as HealthBar;
+    if (healthBar.currentHealth <= 0) return;
     healthBar.takeDamage(damage);
+    if (healthBar.currentHealth <= 0) {
+      this.switchState(PlayerState.DEAD);
+      this.setAnimation(
+        PlayerState.DEAD,
+        this.#lastDirection === 1 ? "right" : "left"
+      );
+      chrome.runtime.sendMessage({ text: "getTabId" }, (tabId) => {
+        transformStorage({
+          key: "pageResult-" + tabId.tab,
+          modifierFn(originalValue) {
+            return "lose";
+          },
+        });
+      });
+    }
   }
 
   doAttack(deltaTime: number, moveVec: Vector) {
