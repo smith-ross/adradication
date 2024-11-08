@@ -1,3 +1,4 @@
+import Layer from "../scene/Layer";
 import Vector from "./Vector";
 
 export interface ImplementedObjectProps {
@@ -76,6 +77,10 @@ export default abstract class GameObject {
 
   set size(value: Vector) {
     this.#size = value;
+  }
+
+  getGame() {
+    return (this.getRoot() as Layer).game;
   }
 
   addChild(child: GameObject) {

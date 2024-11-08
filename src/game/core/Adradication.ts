@@ -1,11 +1,13 @@
 import {
   getFromStorage,
+  transformStorage,
   transformStorageOverwrite,
 } from "../../util/StorageUtil";
 import WorldMap from "../map/WorldMap";
 import Empty from "../objects/Empty";
 import Adbomination from "../objects/enemy/Adbomination";
 import EyeP from "../objects/enemy/EyeP";
+import Wave from "../objects/enemy/Wave";
 import Player from "../objects/player/Player";
 import Layer from "../scene/Layer";
 import Scene from "../scene/Scene";
@@ -28,6 +30,7 @@ export default class Adradication {
   monsterCount: number = 0;
   elapsedWaveTime: number = MONSTER_WAVE_GAP;
   tabId: number = -1;
+  waves: Wave[] = [];
 
   static getGame() {
     if (GameInstance) return GameInstance;
@@ -49,6 +52,12 @@ export default class Adradication {
     if (!context) throw "Game Error: Could not retrieve Canvas context";
     this.context = context;
     context.imageSmoothingEnabled = false;
+  }
+
+  private onComplete() {
+    this.waves.splice(0, 1);
+    if (this.waves[0]) this.waves[0].setActive();
+    console.log(this.waves);
   }
 
   update(time: number, game?: Adradication) {
@@ -73,12 +82,13 @@ export default class Adradication {
             id: `Monster-${this.monsterCount}`,
             size: new Vector(50, 50),
           });
-          const player = this.loadedScene.layers[0].getDescendant("TestPlayer");
-          const monsterContainer =
-            this.loadedScene.layers[0].getDescendant("MonsterContainer");
-          if (!player || !monsterContainer) return;
-          newMonster.spawnAtRandomPoint(this.worldMap, player as Player);
-          monsterContainer.addChild(newMonster);
+          // const player = this.loadedScene.layers[0].getDescendant("TestPlayer");
+          // const monsterContainer =
+          //   this.loadedScene.layers[0].getDescendant("MonsterContainer");
+          // if (!player || !monsterContainer) return;
+          // newMonster.spawnAtRandomPoint(this.worldMap, player as Player);
+          // monsterContainer.addChild(newMonster);
+          this.addMonster(newMonster);
         }
         this.worldMap.refreshEnemySpawns();
       });
@@ -89,6 +99,47 @@ export default class Adradication {
     window.requestAnimationFrame((deltaTime) => {
       (game || this).update(deltaTime / 1000, game);
     });
+  }
+
+  addMonster(enemy: Adbomination) {
+    if (!this.loadedScene || !this.worldMap) return;
+    const player = this.loadedScene.layers[0].getDescendant(
+      "TestPlayer"
+    ) as Player;
+    const monsterContainer = this.loadedScene.layers[0].getDescendant(
+      "MonsterContainer"
+    ) as Empty;
+    if (!monsterContainer || !player) return;
+
+    if (!this.waves[0]) {
+      this.waves = [
+        new Wave(
+          monsterContainer,
+          this.worldMap,
+          player,
+          () => this.onComplete(),
+          [enemy]
+        ),
+      ];
+      this.waves[0].setActive();
+      return;
+    }
+    let success = false;
+    this.waves.forEach((wave) => {
+      if (success) return;
+      success = wave.addEnemy(enemy);
+    });
+    if (!success) {
+      this.waves.push(
+        new Wave(
+          monsterContainer,
+          this.worldMap,
+          player,
+          () => this.onComplete(),
+          [enemy]
+        )
+      );
+    }
   }
 
   start() {
@@ -125,9 +176,17 @@ export default class Adradication {
           id: "Layer1",
           zIndex: 1,
           children: [monsterContainer, player],
+          game: this,
         }),
       ],
     });
+
+    this.waves = [
+      new Wave(monsterContainer, this.worldMap, player, () =>
+        this.onComplete()
+      ),
+    ];
+    this.waves[0].setActive();
 
     chrome.runtime.sendMessage({ text: "getTabId" }, (tabId) => {
       this.tabId = tabId.tab;

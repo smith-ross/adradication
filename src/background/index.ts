@@ -10,6 +10,7 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
 chrome.tabs.onRemoved.addListener((tabId) => {
   chrome.storage.local.remove(`TrackerCounter-${tabId}`);
   chrome.storage.local.remove(`pageScore-${tabId}`);
+  chrome.storage.local.remove(`pageWaves-${tabId}`);
 });
 
 chrome.webRequest.onBeforeRequest.addListener(

@@ -7,7 +7,6 @@ import RenderableGameObject, {
   ImplementedRenderableObjectProps,
 } from "../../types/RenderableGameObject";
 import Vector from "../../types/Vector";
-import Box from "../Box";
 import HealthBar from "../entity/HealthBar";
 import Hitbox from "../Hitbox";
 import Player from "../player/Player";
@@ -67,6 +66,7 @@ export default class Adbomination extends RenderableGameObject {
 
   #previousState: EnemyState = EnemyState.IDLE;
   #state: EnemyState = EnemyState.IDLE;
+  #deathListeners: (() => void)[] = [];
 
   constructor(enemyProps: EnemyProps) {
     const hitboxSize = enemyProps.size?.mul(1.5).add(new Vector(10, 0));
@@ -122,6 +122,10 @@ export default class Adbomination extends RenderableGameObject {
     return this.#state;
   }
 
+  addDeathListener(listener: () => void) {
+    this.#deathListeners.push(listener);
+  }
+
   calculateHitbox(width: number) {
     const hitboxSize = this.size?.mul(1.5).add(new Vector(width, 0));
     const hitboxLeftOffset = hitboxSize
@@ -174,6 +178,9 @@ export default class Adbomination extends RenderableGameObject {
     this.stun(stunDuration);
     if (knockback) this.applyKnockback(knockback);
     if (healthBar.currentHealth <= 0) {
+      this.#deathListeners.forEach((listener) => {
+        listener();
+      });
       chrome.runtime.sendMessage({ text: "getTabId" }, (tabId) => {
         transformStorage({
           key: "pageScore-" + tabId.tab,

@@ -1,0 +1,16 @@
+#react-root {
+  .wave-display {
+    position: absolute;
+    top: 60px;
+    width: 100%;
+    text-align: center;
+    color: white;
+    text-shadow: 0 0 4px black;
+    font-size: 18px;
+    font-family: Arial, Helvetica, sans-serif;
+
+    .wave {
+      font-size: 24px;
+    }
+  }
+}
