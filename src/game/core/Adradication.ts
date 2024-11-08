@@ -90,7 +90,6 @@ export default class Adradication {
           // monsterContainer.addChild(newMonster);
           this.addMonster(newMonster);
         }
-        this.worldMap.refreshEnemySpawns();
       });
     }
     this.elapsedWaveTime += deltaTime;

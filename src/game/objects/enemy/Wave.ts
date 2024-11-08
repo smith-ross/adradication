@@ -52,6 +52,7 @@ export default class Wave {
     return true;
   }
   setActive() {
+    this.worldMap.refreshEnemySpawns();
     this.#active = true;
     chrome.runtime.sendMessage({ text: "getTabId" }, (tabId) => {
       transformStorage({
