@@ -1,4 +1,5 @@
 import {
+  deleteStorage,
   getFromStorage,
   transformStorage,
   transformStorageOverwrite,
@@ -199,6 +200,7 @@ export default class Adradication {
             return 0;
           },
         });
+        deleteStorage(`TrackerCounter-${tabId.tab}`);
       });
     });
 

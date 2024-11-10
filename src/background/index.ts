@@ -1,5 +1,5 @@
-import { transformStorage } from "../util/StorageUtil";
-import TrackerURLs from "./TrackerUrls";
+import { deleteStorage, transformStorage } from "../util/StorageUtil";
+import { getTrackerURLs } from "./TrackerUrls";
 
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
   if (msg.text == "getTabId") {
@@ -8,9 +8,9 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
 });
 
 chrome.tabs.onRemoved.addListener((tabId) => {
-  chrome.storage.local.remove(`TrackerCounter-${tabId}`);
-  chrome.storage.local.remove(`pageScore-${tabId}`);
-  chrome.storage.local.remove(`pageWaves-${tabId}`);
+  deleteStorage(`TrackerCounter-${tabId}`);
+  deleteStorage(`pageScore-${tabId}`);
+  deleteStorage(`pageWaves-${tabId}`);
 });
 
 chrome.webRequest.onBeforeRequest.addListener(
@@ -20,19 +20,26 @@ chrome.webRequest.onBeforeRequest.addListener(
       (tabs) => {
         const activeTab = tabs[0];
         if (activeTab && activeTab.id) {
-          if (
-            TrackerURLs.some((trackerRegex) => {
-              return trackerRegex.test(requestInfo.url);
-            })
-          ) {
-            console.log("DETECTED:", requestInfo.url);
-            transformStorage({
-              key: `TrackerCounter-${activeTab.id}`,
-              modifierFn: (originalValue) => {
-                return ((originalValue || 0) as number) + 1;
-              },
-            });
+          for (let tracker of getTrackerURLs()) {
+            if (requestInfo.url.includes(tracker)) {
+              console.log("DETECTED:", tracker, requestInfo.url);
+              transformStorage({
+                key: `TrackerCounter-${activeTab.id}`,
+                modifierFn: (originalValue) => {
+                  return ((originalValue || 0) as number) + 1;
+                },
+              });
+              break;
+            }
           }
+          // if (
+          //   getTrackerURLs().some((trackerRegex) => {
+          //     return trackerRegex.test(requestInfo.url);
+          //   })
+          // ) {
+          //   console.log("DETECTED:", requestInfo.url);
+
+          // }
         }
       }
     );

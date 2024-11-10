@@ -1,11 +1,20 @@
-const TrackerURLs = [
-  /.*doubleclick\.net.*/,
-  /.*google-analytics\.com.*/,
-  /.*ads\.yahoo\.com.*/,
-  /.*pixel.*/,
-  /.*track.*/,
-  /.*adservice\.google.*/,
-  /.*adroll.*/,
-];
+import { apiGet } from "../util/FetchUtil";
 
-export default TrackerURLs;
+let TrackerURLs: string[] = [];
+
+apiGet("/trackers/trackerList")
+  .then((response) => {
+    response.json().then((json) => {
+      TrackerURLs = json;
+    });
+  })
+  .catch((reason) => {
+    console.log(
+      "Retrieving ad trackers failed, using default safety list",
+      reason
+    );
+  });
+
+export const getTrackerURLs = () => {
+  return TrackerURLs;
+};
