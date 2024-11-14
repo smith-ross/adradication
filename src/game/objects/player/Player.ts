@@ -366,7 +366,7 @@ export default class Player extends RenderableGameObject {
       );
       chrome.runtime.sendMessage({ text: "getTabId" }, (tabId) => {
         transformStorage({
-          key: "pageResult-" + tabId.tab,
+          key: "pageResult-" + tabId.tab + "-" + window.location.href,
           modifierFn(originalValue) {
             return "lose";
           },

@@ -32,14 +32,6 @@ chrome.webRequest.onBeforeRequest.addListener(
               break;
             }
           }
-          // if (
-          //   getTrackerURLs().some((trackerRegex) => {
-          //     return trackerRegex.test(requestInfo.url);
-          //   })
-          // ) {
-          //   console.log("DETECTED:", requestInfo.url);
-
-          // }
         }
       }
     );

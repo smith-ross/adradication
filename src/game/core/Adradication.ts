@@ -1,3 +1,4 @@
+import { apiPost } from "../../util/FetchUtil";
 import {
   deleteStorage,
   getFromStorage,
@@ -61,7 +62,7 @@ export default class Adradication {
     if (!this.waves[0]) {
       chrome.runtime.sendMessage({ text: "getTabId" }, (tabId) => {
         transformStorage({
-          key: "pageResult-" + tabId.tab,
+          key: "pageResult-" + tabId.tab + "-" + window.location.href,
           modifierFn(originalValue) {
             return "win";
           },
@@ -193,7 +194,19 @@ export default class Adradication {
 
     chrome.runtime.sendMessage({ text: "getTabId" }, (tabId) => {
       this.tabId = tabId.tab;
+      const url = window.location.href;
       window.addEventListener("beforeunload", () => {
+        const monsterCount = this.monsterCount;
+        getFromStorage(`pageResult-${tabId.tab}-${url}`).then((value) => {
+          const result: string = value || (monsterCount === 0 ? "win" : "flee");
+          deleteStorage(`pageResult-${tabId.tab}-${url}`);
+          apiPost("/battle/reportResult", true, {
+            body: {
+              url: url,
+              result: result,
+            },
+          }).then(() => console.log("Sent result!"));
+        });
         transformStorageOverwrite({
           key: `TrackerCounter-${tabId.tab}`,
           modifierFn: (originalValue) => {
