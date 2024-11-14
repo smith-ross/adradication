@@ -181,7 +181,7 @@ export default class Adbomination extends RenderableGameObject {
       this.#deathListeners.forEach((listener) => {
         listener();
       });
-      chrome.runtime.sendMessage({ text: "getTabId" }, (tabId) => {
+      chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
         transformStorage({
           key: "pageScore-" + tabId.tab,
           modifierFn(originalValue) {

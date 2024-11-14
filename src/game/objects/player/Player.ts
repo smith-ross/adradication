@@ -364,7 +364,7 @@ export default class Player extends RenderableGameObject {
         PlayerState.DEAD,
         this.#lastDirection === 1 ? "right" : "left"
       );
-      chrome.runtime.sendMessage({ text: "getTabId" }, (tabId) => {
+      chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
         transformStorage({
           key: "pageResult-" + tabId.tab + "-" + window.location.href,
           modifierFn(originalValue) {

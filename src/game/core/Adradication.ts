@@ -60,7 +60,7 @@ export default class Adradication {
     this.waves.splice(0, 1);
     if (this.waves[0]) this.waves[0].setActive();
     if (!this.waves[0]) {
-      chrome.runtime.sendMessage({ text: "getTabId" }, (tabId) => {
+      chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
         transformStorage({
           key: "pageResult-" + tabId.tab + "-" + window.location.href,
           modifierFn(originalValue) {
@@ -192,20 +192,14 @@ export default class Adradication {
     ];
     this.waves[0].setActive();
 
-    chrome.runtime.sendMessage({ text: "getTabId" }, (tabId) => {
+    chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
       this.tabId = tabId.tab;
       const url = window.location.href;
       window.addEventListener("beforeunload", () => {
         const monsterCount = this.monsterCount;
-        getFromStorage(`pageResult-${tabId.tab}-${url}`).then((value) => {
-          const result: string = value || (monsterCount === 0 ? "win" : "flee");
-          deleteStorage(`pageResult-${tabId.tab}-${url}`);
-          apiPost("/battle/reportResult", true, {
-            body: {
-              url: url,
-              result: result,
-            },
-          }).then(() => console.log("Sent result!"));
+        chrome.runtime.sendMessage({
+          text: "PAGE_UNLOADED",
+          monsterCount: monsterCount,
         });
         transformStorageOverwrite({
           key: `TrackerCounter-${tabId.tab}`,

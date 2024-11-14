@@ -84,7 +84,7 @@ export const GameAuthContextProvider = ({
       }
     };
 
-    chrome.runtime.sendMessage({ text: "getTabId" }, (tabId) => {
+    chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
       id = tabId.tab;
       console.log("ID", id);
       window.addEventListener("beforeunload", () => {
@@ -112,7 +112,7 @@ export const GameAuthContextProvider = ({
       }
     };
 
-    chrome.runtime.sendMessage({ text: "getTabId" }, (tabId) => {
+    chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
       id = tabId.tab;
       console.log("ID", id);
       window.addEventListener("beforeunload", () => {

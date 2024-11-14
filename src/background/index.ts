@@ -1,9 +1,31 @@
-import { deleteStorage, transformStorage } from "../util/StorageUtil";
+import { apiPost } from "../util/FetchUtil";
+import {
+  deleteStorage,
+  getFromStorage,
+  transformStorage,
+} from "../util/StorageUtil";
 import { getTrackerURLs } from "./TrackerUrls";
 
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
-  if (msg.text == "getTabId") {
-    sendResponse({ tab: sender.tab?.id });
+  switch (msg.text) {
+    case "GET_TAB_ID":
+      sendResponse({ tab: sender.tab?.id });
+      break;
+
+    case "PAGE_UNLOADED":
+      const url = sender.tab?.url;
+      getFromStorage(`pageResult-${sender.tab?.id}-${url}`).then((value) => {
+        const result: string =
+          value || (msg.monsterCount === 0 ? "win" : "flee");
+        deleteStorage(`pageResult-${sender.tab?.id}-${url}`);
+        apiPost("/battle/reportResult", true, {
+          body: {
+            url: url || "",
+            result: result,
+          },
+        }).then(() => console.log("Sent result!"));
+      });
+      break;
   }
 });
 

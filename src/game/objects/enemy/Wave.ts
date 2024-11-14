@@ -27,7 +27,7 @@ export default class Wave {
     this.player = player;
     this.onComplete = onComplete;
     if (defaultWave) this.wave = defaultWave;
-    chrome.runtime.sendMessage({ text: "getTabId" }, (tabId) => {
+    chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
       transformStorage({
         key: "pageWaves-" + tabId.tab,
         modifierFn(originalValue) {
@@ -54,7 +54,7 @@ export default class Wave {
   setActive() {
     this.worldMap.refreshEnemySpawns();
     this.#active = true;
-    chrome.runtime.sendMessage({ text: "getTabId" }, (tabId) => {
+    chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
       transformStorage({
         key: "pageWaves-" + tabId.tab,
         modifierFn(originalValue) {
