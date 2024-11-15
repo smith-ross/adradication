@@ -1,6 +1,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import EmbeddedApp from "../react/components/EmbeddedApp";
+import { transformStorage } from "../util/StorageUtil";
 
 const body = document.querySelector("body");
 const appHolder = document.createElement("div");

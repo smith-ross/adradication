@@ -14,7 +14,7 @@ const storageQueue: StorageQueue = {
 };
 
 const DEFAULTS: { [key: string]: any } = {
-  TrackerCounter: 0,
+  TrackerCounter: [],
 };
 
 export const updateStorage = async () => {

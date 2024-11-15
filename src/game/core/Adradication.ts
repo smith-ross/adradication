@@ -33,6 +33,7 @@ export default class Adradication {
   elapsedWaveTime: number = MONSTER_WAVE_GAP;
   tabId: number = -1;
   waves: Wave[] = [];
+  currentPageCount: number = 0;
 
   static getGame() {
     if (GameInstance) return GameInstance;
@@ -83,9 +84,15 @@ export default class Adradication {
     if (this.elapsedWaveTime >= MONSTER_WAVE_GAP && this.tabId > 0) {
       this.elapsedWaveTime = 0;
       getFromStorage(`TrackerCounter-${this.tabId}`).then((value) => {
-        if (value === undefined) value = 0;
+        if (value === undefined) value = [];
+        console.log(value);
+        value = value.filter(
+          (header: { origin: number }) =>
+            header.origin === this.currentPageCount
+        );
         if (!this.worldMap || !this.loadedScene) return;
-        const diff = value - this.monsterCount;
+        const diff = value.length - this.monsterCount;
+        console.log(value);
         if (diff <= 0) return;
         for (let i = 0; i < diff; i++) {
           this.monsterCount++;
@@ -192,6 +199,10 @@ export default class Adradication {
     ];
     this.waves[0].setActive();
 
+    chrome.runtime.sendMessage({ text: "GET_PAGE_COUNT" }, (response) => {
+      this.currentPageCount = response.pageCount;
+    });
+
     chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
       this.tabId = tabId.tab;
       const url = window.location.href;
@@ -200,11 +211,12 @@ export default class Adradication {
         chrome.runtime.sendMessage({
           text: "PAGE_UNLOADED",
           monsterCount: monsterCount,
+          score: player.score,
         });
         transformStorageOverwrite({
           key: `TrackerCounter-${tabId.tab}`,
           modifierFn: (originalValue) => {
-            return 0;
+            return [];
           },
         });
         deleteStorage(`TrackerCounter-${tabId.tab}`);

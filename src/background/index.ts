@@ -3,17 +3,30 @@ import {
   deleteStorage,
   getFromStorage,
   transformStorage,
+  transformStorageOverwrite,
 } from "../util/StorageUtil";
 import { getTrackerURLs } from "./TrackerUrls";
 
+let pageCount = 0;
+
+interface TrackedEnemy {
+  origin: number;
+}
+
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
   switch (msg.text) {
+    case "GET_PAGE_COUNT":
+      sendResponse({ pageCount: pageCount });
+      break;
+
     case "GET_TAB_ID":
       sendResponse({ tab: sender.tab?.id });
       break;
 
     case "PAGE_UNLOADED":
+      pageCount++;
       const url = sender.tab?.url;
+      deleteStorage(`pageWaves-${sender.tab?.id}`);
       getFromStorage(`pageResult-${sender.tab?.id}-${url}`).then((value) => {
         const result: string =
           value || (msg.monsterCount === 0 ? "win" : "flee");
@@ -22,6 +35,7 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
           body: {
             url: url || "",
             result: result,
+            score: msg.score,
           },
         }).then(() => console.log("Sent result!"));
       });
@@ -35,7 +49,7 @@ chrome.tabs.onRemoved.addListener((tabId) => {
   deleteStorage(`pageWaves-${tabId}`);
 });
 
-chrome.webRequest.onBeforeRequest.addListener(
+chrome.webRequest.onBeforeSendHeaders.addListener(
   (requestInfo) => {
     chrome.tabs.query(
       { active: true, lastFocusedWindow: true, currentWindow: true },
@@ -48,7 +62,13 @@ chrome.webRequest.onBeforeRequest.addListener(
               transformStorage({
                 key: `TrackerCounter-${activeTab.id}`,
                 modifierFn: (originalValue) => {
-                  return ((originalValue || 0) as number) + 1;
+                  console.log(requestInfo.requestHeaders);
+                  return [
+                    ...((originalValue || []) as TrackedEnemy[]),
+                    {
+                      origin: pageCount,
+                    },
+                  ];
                 },
               });
               break;

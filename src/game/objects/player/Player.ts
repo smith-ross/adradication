@@ -148,6 +148,7 @@ export default class Player extends RenderableGameObject {
   #state: PlayerState = PlayerState.IDLE;
 
   tags: InstanceTags = new InstanceTags();
+  score: number = 0;
 
   constructor(playerProps: PlayerProps) {
     const hitboxSize = playerProps.size?.mul(1.5).add(new Vector(30, -40));

@@ -46,6 +46,7 @@ export default class Wave {
       this.container.addChild(enemy);
       enemy.addDeathListener(() => {
         this.#count++;
+        this.player.score++;
         if (this.#count >= this.wave.length) this.onComplete();
       });
     }
@@ -68,6 +69,7 @@ export default class Wave {
       this.container.addChild(enemy);
       enemy.addDeathListener(() => {
         this.#count++;
+        this.player.score++;
         if (this.#count >= this.wave.length) this.onComplete();
       });
     });
