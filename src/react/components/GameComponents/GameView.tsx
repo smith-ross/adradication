@@ -98,7 +98,9 @@ const GameView = ({ game }: GameViewProps) => {
           ) : (
             <WinStatePage
               message={WIN_STATE_MESSAGES[winState as WinState]}
-              spriteUrl=""
+              spriteUrl={chrome.runtime.getURL(
+                `res/character-sprites/WinState/${winState}.png`
+              )}
               score={score}
             />
           )}
