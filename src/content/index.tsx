@@ -1,10 +1,26 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import EmbeddedApp from "../react/components/EmbeddedApp";
-import { transformStorage } from "../util/StorageUtil";
+import {
+  deleteStorage,
+  transformStorage,
+  transformStorageOverwrite,
+} from "../util/StorageUtil";
 
 const body = document.querySelector("body");
 const appHolder = document.createElement("div");
+
+chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
+  window.addEventListener("beforeunload", () => {
+    transformStorageOverwrite({
+      key: `TrackerCounter-${tabId.tab}`,
+      modifierFn: (originalValue) => {
+        return [];
+      },
+    });
+    deleteStorage(`TrackerCounter-${tabId.tab}`);
+  });
+});
 
 appHolder.id = "react-root";
 

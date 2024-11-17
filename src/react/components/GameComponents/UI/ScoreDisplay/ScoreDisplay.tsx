@@ -1,8 +1,8 @@
 import "./ScoreDisplay.scss";
-import { useGameAuthContext } from "../../../../context/GameAuthContext";
+import { useGameContext } from "../../../../context/GameContext";
 
 const ScoreDisplay = () => {
-  const { score } = useGameAuthContext();
+  const { score } = useGameContext();
   return (
     <span className="score-display">
       Score: <span className="score">{score || 0}</span>

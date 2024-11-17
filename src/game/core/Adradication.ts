@@ -22,6 +22,7 @@ export let GameInstance: Adradication | undefined;
 
 export default class Adradication {
   #canvas?: HTMLCanvasElement;
+  #hasResult: boolean = false;
   context?: CanvasRenderingContext2D;
   size: Vector = GAME_SIZE;
 
@@ -34,6 +35,7 @@ export default class Adradication {
   tabId: number = -1;
   waves: Wave[] = [];
   currentPageCount: number = 0;
+  player: Player | undefined;
 
   static getGame() {
     if (GameInstance) return GameInstance;
@@ -67,6 +69,16 @@ export default class Adradication {
           modifierFn(originalValue) {
             return "win";
           },
+        }).then(() => {
+          chrome.runtime
+            .sendMessage({
+              text: "REPORT_RESULT",
+              monsterCount: this.monsterCount,
+              score: this.player?.score,
+            })
+            .then(() => {
+              this.#hasResult = true;
+            });
         });
       });
     }
@@ -85,14 +97,12 @@ export default class Adradication {
       this.elapsedWaveTime = 0;
       getFromStorage(`TrackerCounter-${this.tabId}`).then((value) => {
         if (value === undefined) value = [];
-        console.log(value);
         value = value.filter(
           (header: { origin: number }) =>
             header.origin === this.currentPageCount
         );
         if (!this.worldMap || !this.loadedScene) return;
         const diff = value.length - this.monsterCount;
-        console.log(value);
         if (diff <= 0) return;
         for (let i = 0; i < diff; i++) {
           this.monsterCount++;
@@ -173,6 +183,29 @@ export default class Adradication {
       enemyContainer: monsterContainer,
     });
 
+    player.addDeathListener(() => {
+      chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
+        transformStorage({
+          key: "pageResult-" + tabId.tab + "-" + window.location.href,
+          modifierFn(originalValue) {
+            return "lose";
+          },
+        }).then(() => {
+          chrome.runtime
+            .sendMessage({
+              text: "REPORT_RESULT",
+              monsterCount: this.monsterCount,
+              score: 0,
+            })
+            .then(() => {
+              this.#hasResult = true;
+            });
+        });
+      });
+    });
+
+    this.player = player;
+
     this.worldMap = new WorldMap({
       cellSize: new Vector(75, 75),
       dimensions: GAME_SIZE.div(75),
@@ -205,21 +238,14 @@ export default class Adradication {
 
     chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
       this.tabId = tabId.tab;
-      const url = window.location.href;
       window.addEventListener("beforeunload", () => {
         const monsterCount = this.monsterCount;
         chrome.runtime.sendMessage({
           text: "PAGE_UNLOADED",
           monsterCount: monsterCount,
           score: player.score,
+          noResult: this.#hasResult,
         });
-        transformStorageOverwrite({
-          key: `TrackerCounter-${tabId.tab}`,
-          modifierFn: (originalValue) => {
-            return [];
-          },
-        });
-        deleteStorage(`TrackerCounter-${tabId.tab}`);
       });
     });
 

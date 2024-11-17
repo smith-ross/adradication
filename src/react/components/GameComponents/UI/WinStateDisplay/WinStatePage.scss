@@ -1,0 +1,31 @@
+#react-root {
+    .adradication-win-state {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        width: 387px;
+
+        .win-message {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .win-score {
+            font-size: 16px;
+            font-weight: lighter;
+            .score-number {
+                font-size: 18px;
+                font-weight: bolder;
+            }
+        }
+
+        .win-instruction {
+            font-size: 14px;
+            font-weight: lighter;
+        }
+
+    }
+}

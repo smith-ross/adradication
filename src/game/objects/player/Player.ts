@@ -150,6 +150,8 @@ export default class Player extends RenderableGameObject {
   tags: InstanceTags = new InstanceTags();
   score: number = 0;
 
+  #deathListeners: (() => void)[] = [];
+
   constructor(playerProps: PlayerProps) {
     const hitboxSize = playerProps.size?.mul(1.5).add(new Vector(30, -40));
     const hitboxLeftOffset = hitboxSize
@@ -236,6 +238,10 @@ export default class Player extends RenderableGameObject {
       (InputService.isKeyDown("S") ? 1 : 0) -
       (InputService.isKeyDown("W") ? 1 : 0);
     return new Vector(xMove, yMove).normalize();
+  }
+
+  addDeathListener(listener: () => void) {
+    this.#deathListeners.push(listener);
   }
 
   private borderCheck() {
@@ -365,6 +371,9 @@ export default class Player extends RenderableGameObject {
         PlayerState.DEAD,
         this.#lastDirection === 1 ? "right" : "left"
       );
+      this.#deathListeners.forEach((listener) => {
+        listener();
+      });
       chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
         transformStorage({
           key: "pageResult-" + tabId.tab + "-" + window.location.href,

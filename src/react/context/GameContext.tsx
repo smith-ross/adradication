@@ -11,16 +11,18 @@ import {
   transformStorageOverwrite,
 } from "../../util/StorageUtil";
 
-interface GameAuthContextProps {
+interface GameContextProps {
   setLoggedIn: (value: boolean) => void;
 }
 
-interface GameAuthContextProviderProps {
+interface GameContextProviderProps {
   children: ReactNode;
-  value: GameAuthContextProps;
+  value: GameContextProps;
 }
 
-export interface GameAuthContextType {
+export type WinState = "flee" | "win" | "lose" | "not_played";
+
+export interface GameContextType {
   setLoggedIn: (value: boolean) => void;
   score: number;
   setScore: (amount: number) => void;
@@ -28,33 +30,38 @@ export interface GameAuthContextType {
   setCurrentWave: (amount: number) => void;
   totalWaves: number;
   setTotalWaves: (amount: number) => void;
+  winState: WinState;
+  setWinState: (state: WinState) => void;
 }
 
 const defaultContext = {
-  setLoggedIn: (value: boolean) => {},
-  score: 0,
-  setScore: (amount: number) => {},
-  currentWave: 0,
-  setCurrentWave: (amount: number) => {},
   totalWaves: 0,
+  score: 0,
+  winState: "not_played",
+  currentWave: 0,
+  setLoggedIn: (value: boolean) => {},
+  setScore: (amount: number) => {},
+  setCurrentWave: (amount: number) => {},
   setTotalWaves: (amount: number) => {},
+  setWinState: (state: WinState) => {},
 };
 
-const GameAuthContext = createContext(defaultContext);
+const GameContext = createContext(defaultContext);
 
-export const useGameAuthContext = () => {
-  const context = useContext(GameAuthContext);
+export const useGameContext = () => {
+  const context = useContext(GameContext);
   if (!context) return defaultContext;
   return context;
 };
 
-export const GameAuthContextProvider = ({
+export const GameContextProvider = ({
   value,
   children,
-}: GameAuthContextProviderProps) => {
+}: GameContextProviderProps) => {
   const [score, setScore] = useState(0);
   const [currentWave, setCurrentWave] = useState(0);
   const [totalWaves, setTotalWaves] = useState(0);
+  const [winState, setWinState] = useState("not_played");
   const updateScore = useCallback(
     (id: number) => {
       getFromStorage(`pageScore-${id}`).then((value) => {
@@ -126,7 +133,7 @@ export const GameAuthContextProvider = ({
   }, []);
 
   return (
-    <GameAuthContext.Provider
+    <GameContext.Provider
       value={{
         ...value,
         score: score,
@@ -135,12 +142,14 @@ export const GameAuthContextProvider = ({
         setCurrentWave: setCurrentWave,
         totalWaves: totalWaves,
         setTotalWaves: setTotalWaves,
+        winState: winState,
+        setWinState: setWinState,
       }}
     >
       {children}
-    </GameAuthContext.Provider>
+    </GameContext.Provider>
   );
 };
-export const GameAuthContextConsumer = GameAuthContext.Consumer;
+export const GameContextConsumer = GameContext.Consumer;
 
-export default GameAuthContext;
+export default GameContext;

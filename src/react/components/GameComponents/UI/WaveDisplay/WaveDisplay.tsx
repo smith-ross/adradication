@@ -1,8 +1,8 @@
 import "./WaveDisplay.scss";
-import { useGameAuthContext } from "../../../../context/GameAuthContext";
+import { useGameContext } from "../../../../context/GameContext";
 
 const WaveDisplay = () => {
-  const { currentWave, totalWaves } = useGameAuthContext();
+  const { currentWave, totalWaves } = useGameContext();
   return (
     <span className="wave-display">
       Wave: <span className="wave">{currentWave || 1}</span>/{totalWaves || 1}

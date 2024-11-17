@@ -1,6 +1,6 @@
 import { createElement, FunctionComponent, ReactNode, useState } from "react";
 import AlertContainer, { AlertSchema } from "../AlertContainer/AlertContainer";
-import { GameAuthContextProvider } from "../../context/GameAuthContext";
+import { GameContextProvider } from "../../context/GameContext";
 
 export interface PageProps {
   changePage: (pageId: string) => void;

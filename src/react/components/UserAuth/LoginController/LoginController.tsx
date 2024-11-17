@@ -6,12 +6,13 @@ import GameView from "../../GameComponents/GameView";
 import PageView from "../../PageView/PageView";
 import LoginPage from "../LoginPage/LoginPage";
 import RegisterPage from "../RegisterPage/RegisterPage";
-import { GameAuthContextProvider } from "../../../context/GameAuthContext";
+import { GameContextProvider } from "../../../context/GameContext";
 import {
   AlertsContextProvider,
   useAlertsContext,
 } from "../../../context/AlertsContext";
 import "./LoginController.scss";
+import Loader from "../../Loader/Loader";
 
 const LoginController = () => {
   const [isLoaded, setLoaded] = useState(false);
@@ -42,7 +43,7 @@ const LoginController = () => {
   }, []);
 
   return (
-    <GameAuthContextProvider value={{ setLoggedIn: setAlreadyLoggedIn }}>
+    <GameContextProvider value={{ setLoggedIn: setAlreadyLoggedIn }}>
       {isLoaded ? (
         alreadyLoggedIn ? (
           <GameView game={Adradication.getGame()} />
@@ -61,20 +62,9 @@ const LoginController = () => {
           </>
         )
       ) : (
-        <div className="loader">
-          <>
-            <img
-              className="spinner"
-              src={chrome.runtime.getURL("res/spinner.svg")}
-            />
-            <div>
-              For the best experience, turn off any
-              <b> AdBlock</b> extensions
-            </div>
-          </>
-        </div>
+        <Loader />
       )}
-    </GameAuthContextProvider>
+    </GameContextProvider>
   );
 };
 

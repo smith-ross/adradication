@@ -3,7 +3,6 @@ import {
   deleteStorage,
   getFromStorage,
   transformStorage,
-  transformStorageOverwrite,
 } from "../util/StorageUtil";
 import { getTrackerURLs } from "./TrackerUrls";
 
@@ -13,7 +12,12 @@ interface TrackedEnemy {
   origin: number;
 }
 
-chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
+const onContentMessage = (
+  msg: any,
+  sender: chrome.runtime.MessageSender,
+  sendResponse: (response?: any) => void
+) => {
+  const url = sender.tab?.url;
   switch (msg.text) {
     case "GET_PAGE_COUNT":
       sendResponse({ pageCount: pageCount });
@@ -23,10 +27,7 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
       sendResponse({ tab: sender.tab?.id });
       break;
 
-    case "PAGE_UNLOADED":
-      pageCount++;
-      const url = sender.tab?.url;
-      deleteStorage(`pageWaves-${sender.tab?.id}`);
+    case "REPORT_RESULT":
       getFromStorage(`pageResult-${sender.tab?.id}-${url}`).then((value) => {
         const result: string =
           value || (msg.monsterCount === 0 ? "win" : "flee");
@@ -37,11 +38,45 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
             result: result,
             score: msg.score,
           },
-        }).then(() => console.log("Sent result!"));
+        }).then(() =>
+          chrome.tabs.sendMessage(sender.tab?.id || 0, {
+            text: "UPDATE_WIN_STATE",
+            value: result,
+          })
+        );
       });
       break;
+
+    case "PAGE_UNLOADED":
+      pageCount++;
+      deleteStorage(`pageWaves-${sender.tab?.id}`);
+      if (msg.noResult) return;
+      onContentMessage(
+        {
+          text: "REPORT_RESULT",
+          monsterCount: msg.monsterCount,
+          score: msg.score,
+        },
+        sender,
+        sendResponse
+      );
+      // getFromStorage(`pageResult-${sender.tab?.id}-${url}`).then((value) => {
+      //   const result: string =
+      //     value || (msg.monsterCount === 0 ? "win" : "flee");
+      //   deleteStorage(`pageResult-${sender.tab?.id}-${url}`);
+      //   apiPost("/battle/reportResult", true, {
+      //     body: {
+      //       url: url || "",
+      //       result: result,
+      //       score: msg.score,
+      //     },
+      //   }).then(() => console.log("Sent result!"));
+      // });
+      break;
   }
-});
+};
+
+chrome.runtime.onMessage.addListener(onContentMessage);
 
 chrome.tabs.onRemoved.addListener((tabId) => {
   deleteStorage(`TrackerCounter-${tabId}`);
@@ -56,24 +91,51 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
       (tabs) => {
         const activeTab = tabs[0];
         if (activeTab && activeTab.id) {
-          for (let tracker of getTrackerURLs()) {
-            if (requestInfo.url.includes(tracker)) {
-              console.log("DETECTED:", tracker, requestInfo.url);
-              transformStorage({
-                key: `TrackerCounter-${activeTab.id}`,
-                modifierFn: (originalValue) => {
-                  console.log(requestInfo.requestHeaders);
-                  return [
-                    ...((originalValue || []) as TrackedEnemy[]),
-                    {
-                      origin: pageCount,
-                    },
-                  ];
-                },
-              });
-              break;
-            }
+          let processedString = requestInfo.url
+            .replace(/^http(.*):\/\//, "")
+            .replace(/^ww[w0-9]*\./, "");
+          processedString = processedString.slice(
+            0,
+            processedString.indexOf("/")
+          );
+          if (
+            getTrackerURLs()[processedString] ||
+            requestInfo.url.includes("ads/") ||
+            requestInfo.url.includes("track/")
+          ) {
+            console.log("DETECTED:", processedString, requestInfo.url);
+            transformStorage({
+              key: `TrackerCounter-${activeTab.id}`,
+              modifierFn: (originalValue) => {
+                console.log(requestInfo.requestHeaders);
+                return [
+                  ...((originalValue || []) as TrackedEnemy[]),
+                  {
+                    origin: pageCount,
+                  },
+                ];
+              },
+            });
           }
+
+          // for (let tracker of getTrackerURLs()) {
+          //   if (requestInfo.url.includes(tracker)) {
+          //     console.log("DETECTED:", tracker, requestInfo.url);
+          //     transformStorage({
+          //       key: `TrackerCounter-${activeTab.id}`,
+          //       modifierFn: (originalValue) => {
+          //         console.log(requestInfo.requestHeaders);
+          //         return [
+          //           ...((originalValue || []) as TrackedEnemy[]),
+          //           {
+          //             origin: pageCount,
+          //           },
+          //         ];
+          //       },
+          //     });
+          //     break;
+          //   }
+          // }
         }
       }
     );

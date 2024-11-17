@@ -1,6 +1,6 @@
 import { apiGet } from "../util/FetchUtil";
 
-let TrackerURLs: string[] = [];
+let TrackerURLs: { [key: string]: boolean } = {};
 
 apiGet("/trackers/trackerList")
   .then((response) => {
