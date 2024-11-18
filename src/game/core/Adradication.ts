@@ -11,6 +11,7 @@ import Adbomination from "../objects/enemy/Adbomination";
 import EyeP from "../objects/enemy/EyeP";
 import Wave from "../objects/enemy/Wave";
 import Player from "../objects/player/Player";
+import TextLabel from "../objects/TextLabel";
 import Layer from "../scene/Layer";
 import Scene from "../scene/Scene";
 import Color from "../types/Color";
@@ -110,6 +111,18 @@ export default class Adradication {
             id: `Monster-${this.monsterCount}`,
             size: new Vector(50, 50),
           });
+          newMonster.addChild(
+            new TextLabel({
+              id: "NameTag",
+              size: new Vector(150, 50),
+              text: value[this.monsterCount].url,
+              fontSize: 12,
+              font: "courier new",
+              align: "center",
+              color: new Color(150, 0, 0),
+              position: new Vector(25, 95),
+            })
+          );
           this.addMonster(newMonster);
         }
       });

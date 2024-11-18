@@ -111,6 +111,7 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
                 return [
                   ...((originalValue || []) as TrackedEnemy[]),
                   {
+                    url: processedString,
                     origin: pageCount,
                   },
                 ];

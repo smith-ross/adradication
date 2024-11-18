@@ -1,3 +1,4 @@
+import { TextLabelProps, TextProps } from "../game/objects/TextLabel";
 import Color from "../game/types/Color";
 import Vector from "../game/types/Vector";
 
@@ -30,7 +31,8 @@ export const draw = (
   size: Vector,
   drawMode: DrawMode,
   color: Color,
-  imagePath?: string
+  imagePath?: string,
+  textProps?: Required<TextProps>
 ) => {
   context.fillStyle = color.toString();
   const [x, y] = position.asCoords();
@@ -66,6 +68,22 @@ export const draw = (
       }
 
       break;
+
+    case "Text":
+      if (!textProps) return;
+      context.font = `${textProps.fontSize}px ${textProps.font}`;
+      context.textAlign = textProps.align;
+      context.strokeStyle = color.toString();
+      context.lineWidth = 1;
+      context.strokeText(textProps.text, x, y, w);
+      context.fillStyle = new Color(
+        color.r / 2,
+        color.g / 2,
+        color.b / 2
+      ).toString();
+      context.fillText(textProps.text, x, y, w);
+      break;
+
     default:
       break;
   }
