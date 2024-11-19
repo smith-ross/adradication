@@ -7,6 +7,7 @@ import {
 } from "react";
 import Adradication from "../../../game/core/Adradication";
 import { apiGet, apiPost } from "../../../util/FetchUtil";
+import { getFromStorage } from "../../../util/StorageUtil";
 import { useGameContext, WinState } from "../../context/GameContext";
 import Loader from "../Loader/Loader";
 import "./GameView.scss";
@@ -65,23 +66,25 @@ const GameView = ({ game }: GameViewProps) => {
 
   useEffect(() => {
     if (isLoaded) return;
-    apiPost("/battle/getBattleResult", true, {
-      body: {
-        url: window.location.href,
-      },
-    }).then((response) => {
-      if (response.status !== 200) return;
-      response.json().then((json) => {
-        switch (json.result) {
-          case "not_played":
-            setLoaded(true);
-            break;
-          default:
-            setLoaded(true);
-            setWinState(json.result);
-            setScore(json.points);
-            break;
-        }
+    getFromStorage("authToken").then(() => {
+      apiPost("/battle/getBattleResult", true, {
+        body: {
+          url: window.location.href,
+        },
+      }).then((response) => {
+        if (response.status !== 200) return;
+        response.json().then((json) => {
+          switch (json.result) {
+            case "not_played":
+              setLoaded(true);
+              break;
+            default:
+              setLoaded(true);
+              setWinState(json.result);
+              setScore(json.points);
+              break;
+          }
+        });
       });
     });
   }, []);

@@ -6,13 +6,15 @@ const NameDisplay = () => {
   const [username, setUsername] = useState("...");
 
   const updateName = useCallback(() => {
-    apiGet("/auth/currentUser", true).then((response) => {
-      if (response.status === 200) {
-        response.json().then((json) => {
-          setUsername(json.username);
-        });
-      }
-    });
+    apiGet("/auth/currentUser", true)
+      .then((response) => {
+        if (response.status === 200) {
+          response.json().then((json) => {
+            setUsername(json.username);
+          });
+        }
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {

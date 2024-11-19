@@ -37,6 +37,7 @@ const LoginController = () => {
             content:
               "Failed to automatically log in, please try logging in manually. If the issue persists, try a different website.",
           });
+          setAlreadyLoggedIn(false);
           setLoaded(true);
         });
     });
