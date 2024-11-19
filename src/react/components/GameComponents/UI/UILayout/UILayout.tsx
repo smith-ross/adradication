@@ -1,3 +1,4 @@
+import HighScoreDisplay from "../HighScoreDisplay/HighScoreDisplay";
 import Logout from "../Logout/Logout";
 import NameDisplay from "../NameDisplay/NameDisplay";
 import ScoreDisplay from "../ScoreDisplay/ScoreDisplay";
@@ -9,6 +10,7 @@ const UILayout = () => {
     <div className="adradication-ui">
       <NameDisplay />
       <ScoreDisplay />
+      <HighScoreDisplay />
       <WaveDisplay />
       <Logout />
     </div>

@@ -1,5 +1,4 @@
 import { draw } from "../../util/DrawUtil";
-import Color from "../types/Color";
 import RenderableGameObject, {
   ImplementedRenderableObjectProps,
 } from "../types/RenderableGameObject";
@@ -15,7 +14,7 @@ export interface TextLabelProps
   extends ImplementedRenderableObjectProps,
     TextProps {}
 
-export default class Box extends RenderableGameObject {
+export default class TextLabel extends RenderableGameObject {
   #text: string;
   #fontSize: number;
   #font: string;
