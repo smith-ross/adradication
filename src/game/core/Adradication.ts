@@ -64,6 +64,7 @@ export default class Adradication {
     this.waves.splice(0, 1);
     if (this.waves[0]) this.waves[0].setActive();
     if (!this.waves[0]) {
+      this.#hasResult = true;
       chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
         transformStorage({
           key: "pageResult-" + tabId.tab + "-" + window.location.href,
@@ -71,15 +72,12 @@ export default class Adradication {
             return "win";
           },
         }).then(() => {
-          chrome.runtime
-            .sendMessage({
-              text: "REPORT_RESULT",
-              monsterCount: this.monsterCount,
-              score: this.player?.score,
-            })
-            .then(() => {
-              this.#hasResult = true;
-            });
+          chrome.runtime.sendMessage({
+            text: "REPORT_RESULT",
+            value: "win",
+            monsterCount: this.monsterCount,
+            score: this.player?.score,
+          });
         });
       });
     }
@@ -115,7 +113,7 @@ export default class Adradication {
             new TextLabel({
               id: "NameTag",
               size: new Vector(150, 50),
-              text: value[this.monsterCount].url,
+              text: value[this.monsterCount - 1]?.url || "",
               fontSize: 12,
               font: "courier new",
               align: "center",
@@ -197,6 +195,7 @@ export default class Adradication {
     });
 
     player.addDeathListener(() => {
+      this.#hasResult = true;
       chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
         transformStorage({
           key: "pageResult-" + tabId.tab + "-" + window.location.href,
@@ -204,15 +203,12 @@ export default class Adradication {
             return "lose";
           },
         }).then(() => {
-          chrome.runtime
-            .sendMessage({
-              text: "REPORT_RESULT",
-              monsterCount: this.monsterCount,
-              score: 0,
-            })
-            .then(() => {
-              this.#hasResult = true;
-            });
+          chrome.runtime.sendMessage({
+            text: "REPORT_RESULT",
+            value: "lose",
+            monsterCount: this.monsterCount,
+            score: 0,
+          });
         });
       });
     });

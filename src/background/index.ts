@@ -30,7 +30,15 @@ const onContentMessage = (
     case "REPORT_RESULT":
       getFromStorage(`pageResult-${sender.tab?.id}-${url}`).then((value) => {
         const result: string =
-          value || (msg.monsterCount === 0 ? "win" : "flee");
+          msg.value || value || (msg.monsterCount === 0 ? "win" : "flee");
+
+        if (result !== "flee") {
+          chrome.tabs.sendMessage(sender.tab?.id || 0, {
+            text: "UPDATE_WIN_STATE",
+            value: result,
+            url: sender.tab?.url,
+          });
+        }
         deleteStorage(`pageResult-${sender.tab?.id}-${url}`);
         apiPost("/battle/reportResult", true, {
           body: {
@@ -38,13 +46,7 @@ const onContentMessage = (
             result: result,
             score: msg.score,
           },
-        }).then(() =>
-          chrome.tabs.sendMessage(sender.tab?.id || 0, {
-            text: "UPDATE_WIN_STATE",
-            value: result,
-            url: sender.tab?.url,
-          })
-        );
+        });
       });
       break;
 
@@ -91,18 +93,19 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
       { active: true, lastFocusedWindow: true, currentWindow: true },
       (tabs) => {
         const activeTab = tabs[0];
-        if (activeTab && activeTab.id) {
-          let processedString = requestInfo.url
+        if (activeTab && activeTab.id && activeTab.id === requestInfo.tabId) {
+          const preProcessedString = requestInfo.url
             .replace(/^http(.*):\/\//, "")
             .replace(/^ww[w0-9]*\./, "");
-          processedString = processedString.slice(
+          const processedString = preProcessedString.slice(
             0,
-            processedString.indexOf("/")
+            preProcessedString.indexOf("/")
           );
           if (
-            getTrackerURLs()[processedString] ||
-            requestInfo.url.includes("ads/") ||
-            requestInfo.url.includes("track/")
+            !processedString.includes("adradication") &&
+            (getTrackerURLs()[processedString] ||
+              requestInfo.url.includes("ads/") ||
+              requestInfo.url.includes("track"))
           ) {
             console.log("DETECTED:", processedString, requestInfo.url);
             transformStorage({
@@ -112,7 +115,11 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
                 return [
                   ...((originalValue || []) as TrackedEnemy[]),
                   {
-                    url: processedString,
+                    url:
+                      processedString ||
+                      preProcessedString ||
+                      requestInfo.url ||
+                      "<no url>",
                     origin: pageCount,
                   },
                 ];

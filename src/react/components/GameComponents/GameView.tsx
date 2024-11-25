@@ -58,7 +58,7 @@ const GameView = ({ game }: GameViewProps) => {
           if (window.location.href !== msg.url) return;
           setTimeout(
             () => setWinState(msg.value),
-            msg.value === "lose" ? 3000 : 10
+            msg.value === "lose" ? 3000 : 1
           );
           break;
       }
