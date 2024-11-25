@@ -20,7 +20,7 @@ interface GameContextProviderProps {
   value: GameContextProps;
 }
 
-export type WinState = "flee" | "win" | "lose" | "not_played";
+export type WinState = "flee" | "win" | "lose" | "not_played" | "uninit";
 
 export interface GameContextType {
   setLoggedIn: (value: boolean) => void;
@@ -37,7 +37,7 @@ export interface GameContextType {
 const defaultContext = {
   totalWaves: 0,
   score: 0,
-  winState: "not_played",
+  winState: "uninit",
   currentWave: 0,
   setLoggedIn: (value: boolean) => {},
   setScore: (amount: number) => {},

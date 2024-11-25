@@ -42,6 +42,7 @@ const onContentMessage = (
           chrome.tabs.sendMessage(sender.tab?.id || 0, {
             text: "UPDATE_WIN_STATE",
             value: result,
+            url: sender.tab?.url,
           })
         );
       });

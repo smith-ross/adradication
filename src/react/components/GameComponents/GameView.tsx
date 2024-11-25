@@ -29,6 +29,7 @@ const WIN_STATE_MESSAGES = {
   lose: "💀 You were defeated by the Adbominations on this page... 💀",
   flee: "💨 You fled from the Adbominations on this page... Shameful! 💨",
   not_played: "",
+  uninit: "",
 };
 
 const GameView = ({ game }: GameViewProps) => {
@@ -54,9 +55,10 @@ const GameView = ({ game }: GameViewProps) => {
     chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       switch (msg.text) {
         case "UPDATE_WIN_STATE":
+          if (window.location.href !== msg.url) return;
           setTimeout(
             () => setWinState(msg.value),
-            msg.value === "lose" ? 3000 : 1500
+            msg.value === "lose" ? 3000 : 10
           );
           break;
       }
@@ -91,7 +93,7 @@ const GameView = ({ game }: GameViewProps) => {
 
   return (
     <>
-      {(!isLoaded && <Loader />) || (
+      {((!isLoaded || winState == "uninit") && <Loader />) || (
         <div className="adradication-container">
           {winState === "not_played" ? (
             <>
