@@ -1,16 +1,16 @@
-#react-root {
-    .loader {
-        width: 600px;
-        height: 450px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        font-size: 32px;
-        text-align: center;
-        .spinner {
-          height: 60px;
-          width: 60px;
-        }
-      }
+#adradication-root {
+  .loader {
+    width: 600px;
+    height: 450px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    font-size: 32px;
+    text-align: center;
+    .spinner {
+      height: 60px;
+      width: 60px;
+    }
+  }
 }

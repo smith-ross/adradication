@@ -1,47 +1,46 @@
-#react-root {
-    .adradication-win-state-container {
-        .win-state-sprite-container {
-            background-color: rgb(200, 200, 100);
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: -40px;
-            .win-state-sprite {
-                width: 200px;
-                height: 200px;
-            }
-        }
-        .adradication-win-state {
-            background-color: rgb(200, 200, 100);
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            width: 387px;
-
-            .win-message {
-                font-size: 24px;
-                font-weight: bold;
-            }
-
-            .win-score {
-                font-size: 16px;
-                font-weight: lighter;
-                .score-number {
-                    font-size: 18px;
-                    font-weight: bolder;
-                }
-            }
-
-            .win-instruction {
-                font-size: 14px;
-                font-weight: lighter;
-            }
-
-        }
+#adradication-root {
+  .adradication-win-state-container {
+    .win-state-sprite-container {
+      background-color: rgb(200, 200, 100);
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: -40px;
+      .win-state-sprite {
+        width: 200px;
+        height: 200px;
+      }
     }
+    .adradication-win-state {
+      background-color: rgb(200, 200, 100);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      width: 387px;
+
+      .win-message {
+        font-size: 24px;
+        font-weight: bold;
+      }
+
+      .win-score {
+        font-size: 16px;
+        font-weight: lighter;
+        .score-number {
+          font-size: 18px;
+          font-weight: bolder;
+        }
+      }
+
+      .win-instruction {
+        font-size: 14px;
+        font-weight: lighter;
+      }
+    }
+  }
 }

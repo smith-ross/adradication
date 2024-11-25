@@ -22,13 +22,15 @@ chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
   });
 });
 
-appHolder.id = "react-root";
+appHolder.id = "adradication-root";
 
 if (body) {
   body.append(appHolder);
 }
 
-const root = createRoot(document.getElementById("react-root") as HTMLElement);
+const root = createRoot(
+  document.getElementById("adradication-root") as HTMLElement
+);
 
 root.render(<EmbeddedApp />);
 

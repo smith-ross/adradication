@@ -1,4 +1,4 @@
-#react-root {
+#adradication-root {
   .adradication-button {
     padding: 10px;
     border-radius: 5px;
@@ -13,7 +13,7 @@
       }
       &.disabled {
         background-color: rgba(19, 93, 205, 0.363);
-        cursor: default
+        cursor: default;
       }
     }
 
@@ -27,7 +27,7 @@
       }
       &.disabled {
         background-color: rgba(225, 225, 225, 0.453);
-        cursor: default
+        cursor: default;
       }
     }
   }
