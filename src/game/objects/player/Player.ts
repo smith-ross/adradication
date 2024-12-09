@@ -17,6 +17,7 @@ import Sprite from "../Sprite";
 import { PlayerConstants } from "../../const/ConstantsManager";
 import Shadow from "../entity/Shadow";
 import { transformStorage } from "../../../util/StorageUtil";
+import { isDebugMode } from "../../../util/GeneralUtil";
 
 const {
   MOVE_SPEED,
@@ -169,15 +170,18 @@ export default class Player extends RenderableGameObject {
           id: "LeftAttackHitbox",
           size: hitboxSize,
           origin: hitboxLeftOffset,
+          showVisual: isDebugMode(),
         }),
         new Hitbox({
           id: "RightAttackHitbox",
           size: hitboxSize,
           origin: hitboxRightOffset,
+          showVisual: isDebugMode(),
         }),
         new Hitbox({
           id: "PlayerHurtbox",
           size: playerProps.size,
+          showVisual: isDebugMode(),
         }),
       ],
       className: "Player",

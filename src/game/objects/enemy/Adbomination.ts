@@ -1,4 +1,5 @@
 import { draw } from "../../../util/DrawUtil";
+import { isDebugMode } from "../../../util/GeneralUtil";
 import { transformStorage } from "../../../util/StorageUtil";
 import WorldMap from "../../map/WorldMap";
 import Color from "../../types/Color";
@@ -84,15 +85,18 @@ export default class Adbomination extends RenderableGameObject {
           id: "LeftAttackHitbox",
           size: hitboxSize,
           origin: hitboxLeftOffset,
+          showVisual: isDebugMode(),
         }),
         new Hitbox({
           id: "RightAttackHitbox",
           size: hitboxSize,
           origin: hitboxRightOffset,
+          showVisual: isDebugMode(),
         }),
         new Hitbox({
           id: "EnemyHurtbox",
           size: enemyProps.size,
+          showVisual: isDebugMode(),
         }),
       ],
     });
@@ -127,7 +131,9 @@ export default class Adbomination extends RenderableGameObject {
   }
 
   calculateHitbox(width: number) {
-    const hitboxSize = this.size?.mul(1.5).add(new Vector(width, 0));
+    const hitboxSize = this.size
+      ?.mul(new Vector(1.5, 1))
+      .add(new Vector(width, 0));
     const hitboxLeftOffset = hitboxSize
       ?.sub(new Vector(0, hitboxSize.y / 2))
       .sub((this.size || new Vector()).div(2));

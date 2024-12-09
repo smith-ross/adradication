@@ -211,6 +211,7 @@ const FloatingWindow = ({
           onClick={() => {
             setConfigSetting("isMinimized-" + id, !windowCollapsed);
             setWindowCollapsed(!windowCollapsed);
+            windowCollapseButtonRef.current?.parentElement?.blur();
           }}
         >
           <span ref={windowCollapseButtonRef}>
