@@ -12,85 +12,86 @@ const ANIMATIONS: {
 } = {
   [EnemyState.IDLE]: {
     right: {
-      sheetPath: `res/enemy-sprites/EyeP/IdleReversed.png`,
-      dimensions: new Vector(8, 1),
-      timeBetweenFrames: 0.08,
-      cellSize: new Vector(120, 80),
+      sheetPath: `res/enemy-sprites/Sponspore/IdleReversed.png`,
+      dimensions: new Vector(4, 1),
+      timeBetweenFrames: 0.2,
+      cellSize: new Vector(150, 150),
     },
     left: {
-      sheetPath: `res/enemy-sprites/EyeP/Idle.png`,
-      dimensions: new Vector(8, 1),
-      timeBetweenFrames: 0.08,
-      cellSize: new Vector(120, 80),
+      sheetPath: `res/enemy-sprites/Sponspore/Idle.png`,
+      dimensions: new Vector(4, 1),
+      timeBetweenFrames: 0.2,
+      cellSize: new Vector(150, 150),
     },
   },
   [EnemyState.CHASE]: {
     right: {
-      sheetPath: `res/enemy-sprites/EyeP/IdleReversed.png`,
+      sheetPath: `res/enemy-sprites/Sponspore/RunReversed.png`,
       dimensions: new Vector(8, 1),
-      timeBetweenFrames: 0.035,
-      cellSize: new Vector(120, 80),
+      timeBetweenFrames: 0.35,
+      cellSize: new Vector(150, 150),
     },
     left: {
-      sheetPath: `res/enemy-sprites/EyeP/Idle.png`,
+      sheetPath: `res/enemy-sprites/Sponspore/Run.png`,
       dimensions: new Vector(8, 1),
-      timeBetweenFrames: 0.035,
-      cellSize: new Vector(120, 80),
+      timeBetweenFrames: 0.35,
+      cellSize: new Vector(150, 150),
     },
   },
   [EnemyState.ATTACK]: {
     right: {
-      sheetPath: `res/enemy-sprites/EyeP/AttackReversed.png`,
+      sheetPath: `res/enemy-sprites/Sponspore/AttackReversed.png`,
       dimensions: new Vector(8, 1),
-      timeBetweenFrames: 0.125,
-      cellSize: new Vector(120, 80),
+      timeBetweenFrames: 0.2,
+      cellSize: new Vector(150, 150),
     },
     left: {
-      sheetPath: `res/enemy-sprites/EyeP/Attack.png`,
+      sheetPath: `res/enemy-sprites/Sponspore/Attack.png`,
       dimensions: new Vector(8, 1),
-      timeBetweenFrames: 0.125,
-      cellSize: new Vector(120, 80),
+      timeBetweenFrames: 0.2,
+      cellSize: new Vector(150, 150),
     },
   },
   [EnemyState.STUNNED]: {
     right: {
-      sheetPath: `res/enemy-sprites/EyeP/IdleReversed.png`,
+      sheetPath: `res/enemy-sprites/Sponspore/IdleReversed.png`,
       dimensions: new Vector(8, 1),
       timeBetweenFrames: 0.5,
-      cellSize: new Vector(120, 80),
+      cellSize: new Vector(150, 150),
     },
     left: {
-      sheetPath: `res/enemy-sprites/EyeP/Idle.png`,
+      sheetPath: `res/enemy-sprites/Sponspore/Idle.png`,
       dimensions: new Vector(8, 1),
       timeBetweenFrames: 0.5,
-      cellSize: new Vector(120, 80),
+      cellSize: new Vector(150, 150),
     },
   },
 };
 
-export default class EyeP extends Adbomination {
+export default class Sponspore extends Adbomination {
   #sprite: AnimatedSprite | undefined;
+  #dir: number = -1;
 
   constructor(enemyProps: ImplementedRenderableObjectProps) {
     super({
       ...enemyProps,
-      moveSpeed: 90,
-      attackRange: 45,
-      attackDuration: 1,
+      moveSpeed: 45,
+      attackRange: 75,
+      attackDuration: 1.8,
       damageWindow: {
-        start: 0.15,
+        start: 0.4,
         end: 0,
       },
       attackCooldown: 1,
       moveSpeedVariance: 15,
-      attackDamage: 12,
+      attackDamage: 8,
     });
 
     this.addChild(
       new Shadow({
         id: "Shadow",
-        size: new Vector(this.size.x * 0.75, 25),
-        position: new Vector(0, this.size.y),
+        size: new Vector(this.size.x, 25),
+        position: new Vector(0, 35),
         parent: this,
       })
     );
@@ -98,16 +99,16 @@ export default class EyeP extends Adbomination {
     const healthBar = this.getChild("EnemyHealthBar") as HealthBar;
     healthBar.position = healthBar.position.add(new Vector(0, 15));
 
-    const spriteSize = new Vector(160, 120);
+    const spriteSize = new Vector(300, 300);
     this.#sprite = new AnimatedSprite({
       id: `${enemyProps.id}-Sprite`,
       color: new Color(100, 100, 255),
-      position: new Vector(-55, -spriteSize.y / 2),
+      position: new Vector(-123, -spriteSize.y / 2),
       size: spriteSize,
       sheetPath: ANIMATIONS[EnemyState.IDLE].left.sheetPath,
-      dimensions: new Vector(8, 1),
-      timeBetweenFrames: 0.1,
-      cellSize: new Vector(120, 80),
+      dimensions: new Vector(4, 1),
+      timeBetweenFrames: 0.2,
+      cellSize: new Vector(150, 150),
       parent: this,
     });
     this.addChild(this.#sprite);
@@ -118,7 +119,7 @@ export default class EyeP extends Adbomination {
       });
     });
 
-    this.calculateHitbox(-40);
+    this.calculateHitbox(-20);
   }
 
   setAnimation(animationType: EnemyState, dir: "right" | "left") {
@@ -128,6 +129,7 @@ export default class EyeP extends Adbomination {
       this.#sprite?.timeBetweenFrames === target.timeBetweenFrames
     )
       return;
+    this.#dir = dir === "right" ? 1 : -1;
     this.#sprite?.updateSheet(target);
   }
 
@@ -137,7 +139,23 @@ export default class EyeP extends Adbomination {
   }
 
   walkDirectionUpdated() {
-    if (this.walkDirection.eq(new Vector())) return;
+    if (this.state === EnemyState.IDLE) {
+      if (this.walkDirection.eq(new Vector())) {
+        this.setAnimation(EnemyState.IDLE, this.#dir > 0 ? "right" : "left");
+      } else {
+        this.setAnimation(
+          EnemyState.CHASE,
+          this.walkDirection.x === 0
+            ? this.#dir > 0
+              ? "right"
+              : "left"
+            : this.walkDirection.x > 0
+            ? "right"
+            : "left"
+        );
+      }
+      return;
+    }
     if (this.walkDirection.x === 0) return;
     this.setAnimation(this.state, this.walkDirection.x > 0 ? "right" : "left");
   }

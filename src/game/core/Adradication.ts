@@ -9,6 +9,7 @@ import WorldMap from "../map/WorldMap";
 import Empty from "../objects/Empty";
 import Adbomination from "../objects/enemy/Adbomination";
 import EyeP from "../objects/enemy/EyeP";
+import Sponspore from "../objects/enemy/Sponspore";
 import Wave from "../objects/enemy/Wave";
 import Player from "../objects/player/Player";
 import TextLabel from "../objects/TextLabel";
@@ -105,7 +106,7 @@ export default class Adradication {
         if (diff <= 0) return;
         for (let i = 0; i < diff; i++) {
           this.monsterCount++;
-          const newMonster = new EyeP({
+          const newMonster = new Sponspore({
             id: `Monster-${this.monsterCount}`,
             size: new Vector(50, 50),
           });

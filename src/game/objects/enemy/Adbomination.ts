@@ -230,7 +230,7 @@ export default class Adbomination extends RenderableGameObject {
           ).normalize()) ||
         new Vector(); // Stand still sometimes
 
-      if (!this.walkDirection.eq(new Vector())) this.walkDirectionUpdated();
+      this.walkDirectionUpdated();
     }
     this.position = this.position.add(
       this.walkDirection.mul((deltaTime * this.#moveSpeed) / 4)
