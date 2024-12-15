@@ -3,6 +3,7 @@ import Color from "../../types/Color";
 import { ImplementedRenderableObjectProps } from "../../types/RenderableGameObject";
 import Vector from "../../types/Vector";
 import AnimatedSprite, { AnimationProps } from "../AnimatedSprite";
+import Box from "../Box";
 import HealthBar from "../entity/HealthBar";
 import Shadow from "../entity/Shadow";
 import Adbomination, { EnemyState } from "./Adbomination";
@@ -28,13 +29,13 @@ const ANIMATIONS: {
     right: {
       sheetPath: `res/enemy-sprites/Sponspore/RunReversed.png`,
       dimensions: new Vector(8, 1),
-      timeBetweenFrames: 0.35,
+      timeBetweenFrames: 0.3,
       cellSize: new Vector(150, 150),
     },
     left: {
       sheetPath: `res/enemy-sprites/Sponspore/Run.png`,
       dimensions: new Vector(8, 1),
-      timeBetweenFrames: 0.35,
+      timeBetweenFrames: 0.3,
       cellSize: new Vector(150, 150),
     },
   },
@@ -42,13 +43,13 @@ const ANIMATIONS: {
     right: {
       sheetPath: `res/enemy-sprites/Sponspore/AttackReversed.png`,
       dimensions: new Vector(8, 1),
-      timeBetweenFrames: 0.2,
+      timeBetweenFrames: 0.175,
       cellSize: new Vector(150, 150),
     },
     left: {
       sheetPath: `res/enemy-sprites/Sponspore/Attack.png`,
       dimensions: new Vector(8, 1),
-      timeBetweenFrames: 0.2,
+      timeBetweenFrames: 0.175,
       cellSize: new Vector(150, 150),
     },
   },
@@ -75,9 +76,10 @@ export default class Sponspore extends Adbomination {
   constructor(enemyProps: ImplementedRenderableObjectProps) {
     super({
       ...enemyProps,
+      size: new Vector(50, 65),
       moveSpeed: 45,
       attackRange: 75,
-      attackDuration: 1.8,
+      attackDuration: 1.4,
       damageWindow: {
         start: 0.4,
         end: 0,
@@ -97,13 +99,13 @@ export default class Sponspore extends Adbomination {
     );
 
     const healthBar = this.getChild("EnemyHealthBar") as HealthBar;
-    healthBar.position = healthBar.position.add(new Vector(0, 15));
+    healthBar.position = healthBar.position.add(new Vector(0, 5));
 
     const spriteSize = new Vector(300, 300);
     this.#sprite = new AnimatedSprite({
       id: `${enemyProps.id}-Sprite`,
       color: new Color(100, 100, 255),
-      position: new Vector(-123, -spriteSize.y / 2),
+      position: new Vector(-123, -spriteSize.y / 2 + this.size.y / 3),
       size: spriteSize,
       sheetPath: ANIMATIONS[EnemyState.IDLE].left.sheetPath,
       dimensions: new Vector(4, 1),
