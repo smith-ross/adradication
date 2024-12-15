@@ -93,7 +93,7 @@ export default class Sponspore extends Adbomination {
       new Shadow({
         id: "Shadow",
         size: new Vector(this.size.x, 25),
-        position: new Vector(0, 35),
+        position: new Vector(0, 58),
         parent: this,
       })
     );
