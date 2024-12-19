@@ -18,6 +18,8 @@ import { PlayerConstants } from "../../const/ConstantsManager";
 import Shadow from "../entity/Shadow";
 import { transformStorage } from "../../../util/StorageUtil";
 import { isDebugMode } from "../../../util/GeneralUtil";
+import GameObject from "../../types/GameObject";
+import Projectile from "../enemy/projectiles/Projectile";
 
 const {
   MOVE_SPEED,
@@ -129,7 +131,7 @@ interface RollState {
 interface AttackState {
   attackDuration: number;
   attackCooldown: number;
-  hitEnemies: Adbomination[];
+  hitEnemies: GameObject[];
 }
 
 export default class Player extends RenderableGameObject {
@@ -329,6 +331,20 @@ export default class Player extends RenderableGameObject {
             direction: direction,
           });
         }
+        enemy.children.forEach((child) => {
+          if (
+            child.className === "Projectile" &&
+            !this.#attackInfo.hitEnemies.includes(child) &&
+            !chosenHitbox.intersectsWith(
+              child.getChild("ProjectileHitbox") as Hitbox
+            )
+          ) {
+            this.#attackInfo.hitEnemies.push(child);
+            (child as Projectile).invertDirection(
+              this.#enemyContainer.children as Adbomination[]
+            );
+          }
+        });
       });
     }
 

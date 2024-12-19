@@ -48,8 +48,14 @@ export default class Scene extends RenderableGameObject {
 
   removeLayer(targetId: string) {
     this.#layers = this.#layers.filter((layer: Layer) => {
-      return layer.id != targetId;
+      return layer.id !== targetId;
     });
+  }
+
+  getLayer(targetId: string) {
+    return this.#layers.filter((layer: Layer) => {
+      return layer.id === targetId;
+    })[0];
   }
 
   onUpdate(deltaTime: number) {

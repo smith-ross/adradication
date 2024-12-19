@@ -18,7 +18,7 @@ import Scene from "../scene/Scene";
 import Color from "../types/Color";
 import Vector from "../types/Vector";
 
-const GAME_SIZE = new Vector(600, 450);
+export const GAME_SIZE = new Vector(600, 450);
 const MONSTER_WAVE_GAP = 5;
 export let GameInstance: Adradication | undefined;
 
@@ -106,10 +106,15 @@ export default class Adradication {
         if (diff <= 0) return;
         for (let i = 0; i < diff; i++) {
           this.monsterCount++;
-          const newMonster = new Sponspore({
+          const props = {
             id: `Monster-${this.monsterCount}`,
             size: new Vector(50, 50),
-          });
+          };
+          const monsterChoice = [new Sponspore(props), new EyeP(props)];
+          const newMonster =
+            monsterChoice[
+              Math.round(Math.random() * (monsterChoice.length - 1))
+            ];
           newMonster.addChild(
             new TextLabel({
               id: "NameTag",
@@ -230,6 +235,12 @@ export default class Adradication {
           id: "Layer1",
           zIndex: 1,
           children: [monsterContainer, player],
+          game: this,
+        }),
+        new Layer({
+          id: "VFX",
+          zIndex: 2,
+          children: [],
           game: this,
         }),
       ],
