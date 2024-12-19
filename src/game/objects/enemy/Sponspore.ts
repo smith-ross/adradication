@@ -122,6 +122,7 @@ export default class Sponspore extends Adbomination {
       moveSpeed: MOVE_SPEED,
       attackRange: 75,
       attackDuration: 1.4,
+      health: 125,
       damageWindow: {
         start: 0.4,
         end: 0,

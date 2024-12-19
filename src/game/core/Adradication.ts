@@ -12,6 +12,7 @@ import EyeP from "../objects/enemy/EyeP";
 import Sponspore from "../objects/enemy/Sponspore";
 import Wave from "../objects/enemy/Wave";
 import Player from "../objects/player/Player";
+import Sprite from "../objects/Sprite";
 import TextLabel from "../objects/TextLabel";
 import Layer from "../scene/Layer";
 import Scene from "../scene/Scene";
@@ -141,12 +142,12 @@ export default class Adradication {
 
   addMonster(enemy: Adbomination) {
     if (!this.loadedScene || !this.worldMap) return;
-    const player = this.loadedScene.layers[0].getDescendant(
-      "TestPlayer"
-    ) as Player;
-    const monsterContainer = this.loadedScene.layers[0].getDescendant(
-      "MonsterContainer"
-    ) as Empty;
+    const player = this.loadedScene
+      .getLayer("Game")
+      .getDescendant("TestPlayer") as Player;
+    const monsterContainer = this.loadedScene
+      .getLayer("Game")
+      .getDescendant("MonsterContainer") as Empty;
     if (!monsterContainer || !player) return;
 
     if (!this.waves[0]) {
@@ -232,9 +233,21 @@ export default class Adradication {
       color: new Color(200, 200, 100),
       layers: [
         new Layer({
-          id: "Layer1",
+          id: "Game",
           zIndex: 1,
           children: [monsterContainer, player],
+          game: this,
+        }),
+        new Layer({
+          id: "Background",
+          zIndex: 0,
+          children: [
+            new Sprite({
+              id: "Background",
+              size: GAME_SIZE,
+              imagePath: "res/backgrounds/Grass.png",
+            }),
+          ],
           game: this,
         }),
         new Layer({

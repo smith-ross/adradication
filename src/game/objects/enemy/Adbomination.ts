@@ -40,6 +40,7 @@ interface EnemyProps extends ImplementedRenderableObjectProps {
   lockOnDistance?: number;
   attackCooldown: number;
   attackDamage: number;
+  health?: number;
 }
 
 export default class Adbomination extends RenderableGameObject {
@@ -109,7 +110,7 @@ export default class Adbomination extends RenderableGameObject {
     this.addChild(
       new HealthBar({
         id: "EnemyHealthBar",
-        maxHealth: 100,
+        maxHealth: enemyProps.health || 100,
         position: new Vector(0, enemyProps.size ? enemyProps.size.y + 8 : 0),
         parent: this,
         destroyOnZero: true,

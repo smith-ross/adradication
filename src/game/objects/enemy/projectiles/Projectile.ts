@@ -44,7 +44,8 @@ export default class Projectile extends RenderableGameObject {
   }
 
   invertDirection(newTargets: Adbomination[]) {
-    this.#direction = this.#direction.mul(-1);
+    this.#direction = this.#direction.mul(-1.5);
+    this.#damage *= 2;
     this.#targets = newTargets;
   }
 
