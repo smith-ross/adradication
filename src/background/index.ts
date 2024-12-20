@@ -15,7 +15,8 @@ interface TrackedEnemy {
 getFromStorage("GameEnabled").then((value) => {
   if (value === 1) {
     chrome.action.setBadgeBackgroundColor({ color: [255, 0, 0, 255] });
-    chrome.action.setBadgeText({ text: "OFF" });
+    chrome.action.setBadgeTextColor({ color: [255, 255, 255, 255] });
+    chrome.action.setBadgeText({ text: "off" });
   }
   const onUpdate = (changes: {
     [key: string]: chrome.storage.StorageChange;
@@ -23,7 +24,8 @@ getFromStorage("GameEnabled").then((value) => {
     if (Object.keys(changes).includes("GameEnabled")) {
       if (changes["GameEnabled"].newValue === 1) {
         chrome.action.setBadgeBackgroundColor({ color: [255, 0, 0, 255] });
-        chrome.action.setBadgeText({ text: "OFF" });
+        chrome.action.setBadgeTextColor({ color: [255, 255, 255, 255] });
+        chrome.action.setBadgeText({ text: "off" });
       } else {
         chrome.action.setBadgeBackgroundColor({ color: [0, 255, 0, 255] });
         chrome.action.setBadgeText({ text: "" });
