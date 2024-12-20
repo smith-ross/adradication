@@ -12,6 +12,27 @@ interface TrackedEnemy {
   origin: number;
 }
 
+getFromStorage("GameEnabled").then((value) => {
+  if (value === 1) {
+    chrome.action.setBadgeBackgroundColor({ color: [255, 0, 0, 255] });
+    chrome.action.setBadgeText({ text: "OFF" });
+  }
+  const onUpdate = (changes: {
+    [key: string]: chrome.storage.StorageChange;
+  }) => {
+    if (Object.keys(changes).includes("GameEnabled")) {
+      if (changes["GameEnabled"].newValue === 1) {
+        chrome.action.setBadgeBackgroundColor({ color: [255, 0, 0, 255] });
+        chrome.action.setBadgeText({ text: "OFF" });
+      } else {
+        chrome.action.setBadgeBackgroundColor({ color: [0, 255, 0, 255] });
+        chrome.action.setBadgeText({ text: "" });
+      }
+    }
+  };
+  chrome.storage.onChanged.addListener(onUpdate);
+});
+
 const onContentMessage = (
   msg: any,
   sender: chrome.runtime.MessageSender,

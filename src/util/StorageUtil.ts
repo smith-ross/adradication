@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 interface StorageModifier {
   key: string;
   modifierFn: (originalValue: any) => any;
@@ -26,23 +28,35 @@ export const updateStorage = async () => {
     return;
   }
   getFromStorage(storingItem.key).then((value) => {
-    chrome.storage.local
-      .set({
-        [storingItem.key]: storingItem.modifierFn(value),
-      })
-      .then(() => {
-        storageQueue.isBusy = false;
-        if (storageQueue.itemQueue.length > 0) {
-          updateStorage();
-        }
-      });
+    try {
+      chrome.storage.local
+        .set({
+          [storingItem.key]: storingItem.modifierFn(value),
+        })
+        .then(() => {
+          storageQueue.isBusy = false;
+          if (storageQueue.itemQueue.length > 0) {
+            updateStorage();
+          }
+        });
+    } catch {}
   });
 };
 
+export const setStorageRaw = async (key: string, value: any) => {
+  try {
+    return chrome.storage.local.set({
+      [key]: value,
+    });
+  } catch {}
+};
+
 export const getFromStorage = async (key: string) => {
-  return chrome.storage.local.get(key).then((value) => {
-    return value[key] || DEFAULTS[key];
-  });
+  try {
+    return chrome.storage.local.get(key).then((value) => {
+      return value[key] || DEFAULTS[key];
+    });
+  } catch {}
 };
 
 export const transformStorage = async (modifier: StorageModifier) => {
@@ -56,7 +70,9 @@ export const transformStorageOverwrite = async (modifier: StorageModifier) => {
 };
 
 export const deleteStorage = async (key: string) => {
-  return chrome.storage.local.remove(key);
+  try {
+    return chrome.storage.local.remove(key);
+  } catch {}
 };
 
 export const setStorage = async (key: string, value: any) => {
@@ -67,4 +83,28 @@ export const setStorage = async (key: string, value: any) => {
     },
   });
   updateStorage();
+};
+
+export const useChromeStorage = (
+  key: string,
+  defaultValue?: string | number | boolean | object,
+  listen: boolean = true
+) => {
+  const [storageValue, setStorageValue] = useState(defaultValue || "");
+  useEffect(() => {
+    const onUpdate = (changes: {
+      [key: string]: chrome.storage.StorageChange;
+    }) => {
+      if (Object.keys(changes).includes(key)) {
+        setStorageValue(changes[key].newValue);
+      }
+    };
+    getFromStorage(key).then((value) => {
+      if (value !== undefined) setStorageValue(value);
+      if (listen) chrome.storage.onChanged.addListener(onUpdate);
+    });
+    if (listen) return () => chrome.storage.onChanged.removeListener(onUpdate);
+  }, []);
+
+  return storageValue;
 };

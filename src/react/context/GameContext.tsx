@@ -123,7 +123,9 @@ export const GameContextProvider = ({
       id = tabId.tab;
       console.log("ID", id);
       window.addEventListener("beforeunload", () => {
-        chrome.storage.local.remove(`pageWaves-${id}`);
+        try {
+          chrome.storage.local.remove(`pageWaves-${id}`);
+        } catch {}
       });
       updateWaves(id);
       chrome.storage.onChanged.addListener(onWaveUpdate);
