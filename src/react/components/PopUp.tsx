@@ -10,7 +10,7 @@ import Button from "./Button/Button";
 import LoginController from "./UserAuth/LoginController/LoginController";
 
 const PopUp = () => {
-  const gameVisible = useChromeStorage("GameEnabled", 2) as number;
+  const gameVisible = useChromeStorage("GameEnabled", 2)[0] as number;
   const gameEnabled = gameVisible === 2;
 
   const enableCallback = useCallback(() => {

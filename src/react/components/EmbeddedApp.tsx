@@ -4,11 +4,11 @@ import App from "./App";
 import { useChromeStorage } from "../../util/StorageUtil";
 
 const EmbeddedApp = () => {
-  const gameEnabled = useChromeStorage("GameEnabled", 2, false);
-  console.log("RERENDER", gameEnabled);
+  const [gameEnabled, isLoaded] = useChromeStorage("GameEnabled", 2, false);
+  const show = gameEnabled === 2 && isLoaded;
   return (
     <div id="embedded-tracker-app">
-      {gameEnabled === 2 && (
+      {show && (
         <FloatingWindow id="game" title="Adradication" draggable={true}>
           <App />
         </FloatingWindow>

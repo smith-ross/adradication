@@ -91,6 +91,7 @@ export const useChromeStorage = (
   listen: boolean = true
 ) => {
   const [storageValue, setStorageValue] = useState(defaultValue || "");
+  const [isLoaded, setLoaded] = useState(false);
   useEffect(() => {
     const onUpdate = (changes: {
       [key: string]: chrome.storage.StorageChange;
@@ -102,9 +103,10 @@ export const useChromeStorage = (
     getFromStorage(key).then((value) => {
       if (value !== undefined) setStorageValue(value);
       if (listen) chrome.storage.onChanged.addListener(onUpdate);
+      setLoaded(true);
     });
     if (listen) return () => chrome.storage.onChanged.removeListener(onUpdate);
   }, []);
 
-  return storageValue;
+  return [storageValue, isLoaded];
 };
