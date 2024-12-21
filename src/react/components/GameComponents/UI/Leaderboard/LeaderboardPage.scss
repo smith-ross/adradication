@@ -1,0 +1,67 @@
+#adradication-root {
+    .adradication-leaderboard {
+        width: 600px;
+        height: 450px;
+        background-color: rgb(200, 200, 100);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        .leaderboard-local {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            .adradication-leaderboard-entry {
+                margin-bottom: 8px;
+            }
+        }
+
+        .leaderboard-entries {
+            overflow: scroll;
+            overflow-x: hidden;
+            height: 205px;
+            width: 425px;
+            padding-right: 5px;
+            margin-right: 25px;
+            &::-webkit-scrollbar {
+                width: 5px;
+            }
+              
+            &::-webkit-scrollbar-track {
+                background: #f1f1f100;
+            }
+            
+            &::-webkit-scrollbar-thumb {
+                background: #ffffff;
+            }
+            
+            &::-webkit-scrollbar-thumb:hover {
+                background: #a7a7a7;
+            }
+
+            .adradication-leaderboard-entry {
+                margin-top: 10px;
+                &:first-child {
+                    .leaderboard-card {
+                        background-color: rgb(244, 244, 163);
+                    }
+                }
+                &:nth-child(2) {
+                    .leaderboard-card {
+                        background-color: rgb(205, 237, 244);
+                    }
+                }
+                &:nth-child(3) {
+                    .leaderboard-card {
+                        background-color: rgb(243, 204, 150);
+                    }
+                }
+            }
+
+
+
+        }
+    }
+}

@@ -1,0 +1,64 @@
+#adradication-root {
+    .adradication-leaderboard-entry {
+        display: flex;
+        width: 425px;
+        height: 30px;
+        gap: 10px;
+        justify-content: left;
+        align-items: center;
+
+        &.entry-small {
+            width: 350px;
+            font-size: .65rem;
+            .leaderboard-card {
+                width: 300px;
+                background-color: #cccccc;
+                padding: 4px;
+                .leaderboard-icon {
+                    height: 20px;
+                    width: 20px;
+                    margin-right: 4px;
+                }
+            }
+        }
+
+        .leaderboard-num {
+            width: 24px;
+            font-weight: bold;
+        }
+        .leaderboard-card {
+            width: 372px;
+            background-color: white;
+            border-radius: 5px;
+            padding: 8px;
+            .leaderboard-icon {
+                float: left;
+                height: 20px;
+                width: 20px;
+                margin-right: 8px;
+            }
+            .leaderboard-username {
+                float: left;
+                width: 60%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                &.leaderboard-player {
+                    font-weight: bold;
+                }
+            }
+            .leaderboard-score {
+                text-align: right;
+                float: right;
+                .leaderboard-score-label {
+                    font-size: 10px;
+                }
+                .leaderboard-score-literal {
+                    font-size: 16px;
+                    &.leaderboard-score-large {
+                        font-size: 12px;
+                    }
+                }
+            }
+        }
+    }
+}
