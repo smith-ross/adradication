@@ -1,4 +1,5 @@
 import { apiPost } from "../../util/FetchUtil";
+import { setEventVariable } from "../../util/GeneralUtil";
 import {
   deleteStorage,
   getFromStorage,
@@ -40,6 +41,9 @@ export default class Adradication {
   currentPageCount: number = 0;
   player: Player | undefined;
 
+  totalWaveCount: number = 0;
+  currentWaveId: number = 0;
+
   static getGame() {
     if (GameInstance) return GameInstance;
     GameInstance = new Adradication();
@@ -64,7 +68,11 @@ export default class Adradication {
 
   private onComplete() {
     this.waves.splice(0, 1);
-    if (this.waves[0]) this.waves[0].setActive();
+    if (this.waves[0]) {
+      this.currentWaveId += 1;
+      setEventVariable("waveData", [this.currentWaveId, this.totalWaveCount]);
+      this.waves[0].setActive();
+    }
     if (!this.waves[0]) {
       this.#hasResult = true;
       chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
@@ -161,6 +169,9 @@ export default class Adradication {
         ),
       ];
       this.waves[0].setActive();
+      this.totalWaveCount += 1;
+      this.currentWaveId += 1;
+      setEventVariable("waveData", [this.currentWaveId, this.totalWaveCount]);
       return;
     }
     let success = false;
@@ -178,6 +189,8 @@ export default class Adradication {
           [enemy]
         )
       );
+      this.totalWaveCount += 1;
+      setEventVariable("waveData", [this.currentWaveId, this.totalWaveCount]);
     }
   }
 
@@ -265,6 +278,9 @@ export default class Adradication {
       ),
     ];
     this.waves[0].setActive();
+    this.totalWaveCount = 1;
+    this.currentWaveId += 1;
+    setEventVariable("waveData", [this.currentWaveId, this.totalWaveCount]);
 
     chrome.runtime.sendMessage({ text: "GET_PAGE_COUNT" }, (response) => {
       this.currentPageCount = response.pageCount;

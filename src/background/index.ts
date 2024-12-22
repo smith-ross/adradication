@@ -75,7 +75,7 @@ const onContentMessage = (
 
     case "PAGE_UNLOADED":
       pageCount++;
-      deleteStorage(`pageWaves-${sender.tab?.id}`);
+      // deleteStorage(`pageWaves-${sender.tab?.id}`);
       if (msg.noResult) return;
       onContentMessage(
         {
@@ -107,7 +107,7 @@ chrome.runtime.onMessage.addListener(onContentMessage);
 chrome.tabs.onRemoved.addListener((tabId) => {
   deleteStorage(`TrackerCounter-${tabId}`);
   deleteStorage(`pageScore-${tabId}`);
-  deleteStorage(`pageWaves-${tabId}`);
+  // deleteStorage(`pageWaves-${tabId}`);
 });
 
 chrome.webRequest.onBeforeSendHeaders.addListener(

@@ -5,7 +5,7 @@ interface HorizontalDividerProps {
   height?: string;
 }
 
-const DEFAULT_HEIGHT = "2px";
+const DEFAULT_HEIGHT = "4px";
 
 const HorizontalDivider = ({ width, height }: HorizontalDividerProps) => {
   return (

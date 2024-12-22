@@ -55,15 +55,15 @@ export default class Wave {
   setActive() {
     this.worldMap.refreshEnemySpawns();
     this.#active = true;
-    chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
-      transformStorage({
-        key: "pageWaves-" + tabId.tab,
-        modifierFn(originalValue) {
-          originalValue = originalValue ?? [0, 0];
-          return [originalValue[0] + 1, originalValue[1]];
-        },
-      });
-    });
+    // chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
+    //   transformStorage({
+    //     key: "pageWaves-" + tabId.tab,
+    //     modifierFn(originalValue) {
+    //       originalValue = originalValue ?? [0, 0];
+    //       return [originalValue[0] + 1, originalValue[1]];
+    //     },
+    //   });
+    // });
     this.wave.forEach((enemy) => {
       enemy.spawnAtRandomPoint(this.worldMap, this.player as Player);
       this.container.addChild(enemy);
