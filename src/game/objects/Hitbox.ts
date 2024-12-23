@@ -39,7 +39,7 @@ export default class Hitbox extends RenderableGameObject {
     const [otherX, otherY] = collidingHitbox.getWorldPosition().asCoords();
     const [thisW, thisH] = this.size.asCoords();
     const [otherW, otherH] = collidingHitbox.size.asCoords();
-    return (
+    return !(
       thisX + thisW < otherX ||
       otherX + otherW < thisX ||
       thisY + thisH < otherY ||

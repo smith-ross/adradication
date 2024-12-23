@@ -322,7 +322,7 @@ export default class Player extends RenderableGameObject {
           const target = enemy as Adbomination;
           if (
             !this.#attackInfo.hitEnemies.includes(target) &&
-            !chosenHitbox.intersectsWith(
+            chosenHitbox.intersectsWith(
               target.getChild("EnemyHurtbox") as Hitbox
             )
           ) {
@@ -341,7 +341,7 @@ export default class Player extends RenderableGameObject {
         } else if (enemy.className === "Projectile") {
           if (
             !this.#attackInfo.hitEnemies.includes(enemy) &&
-            !chosenHitbox.intersectsWith(
+            chosenHitbox.intersectsWith(
               enemy.getChild("ProjectileHitbox") as Hitbox
             )
           ) {

@@ -14,6 +14,7 @@ import Sponspore from "../objects/enemy/Sponspore";
 import Wave from "../objects/enemy/Wave";
 import Player from "../objects/player/Player";
 import FloatingUpgradePickup from "../objects/player/upgrades/FloatingUpgradePickup";
+import GDPRKit from "../objects/player/upgrades/upgrade-variants/GDPRKit";
 import SpeedUp from "../objects/player/upgrades/upgrade-variants/SpeedUp";
 import Sprite from "../objects/Sprite";
 import TextLabel from "../objects/TextLabel";
@@ -73,10 +74,10 @@ export default class Adradication {
     upgradeContainer.addChild(
       new FloatingUpgradePickup({
         id: "TestUpgrade",
-        upgrade: new SpeedUp(),
+        upgrade: new GDPRKit(),
         size: new Vector(50, 50),
         origin: new Vector(25, 25),
-        position: new Vector(300, 225),
+        position: new Vector(300, 300),
         parent: upgradeContainer,
       })
     );

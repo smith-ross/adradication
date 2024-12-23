@@ -20,6 +20,7 @@ interface UpgradeProps {
   upgradeType: UpgradeType;
   upgradeIconPath: string;
   upgradeDescription: string;
+  stacks?: boolean;
 }
 
 export default abstract class Upgrade {
@@ -27,6 +28,8 @@ export default abstract class Upgrade {
   #upgradeIconPath: string;
   #upgradeDescription: string;
   #upgradeType: UpgradeType;
+  #stacks: boolean = false;
+  #stackAmount: number = 1;
 
   constructor({
     upgradeName,
@@ -38,6 +41,14 @@ export default abstract class Upgrade {
     this.#upgradeType = upgradeType;
     this.#upgradeIconPath = upgradeIconPath;
     this.#upgradeDescription = upgradeDescription;
+  }
+
+  getStacks() {
+    return this.#stacks;
+  }
+
+  addStack() {
+    this.#stackAmount += 1;
   }
 
   getIcon() {
@@ -57,6 +68,6 @@ export default abstract class Upgrade {
   }
 
   onPickup(player: Player) {
-    if (this.#upgradeType) player.addUpgrade(this);
+    if (this.#upgradeType === UpgradeType.STICKY) player.addUpgrade(this);
   }
 }

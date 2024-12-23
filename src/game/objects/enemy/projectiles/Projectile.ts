@@ -65,7 +65,7 @@ export default class Projectile extends RenderableGameObject {
     const target = this.#playerRef;
     if (this.#targets.length === 0) {
       if (
-        !chosenHitbox.intersectsWith(target.getChild("PlayerHurtbox") as Hitbox)
+        chosenHitbox.intersectsWith(target.getChild("PlayerHurtbox") as Hitbox)
       ) {
         this.destroy();
         Adradication.getGame()
@@ -82,7 +82,7 @@ export default class Projectile extends RenderableGameObject {
     } else {
       this.#targets.forEach((enemy) => {
         if (
-          !chosenHitbox.intersectsWith(enemy.getChild("EnemyHurtbox") as Hitbox)
+          chosenHitbox.intersectsWith(enemy.getChild("EnemyHurtbox") as Hitbox)
         ) {
           this.destroy();
           Adradication.getGame()

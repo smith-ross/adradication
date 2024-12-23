@@ -179,7 +179,7 @@ export default class Adbomination extends RenderableGameObject {
   }
 
   switchState(newState: EnemyState) {
-    this.previousState = this.#state;
+    if (this.#state !== EnemyState.STUNNED) this.previousState = this.#state;
     this.#state = newState;
   }
 
@@ -315,7 +315,7 @@ export default class Adbomination extends RenderableGameObject {
       const target = this.#playerRef;
       if (
         !this.attackInfo.hit &&
-        !chosenHitbox.intersectsWith(target.getChild("PlayerHurtbox") as Hitbox)
+        chosenHitbox.intersectsWith(target.getChild("PlayerHurtbox") as Hitbox)
       ) {
         this.attackInfo.hit = true;
         target.onHit(this.#attackDamage);

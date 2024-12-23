@@ -12,4 +12,10 @@ export default class PlayerUpgrades {
   add(upgrade: Upgrade) {
     this.#appliedUpgrades.push(upgrade);
   }
+
+  find(name: string) {
+    return this.#appliedUpgrades.filter(
+      (upgrade) => upgrade.getName() === name
+    )[0];
+  }
 }
