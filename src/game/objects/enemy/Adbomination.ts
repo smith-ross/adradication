@@ -72,7 +72,7 @@ export default class Adbomination extends RenderableGameObject {
     hit: false,
   };
 
-  #previousState: EnemyState = EnemyState.IDLE;
+  previousState: EnemyState = EnemyState.IDLE;
   #state: EnemyState = EnemyState.IDLE;
   #deathListeners: (() => void)[] = [];
 
@@ -179,7 +179,7 @@ export default class Adbomination extends RenderableGameObject {
   }
 
   switchState(newState: EnemyState) {
-    this.#previousState = this.#state;
+    this.previousState = this.#state;
     this.#state = newState;
   }
 
@@ -207,6 +207,8 @@ export default class Adbomination extends RenderableGameObject {
     healthBar.takeDamage(damage);
     this.stun(stunDuration);
     if (knockback) this.applyKnockback(knockback);
+    else
+      this.applyKnockback({ duration: 0, force: 0, direction: new Vector() });
     if (healthBar.currentHealth <= 0) {
       this.#deathListeners.forEach((listener) => {
         listener();
@@ -336,7 +338,7 @@ export default class Adbomination extends RenderableGameObject {
     }
     this.stunInfo.activeDuration -= deltaTime;
     if (this.stunInfo.activeDuration <= 0) {
-      this.switchState(this.#previousState);
+      this.switchState(this.previousState);
     }
   }
 

@@ -10,6 +10,16 @@ export const setEventVariable = (eventId: string, value: any) => {
   );
 };
 
+export const waitForEvent = async (eventId: string) => {
+  return new Promise<void>((resolve) => {
+    const callbackFn = () => {
+      document.removeEventListener(eventId, callbackFn);
+      resolve();
+    };
+    document.addEventListener(eventId, callbackFn, { once: true });
+  });
+};
+
 export const useEventVariable = (eventId: string, defaultValue: any) => {
   const [value, setValue] = useState(defaultValue);
 

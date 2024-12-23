@@ -208,7 +208,10 @@ export default class Sponspore extends Adbomination {
   protected stunUpdate(deltaTime: number) {
     const knockbackThreshold =
       this.stunInfo.stunDuration - this.stunInfo.knockbackDuration;
-    if (this.stunInfo.activeDuration > knockbackThreshold) {
+    if (
+      this.stunInfo.knockbackDuration > 0 &&
+      this.stunInfo.activeDuration > knockbackThreshold
+    ) {
       this.position = this.position.add(
         this.stunInfo.knockbarDirection.mul(
           this.stunInfo.knockbarForce *
@@ -219,7 +222,10 @@ export default class Sponspore extends Adbomination {
     }
     this.stunInfo.activeDuration -= deltaTime;
     if (this.stunInfo.activeDuration <= 0) {
-      this.switchState(EnemyState.SENTRY);
+      const wasChasing =
+        this.previousState === EnemyState.CHASE ||
+        this.previousState === EnemyState.ATTACK;
+      this.switchState(wasChasing ? EnemyState.CHASE : EnemyState.SENTRY);
     }
   }
 
@@ -288,20 +294,19 @@ export default class Sponspore extends Adbomination {
 
   private spawnProjectile() {
     if (!this.playerRef) return;
-    const projectilePosition = this.size.div(2);
-    const angle = this.position
-      .add(projectilePosition)
+    const projectilePosition = this.position.add(this.size.div(2));
+    const angle = projectilePosition
       .sub(this.playerRef.position.add(this.playerRef.size.div(2)))
       .normalize()
       .mul(-1);
-    this.addChild(
+    this.parent?.addChild(
       new Spore({
         damage: 8,
         speed: 200,
         direction: angle,
         id: "Spore",
         position: projectilePosition,
-        parent: this,
+        parent: this.parent,
         playerRef: this.playerRef,
       })
     );

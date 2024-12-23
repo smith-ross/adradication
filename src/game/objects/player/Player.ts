@@ -20,6 +20,8 @@ import { transformStorage } from "../../../util/StorageUtil";
 import { isDebugMode } from "../../../util/GeneralUtil";
 import GameObject from "../../types/GameObject";
 import Projectile from "../enemy/projectiles/Projectile";
+import PlayerUpgrades from "./upgrades/PlayerUpgrades";
+import Upgrade from "./upgrades/Upgrade";
 
 const {
   MOVE_SPEED,
@@ -151,6 +153,7 @@ export default class Player extends RenderableGameObject {
   #state: PlayerState = PlayerState.IDLE;
 
   tags: InstanceTags = new InstanceTags();
+  upgrades: PlayerUpgrades = new PlayerUpgrades(this);
   score: number = 0;
 
   #deathListeners: (() => void)[] = [];
@@ -250,6 +253,10 @@ export default class Player extends RenderableGameObject {
     this.#deathListeners.push(listener);
   }
 
+  addUpgrade(upgrade: Upgrade) {
+    this.upgrades.add(upgrade);
+  }
+
   private borderCheck() {
     const rootSize = this.getRoot().size;
     const topLeftCorner = this.getCornerWorldPosition(Corner.TOP_LEFT);
@@ -311,40 +318,41 @@ export default class Player extends RenderableGameObject {
       this.#attackInfo.attackDuration > WEAPON_HIT_WINDOW.END
     ) {
       this.#enemyContainer.children.forEach((enemy) => {
-        if (enemy.className !== "Adbomination") return;
-        const target = enemy as Adbomination;
-        if (
-          !this.#attackInfo.hitEnemies.includes(target) &&
-          !chosenHitbox.intersectsWith(
-            target.getChild("EnemyHurtbox") as Hitbox
-          )
-        ) {
-          const direction = target.position
-            .add(target.size.div(2))
-            .sub(this.position.add(this.size.div(2)))
-            .div(new Vector(1, 2))
-            .normalize();
-          this.#attackInfo.hitEnemies.push(target);
-          target.onHit(WEAPON_DAMAGE, HIT_STUN_DURATION, {
-            duration: HIT_KNOCKBACK_DURATION,
-            force: HIT_KNOCKBACK_FORCE,
-            direction: direction,
-          });
-        }
-        enemy.children.forEach((child) => {
+        if (enemy.className === "Adbomination") {
+          const target = enemy as Adbomination;
           if (
-            child.className === "Projectile" &&
-            !this.#attackInfo.hitEnemies.includes(child) &&
+            !this.#attackInfo.hitEnemies.includes(target) &&
             !chosenHitbox.intersectsWith(
-              child.getChild("ProjectileHitbox") as Hitbox
+              target.getChild("EnemyHurtbox") as Hitbox
             )
           ) {
-            this.#attackInfo.hitEnemies.push(child);
-            (child as Projectile).invertDirection(
-              this.#enemyContainer.children as Adbomination[]
+            const direction = target.position
+              .add(target.size.div(2))
+              .sub(this.position.add(this.size.div(2)))
+              .div(new Vector(1, 2))
+              .normalize();
+            this.#attackInfo.hitEnemies.push(target);
+            target.onHit(WEAPON_DAMAGE, HIT_STUN_DURATION, {
+              duration: HIT_KNOCKBACK_DURATION,
+              force: HIT_KNOCKBACK_FORCE,
+              direction: direction,
+            });
+          }
+        } else if (enemy.className === "Projectile") {
+          if (
+            !this.#attackInfo.hitEnemies.includes(enemy) &&
+            !chosenHitbox.intersectsWith(
+              enemy.getChild("ProjectileHitbox") as Hitbox
+            )
+          ) {
+            this.#attackInfo.hitEnemies.push(enemy);
+            (enemy as Projectile).invertDirection(
+              (this.#enemyContainer.children as Adbomination[]).filter(
+                (enemy) => enemy.className === "Adbomination"
+              )
             );
           }
-        });
+        }
       });
     }
 

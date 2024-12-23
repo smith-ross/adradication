@@ -1,5 +1,5 @@
 import { apiPost } from "../../util/FetchUtil";
-import { setEventVariable } from "../../util/GeneralUtil";
+import { setEventVariable, waitForEvent } from "../../util/GeneralUtil";
 import {
   deleteStorage,
   getFromStorage,
@@ -13,6 +13,8 @@ import EyeP from "../objects/enemy/EyeP";
 import Sponspore from "../objects/enemy/Sponspore";
 import Wave from "../objects/enemy/Wave";
 import Player from "../objects/player/Player";
+import FloatingUpgradePickup from "../objects/player/upgrades/FloatingUpgradePickup";
+import SpeedUp from "../objects/player/upgrades/upgrade-variants/SpeedUp";
 import Sprite from "../objects/Sprite";
 import TextLabel from "../objects/TextLabel";
 import Layer from "../scene/Layer";
@@ -66,13 +68,26 @@ export default class Adradication {
     context.imageSmoothingEnabled = false;
   }
 
+  upgradeRound() {
+    const upgradeContainer = new Empty({ id: "UpgradeContainer" });
+    upgradeContainer.addChild(
+      new FloatingUpgradePickup({
+        id: "TestUpgrade",
+        upgrade: new SpeedUp(),
+        size: new Vector(50, 50),
+        origin: new Vector(25, 25),
+        position: new Vector(300, 225),
+        parent: upgradeContainer,
+      })
+    );
+
+    this.loadedScene?.getLayer("Upgrades").addChild(upgradeContainer);
+
+    waitForEvent("continueNextWave").then(() => upgradeContainer.destroy());
+  }
+
   private onComplete() {
     this.waves.splice(0, 1);
-    if (this.waves[0]) {
-      this.currentWaveId += 1;
-      setEventVariable("waveData", [this.currentWaveId, this.totalWaveCount]);
-      this.waves[0].setActive();
-    }
     if (!this.waves[0]) {
       this.#hasResult = true;
       chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
@@ -89,6 +104,13 @@ export default class Adradication {
             score: this.player?.score,
           });
         });
+      });
+    } else {
+      this.upgradeRound();
+      waitForEvent("continueNextWave").then(() => {
+        this.currentWaveId += 1;
+        setEventVariable("waveData", [this.currentWaveId, this.totalWaveCount]);
+        this.waves[0].setActive();
       });
     }
   }
@@ -247,8 +269,14 @@ export default class Adradication {
       layers: [
         new Layer({
           id: "Game",
-          zIndex: 1,
+          zIndex: 2,
           children: [monsterContainer, player],
+          game: this,
+        }),
+        new Layer({
+          id: "Upgrades",
+          zIndex: 1,
+          children: [],
           game: this,
         }),
         new Layer({
@@ -265,7 +293,7 @@ export default class Adradication {
         }),
         new Layer({
           id: "VFX",
-          zIndex: 2,
+          zIndex: 3,
           children: [],
           game: this,
         }),
