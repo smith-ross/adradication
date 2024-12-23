@@ -69,6 +69,11 @@ const onContentMessage = (
             result: result,
             score: msg.score,
           },
+        }).then(() => {
+          if (!sender.tab) return;
+          chrome.tabs.sendMessage(sender.tab?.id || 0, {
+            text: "LEADERBOARD_LOADED",
+          });
         });
       });
       break;

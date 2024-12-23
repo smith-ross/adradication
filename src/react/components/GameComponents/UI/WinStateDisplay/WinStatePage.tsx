@@ -1,4 +1,5 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useEventVariable } from "../../../../../util/GeneralUtil";
 import Button from "../../../Button/Button";
 import LeaderboardPage from "../Leaderboard/LeaderboardPage";
 import Logout from "../Logout/Logout";
@@ -8,14 +9,32 @@ interface WinStateProps {
   score?: number;
   message: string;
   spriteUrl: string;
+  preloaded?: boolean;
 }
 
-const WinStatePage = ({ message, score, spriteUrl }: WinStateProps) => {
+const WinStatePage = ({
+  message,
+  score,
+  spriteUrl,
+  preloaded,
+}: WinStateProps) => {
   const hasScore = !!(score && score > 0);
   const [isLeaderboard, setLeaderboard] = useState(false);
+  const [isUpdated, setUpdated] = useState(preloaded || false);
   const leaderboardClick = useCallback(() => {
     setLeaderboard(true);
   }, [isLeaderboard]);
+
+  useEffect(() => {
+    chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+      switch (msg.text) {
+        case "LEADERBOARD_LOADED":
+          setUpdated(true);
+          break;
+      }
+      return true;
+    });
+  }, []);
 
   return (
     <>
@@ -34,9 +53,13 @@ const WinStatePage = ({ message, score, spriteUrl }: WinStateProps) => {
             <span className="win-instruction">
               Navigate to another page to continue playing!
             </span>
-            <Button onClick={leaderboardClick} buttonType="primary">
-              Leaderboard
-            </Button>
+            {isUpdated ? (
+              <Button onClick={leaderboardClick} buttonType="primary">
+                Leaderboard
+              </Button>
+            ) : (
+              <div>Leaderboard loading... </div>
+            )}
           </div>
           <Logout />
         </div>
