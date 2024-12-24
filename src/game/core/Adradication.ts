@@ -260,7 +260,7 @@ export default class Adradication {
 
     this.worldMap = new WorldMap({
       cellSize: new Vector(75, 75),
-      dimensions: GAME_SIZE.div(75),
+      dimensions: GAME_SIZE.div(75).sub(new Vector(0, 1)),
     });
 
     this.loadedScene = new Scene({

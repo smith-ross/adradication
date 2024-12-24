@@ -1,6 +1,9 @@
 import { transformStorage } from "../../../util/StorageUtil";
+import Adradication from "../../core/Adradication";
 import WorldMap from "../../map/WorldMap";
+import Vector from "../../types/Vector";
 import Empty from "../Empty";
+import SpawningEffect from "../generic-vfx/SpawningEffect";
 import Player from "../player/Player";
 import Adbomination from "./Adbomination";
 
@@ -43,11 +46,23 @@ export default class Wave {
     this.wave.push(enemy);
     if (this.#active) {
       enemy.spawnAtRandomPoint(this.worldMap, this.player as Player);
-      this.container.addChild(enemy);
-      enemy.addDeathListener(() => {
-        this.#count++;
-        this.player.score++;
-        if (this.#count >= this.wave.length) this.onComplete();
+      const spawnAnimation = new SpawningEffect({
+        id: "SpawnEffect",
+        origin: new Vector(25, 25),
+        position: enemy.position.add(
+          new Vector(enemy.size.x / 2, enemy.size.y)
+        ),
+      });
+      Adradication.getGame()
+        .loadedScene?.getLayer("VFX")
+        .addChild(spawnAnimation);
+      spawnAnimation.complete().then(() => {
+        this.container.addChild(enemy);
+        enemy.addDeathListener(() => {
+          this.#count++;
+          this.player.score++;
+          if (this.#count >= this.wave.length) this.onComplete();
+        });
       });
     }
     return true;
@@ -66,11 +81,23 @@ export default class Wave {
     // });
     this.wave.forEach((enemy) => {
       enemy.spawnAtRandomPoint(this.worldMap, this.player as Player);
-      this.container.addChild(enemy);
-      enemy.addDeathListener(() => {
-        this.#count++;
-        this.player.score++;
-        if (this.#count >= this.wave.length) this.onComplete();
+      const spawnAnimation = new SpawningEffect({
+        id: "SpawnEffect",
+        origin: new Vector(25, 25),
+        position: enemy.position.add(
+          new Vector(enemy.size.x / 2, enemy.size.y)
+        ),
+      });
+      Adradication.getGame()
+        .loadedScene?.getLayer("VFX")
+        .addChild(spawnAnimation);
+      spawnAnimation.complete().then(() => {
+        this.container.addChild(enemy);
+        enemy.addDeathListener(() => {
+          this.#count++;
+          this.player.score++;
+          if (this.#count >= this.wave.length) this.onComplete();
+        });
       });
     });
   }
