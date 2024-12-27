@@ -6,6 +6,7 @@ import Vector from "../../../types/Vector";
 import AnimatedSprite, { AnimationProps } from "../../AnimatedSprite";
 import HealthBar from "../../entity/HealthBar";
 import Shadow from "../../entity/Shadow";
+import VFXEffect from "../../generic-vfx/VFXEffect";
 
 const ANIMATIONS: {
   [k: number]: { left: AnimationProps; right: AnimationProps };
@@ -26,44 +27,13 @@ const ANIMATIONS: {
   },
 };
 
-export default class SporeExplosion extends RenderableGameObject {
-  #sprite: AnimatedSprite | undefined;
-  time: number = 0.24;
-
+export default class SporeExplosion extends VFXEffect {
   constructor(enemyProps: ImplementedRenderableObjectProps) {
     super({
-      className: "Explosion",
+      spriteSize: new Vector(32, 32),
+      animationData: ANIMATIONS[0],
+      iterations: 1,
       ...enemyProps,
     });
-
-    const spriteSize = new Vector(32, 32);
-    this.#sprite = new AnimatedSprite({
-      id: `${enemyProps.id}-Sprite`,
-      color: new Color(100, 100, 255),
-      position: new Vector(),
-      size: spriteSize,
-      sheetPath: ANIMATIONS[0].left.sheetPath,
-      dimensions: new Vector(3, 1),
-      timeBetweenFrames: 0.08,
-      cellSize: new Vector(32, 32),
-      parent: this,
-    });
-    this.addChild(this.#sprite);
-
-    Object.values(ANIMATIONS).forEach((animationVersion) => {
-      Object.values(animationVersion).forEach((animationProps) => {
-        load(animationProps.sheetPath);
-      });
-    });
   }
-
-  onUpdate(deltaTime: number) {
-    if (this.time <= 0) {
-      this.destroy();
-      return;
-    }
-    this.time -= deltaTime;
-  }
-
-  render() {}
 }

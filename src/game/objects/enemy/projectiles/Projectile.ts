@@ -1,3 +1,4 @@
+import { spawnEffect } from "../../../../util/GameUtil";
 import { isDebugMode } from "../../../../util/GeneralUtil";
 import Adradication, { GAME_SIZE } from "../../../core/Adradication";
 import GameObject from "../../../types/GameObject";
@@ -68,15 +69,13 @@ export default class Projectile extends RenderableGameObject {
         chosenHitbox.intersectsWith(target.getChild("PlayerHurtbox") as Hitbox)
       ) {
         this.destroy();
-        Adradication.getGame()
-          .loadedScene?.getLayer("VFX")
-          .addChild(
-            new SporeExplosion({
-              id: "Explosion",
-              position: this.getWorldPosition(),
-              size: new Vector(32, 32),
-            })
-          );
+        spawnEffect(
+          new SporeExplosion({
+            id: "Explosion",
+            position: this.getWorldPosition(),
+            size: new Vector(32, 32),
+          })
+        );
         target.onHit(this.#damage);
       }
     } else {
@@ -85,15 +84,13 @@ export default class Projectile extends RenderableGameObject {
           chosenHitbox.intersectsWith(enemy.getChild("EnemyHurtbox") as Hitbox)
         ) {
           this.destroy();
-          Adradication.getGame()
-            .loadedScene?.getLayer("VFX")
-            .addChild(
-              new SporeExplosion({
-                id: "Explosion",
-                position: this.getWorldPosition(),
-                size: new Vector(32, 32),
-              })
-            );
+          spawnEffect(
+            new SporeExplosion({
+              id: "Explosion",
+              position: this.getWorldPosition(),
+              size: new Vector(32, 32),
+            })
+          );
           enemy.onHit(this.#damage, 0.2);
         }
       });
