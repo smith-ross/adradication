@@ -15,7 +15,6 @@ import Wave from "../objects/enemy/Wave";
 import Player from "../objects/player/Player";
 import FloatingUpgradePickup from "../objects/player/upgrades/FloatingUpgradePickup";
 import GDPRKit from "../objects/player/upgrades/upgrade-variants/GDPRKit";
-import SpeedUp from "../objects/player/upgrades/upgrade-variants/SpeedUp";
 import Sprite from "../objects/Sprite";
 import TextLabel from "../objects/TextLabel";
 import Layer from "../scene/Layer";

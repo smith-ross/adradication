@@ -1,3 +1,4 @@
+import { spawnEffect } from "../../../../../util/GameUtil";
 import Adradication from "../../../../core/Adradication";
 import Vector from "../../../../types/Vector";
 import HealthBar from "../../../entity/HealthBar";
@@ -19,15 +20,13 @@ export default class GDPRKit extends Upgrade {
   onPickup(player: Player): void {
     const healthBar = player.getChild("PlayerHealthBar") as HealthBar;
     healthBar.heal(healthBar.getMaxHealth() - healthBar.currentHealth);
-    Adradication.getGame()
-      .loadedScene?.getLayer("VFX")
-      .addChild(
-        new HealEffect({
-          id: "HealVFX",
-          origin: new Vector(50, 50),
-          position: player.getWorldPosition().add(player.size.div(2)),
-          size: new Vector(100, 100),
-        })
-      );
+    spawnEffect(
+      new HealEffect({
+        id: "HealVFX",
+        origin: new Vector(50, 50),
+        position: player.getWorldPosition().add(player.size.div(2)),
+        size: new Vector(100, 100),
+      })
+    );
   }
 }

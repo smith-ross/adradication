@@ -1,3 +1,4 @@
+import { spawnEffect } from "../../../util/GameUtil";
 import { transformStorage } from "../../../util/StorageUtil";
 import Adradication from "../../core/Adradication";
 import WorldMap from "../../map/WorldMap";
@@ -53,9 +54,7 @@ export default class Wave {
           new Vector(enemy.size.x / 2, enemy.size.y)
         ),
       });
-      Adradication.getGame()
-        .loadedScene?.getLayer("VFX")
-        .addChild(spawnAnimation);
+      spawnEffect(spawnAnimation);
       spawnAnimation.complete().then(() => {
         this.container.addChild(enemy);
         enemy.addDeathListener(() => {
@@ -88,9 +87,7 @@ export default class Wave {
           new Vector(enemy.size.x / 2, enemy.size.y)
         ),
       });
-      Adradication.getGame()
-        .loadedScene?.getLayer("VFX")
-        .addChild(spawnAnimation);
+      spawnEffect(spawnAnimation);
       spawnAnimation.complete().then(() => {
         this.container.addChild(enemy);
         enemy.addDeathListener(() => {

@@ -28,7 +28,7 @@ const ANIMATIONS: {
 
 export default class SporeExplosion extends RenderableGameObject {
   #sprite: AnimatedSprite | undefined;
-  #time: number = 0.24;
+  time: number = 0.24;
 
   constructor(enemyProps: ImplementedRenderableObjectProps) {
     super({
@@ -58,11 +58,11 @@ export default class SporeExplosion extends RenderableGameObject {
   }
 
   onUpdate(deltaTime: number) {
-    if (this.#time <= 0) {
+    if (this.time <= 0) {
       this.destroy();
       return;
     }
-    this.#time -= deltaTime;
+    this.time -= deltaTime;
   }
 
   render() {}
