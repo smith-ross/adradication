@@ -16,13 +16,14 @@ export interface ProjectileProps extends ImplementedRenderableObjectProps {
   direction: Vector;
   speed: number;
   playerRef: Player;
+  targets?: Adbomination[];
 }
 export default class Projectile extends RenderableGameObject {
   #direction: Vector;
   #speed: number;
   #damage: number;
   #playerRef: Player;
-  #targets: Adbomination[] = [];
+  #targets: Adbomination[];
 
   constructor(projectileProps: ProjectileProps) {
     super({
@@ -42,6 +43,7 @@ export default class Projectile extends RenderableGameObject {
     this.#speed = projectileProps.speed;
     this.#damage = projectileProps.damage;
     this.#playerRef = projectileProps.playerRef;
+    this.#targets = projectileProps.targets || [];
   }
 
   invertDirection(newTargets: Adbomination[]) {
@@ -69,13 +71,7 @@ export default class Projectile extends RenderableGameObject {
         chosenHitbox.intersectsWith(target.getChild("PlayerHurtbox") as Hitbox)
       ) {
         this.destroy();
-        spawnEffect(
-          new SporeExplosion({
-            id: "Explosion",
-            position: this.getWorldPosition(),
-            size: new Vector(32, 32),
-          })
-        );
+        this.spawnExplosion();
         target.onHit(this.#damage);
       }
     } else {
@@ -84,17 +80,21 @@ export default class Projectile extends RenderableGameObject {
           chosenHitbox.intersectsWith(enemy.getChild("EnemyHurtbox") as Hitbox)
         ) {
           this.destroy();
-          spawnEffect(
-            new SporeExplosion({
-              id: "Explosion",
-              position: this.getWorldPosition(),
-              size: new Vector(32, 32),
-            })
-          );
+          this.spawnExplosion();
           enemy.onHit(this.#damage, 0.2);
         }
       });
     }
+  }
+
+  spawnExplosion() {
+    spawnEffect(
+      new SporeExplosion({
+        id: "Explosion",
+        position: this.getWorldPosition(),
+        size: new Vector(32, 32),
+      })
+    );
   }
 
   render(context: CanvasRenderingContext2D, deltaTime: number): void {}

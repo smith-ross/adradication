@@ -12,8 +12,12 @@ export default class GDPRKit extends Upgrade {
       upgradeName: "GDPR Kit",
       upgradeType: UpgradeType.CONSUMABLE,
       upgradeIconPath: "res/upgrades/GDPRKit.png",
-      upgradeDescription:
-        "Protect your data with a GDPR Right to Removal request!\n\nRestores your Health fully.",
+      upgradeDescription: (
+        <>
+          Protect your data with a GDPR Right to Removal request! <br />
+          Restores your Health fully.
+        </>
+      ),
     });
   }
 

@@ -15,7 +15,7 @@ export default class VFXEffect extends RenderableGameObject {
   #sprite: AnimatedSprite | undefined;
   time: number;
 
-  constructor(effectProps: VFXEffectProps) {
+  constructor(effectProps: VFXEffectProps, dir: "left" | "right" = "left") {
     super({
       className: "HealVFX",
       ...effectProps,
@@ -31,10 +31,10 @@ export default class VFXEffect extends RenderableGameObject {
       id: `${effectProps.id}-Sprite`,
       position: new Vector(),
       size: spriteSize,
-      sheetPath: animationData.left.sheetPath,
-      dimensions: animationData.left.dimensions,
-      timeBetweenFrames: animationData.left.timeBetweenFrames,
-      cellSize: animationData.left.cellSize,
+      sheetPath: animationData[dir].sheetPath,
+      dimensions: animationData[dir].dimensions,
+      timeBetweenFrames: animationData[dir].timeBetweenFrames,
+      cellSize: animationData[dir].cellSize,
       parent: this,
     });
     this.addChild(this.#sprite);

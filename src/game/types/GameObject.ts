@@ -1,3 +1,4 @@
+import Adradication from "../core/Adradication";
 import Layer from "../scene/Layer";
 import Vector from "./Vector";
 
@@ -79,7 +80,7 @@ export default abstract class GameObject {
     this.#size = value;
   }
 
-  getGame() {
+  getGame(): Adradication {
     return (this.getRoot() as Layer).game;
   }
 
@@ -95,6 +96,10 @@ export default abstract class GameObject {
     return this;
   }
 
+  isInTree() {
+    return this.parent !== undefined;
+  }
+
   getChild(childId: string) {
     return this.children.find((value) => {
       return value.id == childId;
@@ -103,6 +108,7 @@ export default abstract class GameObject {
 
   destroy() {
     this.parent?.children.splice(this.parent?.children.indexOf(this), 1);
+    this.parent = undefined;
   }
 
   getDescendant(childId: string): GameObject | undefined {

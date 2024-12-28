@@ -1,16 +1,32 @@
 import Player from "../Player";
-import Upgrade from "./Upgrade";
+import Upgrade, { UpgradeTrigger } from "./Upgrade";
+import FirewallBall from "./upgrade-variants/FirewallBall";
 
 export default class PlayerUpgrades {
   #player: Player;
-  #appliedUpgrades: Upgrade[] = [];
+  #appliedUpgrades: Upgrade[] = [new FirewallBall()];
 
   constructor(player: Player) {
     this.#player = player;
   }
 
+  trigger(triggerType: UpgradeTrigger, ...args: any) {
+    this.#appliedUpgrades.forEach((upgrade) => {
+      upgrade.onTrigger(this.#player, triggerType, ...args);
+    });
+  }
+
+  update(deltaTime: number) {
+    this.#appliedUpgrades.forEach((upgrade) => {
+      upgrade.update(deltaTime);
+    });
+  }
+
   add(upgrade: Upgrade) {
-    this.#appliedUpgrades.push(upgrade);
+    const existing = this.find(upgrade.getName());
+    if (existing) {
+      existing.addStack();
+    } else this.#appliedUpgrades.push(upgrade);
   }
 
   find(name: string) {

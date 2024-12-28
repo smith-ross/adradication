@@ -21,7 +21,7 @@ import { isDebugMode } from "../../../util/GeneralUtil";
 import GameObject from "../../types/GameObject";
 import Projectile from "../enemy/projectiles/Projectile";
 import PlayerUpgrades from "./upgrades/PlayerUpgrades";
-import Upgrade from "./upgrades/Upgrade";
+import Upgrade, { UpgradeTrigger } from "./upgrades/Upgrade";
 
 const {
   MOVE_SPEED,
@@ -359,6 +359,10 @@ export default class Player extends RenderableGameObject {
     this.#attackInfo.attackDuration -= deltaTime;
   }
 
+  getEnemyContainer() {
+    return this.#enemyContainer;
+  }
+
   private rollUpdate(deltaTime: number): void {
     if (this.#rollingInfo.rollDuration <= 0) {
       this.switchState(PlayerState.IDLE);
@@ -432,6 +436,10 @@ export default class Player extends RenderableGameObject {
         this.#lastDirection === 1 ? "right" : "left"
       );
     }
+    this.upgrades.trigger(
+      UpgradeTrigger.ON_ATTACK,
+      new Vector(this.#lastDirection, 0)
+    );
     this.attackUpdate(deltaTime);
   }
 
@@ -456,6 +464,7 @@ export default class Player extends RenderableGameObject {
 
   onUpdate(deltaTime: number): void {
     this.updateCooldowns(deltaTime);
+    this.upgrades.update(deltaTime);
     switch (this.#state) {
       case PlayerState.ATTACK:
         this.attackUpdate(deltaTime);

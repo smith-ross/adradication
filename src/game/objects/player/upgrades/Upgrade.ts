@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import Player from "../Player";
 
 export enum UpgradeType {
@@ -19,14 +20,14 @@ interface UpgradeProps {
   upgradeName: string;
   upgradeType: UpgradeType;
   upgradeIconPath: string;
-  upgradeDescription: string;
+  upgradeDescription: ReactNode;
   stacks?: boolean;
 }
 
 export default abstract class Upgrade {
   #upgradeName: string;
   #upgradeIconPath: string;
-  #upgradeDescription: string;
+  #upgradeDescription: ReactNode;
   #upgradeType: UpgradeType;
   #stacks: boolean = false;
   #stackAmount: number = 1;
@@ -44,7 +45,7 @@ export default abstract class Upgrade {
   }
 
   getStacks() {
-    return this.#stacks;
+    return this.#stackAmount;
   }
 
   addStack() {
@@ -70,4 +71,8 @@ export default abstract class Upgrade {
   onPickup(player: Player) {
     if (this.#upgradeType === UpgradeType.STICKY) player.addUpgrade(this);
   }
+
+  update(deltaTime: number) {}
+
+  onTrigger(player: Player, triggerType: UpgradeTrigger, ...args: any) {}
 }

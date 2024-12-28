@@ -35,6 +35,7 @@ export default class Hitbox extends RenderableGameObject {
   }
 
   intersectsWith(collidingHitbox: Hitbox) {
+    if (!collidingHitbox.parent?.isInTree()) return false;
     const [thisX, thisY] = this.getWorldPosition().asCoords();
     const [otherX, otherY] = collidingHitbox.getWorldPosition().asCoords();
     const [thisW, thisH] = this.size.asCoords();
