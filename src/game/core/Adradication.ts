@@ -19,6 +19,7 @@ import Cookies from "../objects/player/upgrades/upgrade-variants/Cookies";
 import FirewallBall from "../objects/player/upgrades/upgrade-variants/FirewallBall";
 import GDPRKit from "../objects/player/upgrades/upgrade-variants/GDPRKit";
 import ReverseProxy from "../objects/player/upgrades/upgrade-variants/ReverseProxy";
+import RightToErasure from "../objects/player/upgrades/upgrade-variants/RightToErasure";
 import Sprite from "../objects/Sprite";
 import TextLabel from "../objects/TextLabel";
 import Layer from "../scene/Layer";
@@ -79,6 +80,7 @@ export default class Adradication {
       new FirewallBall(),
       new ReverseProxy(),
       new Cookies(),
+      new RightToErasure(),
     ];
   }
 

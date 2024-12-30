@@ -36,8 +36,8 @@ export default class ReverseProxy extends Upgrade {
       stacks: true,
       upgradeDescription: (
         <>
-          Whenever you roll, place a Marker in your original position. Press
-          CTRL to immediately teleport back to your most recently placed marker,
+          Whenever you roll, place a Marker in your original position. Press Q
+          to immediately teleport back to your most recently placed marker,
           damaging any enemies caught in between.
           <br />
           <b>Stack:</b> Gain an additional Marker to place per stack.
@@ -92,7 +92,7 @@ export default class ReverseProxy extends Upgrade {
           }
         } else if (enemy.className === "Projectile") {
           if (
-            hitEnemies.includes(enemy) &&
+            !hitEnemies.includes(enemy) &&
             hitboxInstance.intersectsWith(
               enemy.getChild("ProjectileHitbox") as Hitbox
             )
@@ -119,9 +119,13 @@ export default class ReverseProxy extends Upgrade {
 
   update(deltaTime: number) {
     if (this.#timer) this.#timer.service(deltaTime);
-    if (!InputService.isKeyDown("Control")) this.#keyUp = true;
+    if (!InputService.isKeyDown("Q") && !InputService.isKeyDown("q"))
+      this.#keyUp = true;
     if (this.#cooldown || !this.#player || !this.#keyUp) return;
-    if (InputService.isKeyDown("Control") && this.#markers.length > 0) {
+    if (
+      (InputService.isKeyDown("Q") || InputService.isKeyDown("q")) &&
+      this.#markers.length > 0
+    ) {
       const startPos = this.#player
         .getWorldPosition()
         .add(this.#player.size.div(2));

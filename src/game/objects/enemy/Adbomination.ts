@@ -54,6 +54,7 @@ export default class Adbomination extends RenderableGameObject {
   #attackDamage: number;
   walkDirection: Vector = new Vector();
   elapsedWalkTime: number = 0;
+  scoreValue: number = 1;
 
   stunInfo = {
     stunDuration: 0,
@@ -213,11 +214,12 @@ export default class Adbomination extends RenderableGameObject {
       this.#deathListeners.forEach((listener) => {
         listener();
       });
+      const scoreValue = this.scoreValue;
       chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
         transformStorage({
           key: "pageScore-" + tabId.tab,
           modifierFn(originalValue) {
-            return (originalValue || 0) + 1;
+            return (originalValue || 0) + scoreValue;
           },
         });
       });
