@@ -9,11 +9,13 @@ interface VFXEffectProps extends ImplementedRenderableObjectProps {
   spriteSize: Vector;
   iterations?: number;
   animationData: { left: AnimationProps; right: AnimationProps };
+  infinite?: boolean;
 }
 
 export default class VFXEffect extends RenderableGameObject {
-  #sprite: AnimatedSprite | undefined;
+  sprite: AnimatedSprite | undefined;
   time: number;
+  #infinite: boolean | undefined;
 
   constructor(effectProps: VFXEffectProps, dir: "left" | "right" = "left") {
     super({
@@ -21,13 +23,14 @@ export default class VFXEffect extends RenderableGameObject {
       ...effectProps,
     });
 
-    const { iterations = 1, animationData, spriteSize } = effectProps;
+    const { iterations = 1, animationData, spriteSize, infinite } = effectProps;
 
+    this.#infinite = infinite;
     this.time =
       iterations *
       (animationData.left.dimensions.x * animationData.left.timeBetweenFrames);
 
-    this.#sprite = new AnimatedSprite({
+    this.sprite = new AnimatedSprite({
       id: `${effectProps.id}-Sprite`,
       position: new Vector(),
       size: spriteSize,
@@ -37,13 +40,14 @@ export default class VFXEffect extends RenderableGameObject {
       cellSize: animationData[dir].cellSize,
       parent: this,
     });
-    this.addChild(this.#sprite);
+    this.addChild(this.sprite);
     Object.values(animationData).forEach((animationProps) => {
       load(animationProps.sheetPath);
     });
   }
 
   onUpdate(deltaTime: number) {
+    if (this.#infinite) return;
     if (this.time <= 0) {
       this.destroy();
       return;

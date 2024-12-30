@@ -14,8 +14,11 @@ import Sponspore from "../objects/enemy/Sponspore";
 import Wave from "../objects/enemy/Wave";
 import Player from "../objects/player/Player";
 import FloatingUpgradePickup from "../objects/player/upgrades/FloatingUpgradePickup";
+import Upgrade from "../objects/player/upgrades/Upgrade";
+import Cookies from "../objects/player/upgrades/upgrade-variants/Cookies";
 import FirewallBall from "../objects/player/upgrades/upgrade-variants/FirewallBall";
 import GDPRKit from "../objects/player/upgrades/upgrade-variants/GDPRKit";
+import ReverseProxy from "../objects/player/upgrades/upgrade-variants/ReverseProxy";
 import Sprite from "../objects/Sprite";
 import TextLabel from "../objects/TextLabel";
 import Layer from "../scene/Layer";
@@ -25,6 +28,7 @@ import Vector from "../types/Vector";
 
 export const GAME_SIZE = new Vector(600, 450);
 const MONSTER_WAVE_GAP = 5;
+const UPGRADE_AMOUNT = 3;
 export let GameInstance: Adradication | undefined;
 
 export default class Adradication {
@@ -69,29 +73,34 @@ export default class Adradication {
     context.imageSmoothingEnabled = false;
   }
 
-  upgradeRound() {
-    const upgradeContainer = new Empty({ id: "UpgradeContainer" });
-    upgradeContainer.addChild(
-      new FloatingUpgradePickup({
-        id: "TestUpgrade",
-        upgrade: new GDPRKit(),
-        size: new Vector(50, 50),
-        origin: new Vector(25, 25),
-        position: new Vector(300, 300),
-        parent: upgradeContainer,
-      })
-    );
+  private generateUpgradeOptions() {
+    return [
+      new GDPRKit(),
+      new FirewallBall(),
+      new ReverseProxy(),
+      new Cookies(),
+    ];
+  }
 
-    upgradeContainer.addChild(
-      new FloatingUpgradePickup({
-        id: "TestUpgrade",
-        upgrade: new FirewallBall(),
-        size: new Vector(50, 50),
-        origin: new Vector(25, 25),
-        position: new Vector(200, 200),
-        parent: upgradeContainer,
-      })
-    );
+  upgradeRound() {
+    const upgradeOptions = this.generateUpgradeOptions();
+    const upgradeContainer = new Empty({ id: "UpgradeContainer" });
+    for (let i = 0; i < UPGRADE_AMOUNT; i++) {
+      const selectedUpgrade = upgradeOptions.splice(
+        Math.floor(Math.random() * upgradeOptions.length),
+        1
+      )[0];
+      upgradeContainer.addChild(
+        new FloatingUpgradePickup({
+          id: "PickupUpgrade",
+          upgrade: selectedUpgrade,
+          size: new Vector(50, 50),
+          origin: new Vector(25, 25),
+          position: new Vector(150 * (i + 1), 300),
+          parent: upgradeContainer,
+        })
+      );
+    }
 
     this.loadedScene?.getLayer("Upgrades").addChild(upgradeContainer);
 

@@ -459,6 +459,7 @@ export default class Player extends RenderableGameObject {
         this.#lastDirection === 1 ? "right" : "left"
       );
     }
+    this.upgrades.trigger(UpgradeTrigger.ON_ROLL);
     this.rollUpdate(deltaTime);
   }
 

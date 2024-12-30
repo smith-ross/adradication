@@ -63,6 +63,10 @@ export default class HealthBar extends RenderableGameObject {
     this.#healthBarSize = healthBarSize;
   }
 
+  setMaxHealth(value: number) {
+    this.#maxHealth = value;
+  }
+
   getMaxHealth() {
     return this.#maxHealth;
   }

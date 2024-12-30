@@ -1,10 +1,11 @@
 import Player from "../Player";
 import Upgrade, { UpgradeTrigger } from "./Upgrade";
 import FirewallBall from "./upgrade-variants/FirewallBall";
+import ReverseProxy from "./upgrade-variants/ReverseProxy";
 
 export default class PlayerUpgrades {
   #player: Player;
-  #appliedUpgrades: Upgrade[] = [new FirewallBall()];
+  #appliedUpgrades: Upgrade[] = [];
 
   constructor(player: Player) {
     this.#player = player;
