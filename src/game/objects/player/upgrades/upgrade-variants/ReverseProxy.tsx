@@ -1,4 +1,4 @@
-import { spawnEffect } from "../../../../../util/GameUtil";
+import { layer, spawnEffect } from "../../../../../util/GameUtil";
 import { isDebugMode } from "../../../../../util/GeneralUtil";
 import Adradication from "../../../../core/Adradication";
 import InputService from "../../../../services/InputService";
@@ -60,10 +60,7 @@ export default class ReverseProxy extends Upgrade {
         position: startPosition.add(normalizedDirection.mul(i)),
         showVisual: isDebugMode(),
       });
-      if (isDebugMode())
-        Adradication.getGame()
-          .loadedScene?.getLayer("Game")
-          .addChild(hitboxInstance);
+      if (isDebugMode()) layer("Game").addChild(hitboxInstance);
       this.#player.getEnemyContainer().children.forEach((enemy) => {
         const direction = enemy.position
           .add(enemy.size.div(2))

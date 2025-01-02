@@ -1,4 +1,5 @@
 import { apiPost } from "../../util/FetchUtil";
+import { layer } from "../../util/GameUtil";
 import { setEventVariable, waitForEvent } from "../../util/GeneralUtil";
 import {
   deleteStorage,
@@ -16,6 +17,7 @@ import Player from "../objects/player/Player";
 import FloatingUpgradePickup from "../objects/player/upgrades/FloatingUpgradePickup";
 import Upgrade from "../objects/player/upgrades/Upgrade";
 import Cookies from "../objects/player/upgrades/upgrade-variants/Cookies";
+import DataHarvest from "../objects/player/upgrades/upgrade-variants/DataHarvest";
 import FirewallBall from "../objects/player/upgrades/upgrade-variants/FirewallBall";
 import GDPRKit from "../objects/player/upgrades/upgrade-variants/GDPRKit";
 import ReverseProxy from "../objects/player/upgrades/upgrade-variants/ReverseProxy";
@@ -81,6 +83,7 @@ export default class Adradication {
       new ReverseProxy(),
       new Cookies(),
       new RightToErasure(),
+      new DataHarvest(),
     ];
   }
 
@@ -104,7 +107,7 @@ export default class Adradication {
       );
     }
 
-    this.loadedScene?.getLayer("Upgrades").addChild(upgradeContainer);
+    layer("Upgrades").addChild(upgradeContainer);
 
     waitForEvent("continueNextWave").then(() => upgradeContainer.destroy());
   }
@@ -195,12 +198,10 @@ export default class Adradication {
 
   addMonster(enemy: Adbomination) {
     if (!this.loadedScene || !this.worldMap) return;
-    const player = this.loadedScene
-      .getLayer("Game")
-      .getDescendant("TestPlayer") as Player;
-    const monsterContainer = this.loadedScene
-      .getLayer("Game")
-      .getDescendant("MonsterContainer") as Empty;
+    const player = layer("Game").getDescendant("TestPlayer") as Player;
+    const monsterContainer = layer("Game").getDescendant(
+      "MonsterContainer"
+    ) as Empty;
     if (!monsterContainer || !player) return;
 
     if (!this.waves[0]) {

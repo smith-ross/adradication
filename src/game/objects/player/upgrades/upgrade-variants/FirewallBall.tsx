@@ -1,4 +1,4 @@
-import { spawnEffect } from "../../../../../util/GameUtil";
+import { layer, spawnEffect } from "../../../../../util/GameUtil";
 import Adradication from "../../../../core/Adradication";
 import Vector from "../../../../types/Vector";
 import Adbomination from "../../../enemy/Adbomination";
@@ -36,28 +36,26 @@ export default class FirewallBall extends Upgrade {
   }
 
   private spawnFireball(player: Player, direction: Vector) {
-    Adradication.getGame()
-      .loadedScene?.getLayer("Game")
-      .addChild(
-        new Fireball({
-          id: "Fireball",
-          position: player
-            .getWorldPosition()
-            .add(player.size.div(2))
-            .add(new Vector(16, 16))
-            .add(direction.mul(2)),
-          origin: new Vector(24, 24),
-          direction: direction,
-          size: new Vector(48, 48),
-          damage: 25,
-          speed: 250,
-          playerRef: player,
-          parent: Adradication.getGame().loadedScene?.getLayer("Game"),
-          targets: (
-            player.getEnemyContainer().children as Adbomination[]
-          ).filter((enemy) => enemy.className === "Adbomination"),
-        })
-      );
+    layer("Game").addChild(
+      new Fireball({
+        id: "Fireball",
+        position: player
+          .getWorldPosition()
+          .add(player.size.div(2))
+          .add(new Vector(16, 16))
+          .add(direction.mul(2)),
+        origin: new Vector(24, 24),
+        direction: direction,
+        size: new Vector(48, 48),
+        damage: 25,
+        speed: 250,
+        playerRef: player,
+        parent: layer("Game"),
+        targets: (player.getEnemyContainer().children as Adbomination[]).filter(
+          (enemy) => enemy.className === "Adbomination"
+        ),
+      })
+    );
   }
 
   update(deltaTime: number) {
