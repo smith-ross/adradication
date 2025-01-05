@@ -10,7 +10,7 @@ import Vector from "../../types/Vector";
 import AnimatedSprite, { AnimationProps } from "../AnimatedSprite";
 import Box from "../Box";
 import Empty from "../Empty";
-import Adbomination from "../enemy/Adbomination";
+import Adbomination, { EnemyState } from "../enemy/Adbomination";
 import HealthBar from "../entity/HealthBar";
 import Hitbox from "../Hitbox";
 import Sprite from "../Sprite";
@@ -324,7 +324,8 @@ export default class Player extends RenderableGameObject {
             !this.#attackInfo.hitEnemies.includes(target) &&
             chosenHitbox.intersectsWith(
               target.getChild("EnemyHurtbox") as Hitbox
-            )
+            ) &&
+            target.state !== EnemyState.DEATH
           ) {
             const direction = target.position
               .add(target.size.div(2))

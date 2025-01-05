@@ -5,6 +5,7 @@ import TextInput from "../../TextInput/TextInput";
 import { useCallback, useState } from "react";
 import { apiPost } from "../../../../util/FetchUtil";
 import { useAlertsContext } from "../../../context/AlertsContext";
+import ClickableText from "../../ClickableText/ClickableText";
 
 const RegisterPage = ({ changePage }: PageProps) => {
   const { addAlert } = useAlertsContext();
@@ -14,6 +15,7 @@ const RegisterPage = ({ changePage }: PageProps) => {
   const [pending, setPending] = useState(false);
 
   const registerAccount = useCallback(() => {
+    if (pending) return;
     setPending(true);
     apiPost("/auth/register", false, {
       body: {
@@ -73,18 +75,22 @@ const RegisterPage = ({ changePage }: PageProps) => {
           placeholderText="Password"
           typeOverride="password"
           onChange={(event) => setPassword(event.target.value)}
+          onEnter={() => {
+            registerAccount();
+          }}
         />
-        <span id="register-controls">
-          <Button
-            className="register-button"
+
+        <div className="register-page-login">
+          Already have an account?{" "}
+          <ClickableText
             onClick={() => {
               changePage("login");
             }}
-            buttonType="secondary"
-            disabled={pending}
           >
-            Login
-          </Button>
+            Login here
+          </ClickableText>
+        </div>
+        <span id="register-controls">
           <Button
             className="register-button"
             buttonType="primary"

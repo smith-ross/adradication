@@ -4,7 +4,7 @@ import Adradication from "../../../../core/Adradication";
 import InputService from "../../../../services/InputService";
 import GameObject from "../../../../types/GameObject";
 import Vector from "../../../../types/Vector";
-import Adbomination from "../../../enemy/Adbomination";
+import Adbomination, { EnemyState } from "../../../enemy/Adbomination";
 import Projectile from "../../../enemy/projectiles/Projectile";
 import HealthBar from "../../../entity/HealthBar";
 import HealEffect from "../../../generic-vfx/HealEffect";
@@ -71,7 +71,8 @@ export default class ReverseProxy extends Upgrade {
           const hitbox = target.getChild("EnemyHurtbox") as Hitbox;
           if (
             !hitEnemies.includes(target) &&
-            hitboxInstance.intersectsWith(hitbox)
+            hitboxInstance.intersectsWith(hitbox) &&
+            target.state !== EnemyState.DEATH
           ) {
             hitEnemies.push(target);
             spawnEffect(

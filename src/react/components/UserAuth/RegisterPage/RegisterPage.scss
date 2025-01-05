@@ -7,6 +7,12 @@
     align-items: center;
     justify-content: center;
 
+    .register-page-login {
+      float: left;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+
     .register-card {
       border-radius: 10px;
       display: flex;
@@ -17,6 +23,10 @@
       width: 350px;
       height: 300px;
       box-shadow: 0px 0px 20px rgb(96, 106, 25);
+    }
+
+    .register-controls {
+      margin-top: 10px;
     }
 
     .register-page-header {

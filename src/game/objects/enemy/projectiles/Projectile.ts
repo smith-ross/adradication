@@ -8,7 +8,7 @@ import RenderableGameObject, {
 import Vector from "../../../types/Vector";
 import Hitbox from "../../Hitbox";
 import Player from "../../player/Player";
-import Adbomination from "../Adbomination";
+import Adbomination, { EnemyState } from "../Adbomination";
 import SporeExplosion from "./SporeExplosion";
 
 export interface ProjectileProps extends ImplementedRenderableObjectProps {
@@ -77,7 +77,10 @@ export default class Projectile extends RenderableGameObject {
     } else {
       this.#targets.forEach((enemy) => {
         if (
-          chosenHitbox.intersectsWith(enemy.getChild("EnemyHurtbox") as Hitbox)
+          chosenHitbox.intersectsWith(
+            enemy.getChild("EnemyHurtbox") as Hitbox
+          ) &&
+          enemy.state !== EnemyState.DEATH
         ) {
           this.destroy();
           this.spawnExplosion();

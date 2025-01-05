@@ -7,6 +7,7 @@ import { apiPost } from "../../../../util/FetchUtil";
 import { deleteStorage, setStorage } from "../../../../util/StorageUtil";
 import { useAlertsContext } from "../../../context/AlertsContext";
 import { useGameContext } from "../../../context/GameContext";
+import ClickableText from "../../ClickableText/ClickableText";
 
 const LoginPage = ({ changePage }: PageProps) => {
   const { setLoggedIn } = useGameContext();
@@ -16,6 +17,7 @@ const LoginPage = ({ changePage }: PageProps) => {
   const [pending, setPending] = useState(false);
 
   const loginAccount = useCallback(() => {
+    if (pending) return;
     setPending(true);
     apiPost("/auth/login", false, {
       body: {
@@ -71,7 +73,18 @@ const LoginPage = ({ changePage }: PageProps) => {
           typeOverride="password"
           placeholderText="Password"
           onChange={(event) => setPassword(event.target.value)}
+          onEnter={() => loginAccount()}
         />
+        <div className="login-page-register">
+          Don't have an account?{" "}
+          <ClickableText
+            onClick={() => {
+              changePage("register");
+            }}
+          >
+            Register here
+          </ClickableText>
+        </div>
         <span id="login-controls">
           <Button
             className="login-button"
@@ -79,14 +92,6 @@ const LoginPage = ({ changePage }: PageProps) => {
             buttonType="primary"
           >
             Login
-          </Button>
-          <Button
-            className="login-button"
-            onClick={() => {
-              changePage("register");
-            }}
-          >
-            Register
           </Button>
         </span>
       </div>

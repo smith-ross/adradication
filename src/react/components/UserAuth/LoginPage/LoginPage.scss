@@ -7,6 +7,12 @@
     align-items: center;
     justify-content: center;
 
+    .login-page-register {
+      float: left;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+
     .login-card {
       border-radius: 10px;
       display: flex;
@@ -17,6 +23,10 @@
       width: 350px;
       height: 250px;
       box-shadow: 0px 0px 20px rgb(96, 106, 25);
+    }
+
+    .login-controls {
+      margin-top: 10px;
     }
 
     .login-page-header {

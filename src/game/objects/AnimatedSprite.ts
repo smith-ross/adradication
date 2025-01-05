@@ -30,7 +30,7 @@ export default class AnimatedSprite extends RenderableGameObject {
   timeBetweenFrames: number = 1;
   stopAtLastFrame: boolean = false;
 
-  #animationData: AnimationData | undefined;
+  animationData: AnimationData | undefined;
 
   constructor(imgProps: AnimatedSpriteProps) {
     super({
@@ -46,20 +46,20 @@ export default class AnimatedSprite extends RenderableGameObject {
     this.dimensions = imgProps.dimensions;
     this.timeBetweenFrames = imgProps.timeBetweenFrames;
     this.stopAtLastFrame = !!imgProps.stopAtLastFrame;
-    this.#animationData = {
+    this.animationData = {
       currentFrame: new Vector(0, 0),
       elapsedFrameTime: 0,
     };
   }
 
   onUpdate(deltaTime: number) {
-    if (!this.#animationData || !this.cellSize) return;
-    this.#animationData.elapsedFrameTime += deltaTime;
+    if (!this.animationData || !this.cellSize) return;
+    this.animationData.elapsedFrameTime += deltaTime;
 
-    if (this.#animationData.elapsedFrameTime >= this.timeBetweenFrames) {
+    if (this.animationData.elapsedFrameTime >= this.timeBetweenFrames) {
       const maxFramesX = this.dimensions?.x || 1;
 
-      let nextFrameX = this.#animationData.currentFrame.x + 1;
+      let nextFrameX = this.animationData.currentFrame.x + 1;
 
       if (nextFrameX >= maxFramesX && !this.stopAtLastFrame) {
         nextFrameX = 0;
@@ -67,13 +67,13 @@ export default class AnimatedSprite extends RenderableGameObject {
         nextFrameX = maxFramesX - 1;
       }
 
-      this.#animationData.currentFrame = new Vector(nextFrameX, 0);
-      this.#animationData.elapsedFrameTime = 0;
+      this.animationData.currentFrame = new Vector(nextFrameX, 0);
+      this.animationData.elapsedFrameTime = 0;
     }
   }
 
   render(context: CanvasRenderingContext2D) {
-    if (!this.sheetPath || !this.cellSize || !this.#animationData) return;
+    if (!this.sheetPath || !this.cellSize || !this.animationData) return;
     const [w, h] = this.cellSize.asCoords();
 
     drawAnimated(
@@ -83,7 +83,7 @@ export default class AnimatedSprite extends RenderableGameObject {
       chrome.runtime.getURL(this.sheetPath),
       w,
       h,
-      this.#animationData.currentFrame
+      this.animationData.currentFrame
     );
   }
 }

@@ -11,6 +11,7 @@ import Vector from "../../types/Vector";
 import HealthBar from "../entity/HealthBar";
 import Hitbox from "../Hitbox";
 import Player from "../player/Player";
+import Timer from "../Timer";
 
 const DIRECTION_WALK_TIME = 0.8;
 const LOCK_ON_DISTANCE = 150;
@@ -23,6 +24,7 @@ export enum EnemyState {
   AVOID,
   SENTRY,
   PROJECTILE_ATTACK,
+  DEATH,
 }
 
 interface KnockbackProps {
@@ -55,6 +57,7 @@ export default class Adbomination extends RenderableGameObject {
   walkDirection: Vector = new Vector();
   elapsedWalkTime: number = 0;
   scoreValue: number = 1;
+  timers: Timer[] = [];
 
   stunInfo = {
     stunDuration: 0,
@@ -345,6 +348,7 @@ export default class Adbomination extends RenderableGameObject {
   }
 
   onUpdate(deltaTime: number) {
+    this.timers.forEach((timer) => timer.service(deltaTime));
     if (
       this.#state !== EnemyState.ATTACK &&
       this.attackInfo.attackCooldown > 0
