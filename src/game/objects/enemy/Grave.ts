@@ -77,7 +77,7 @@ const ANIMATIONS: {
   },
 };
 
-const SPAWN_SKELETON_COOLDOWN = 8;
+const SPAWN_SKELETON_COOLDOWN = 6;
 
 export default class Grave extends Adbomination {
   #sprite: AnimatedSprite | undefined;
