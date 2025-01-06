@@ -170,10 +170,9 @@ export default class Adradication {
             size: new Vector(50, 50),
           };
           const monsterChoice = [
-            // new Sponspore(props),
-            // new EyeP(props),
+            new Sponspore(props),
+            new EyeP(props),
             new Grave(props),
-            // new Stealaton(props),
           ];
           const newMonster =
             monsterChoice[
