@@ -91,6 +91,7 @@ export default class Stealaton extends Adbomination {
   #sprite: AnimatedSprite | undefined;
   #dir: number = -1;
   #timer: Timer | undefined;
+  scoreValue = 0;
 
   constructor(enemyProps: ImplementedRenderableObjectProps) {
     super({
