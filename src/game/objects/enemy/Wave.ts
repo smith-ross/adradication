@@ -8,8 +8,6 @@ import SpawningEffect from "../generic-vfx/SpawningEffect";
 import Player from "../player/Player";
 import Adbomination from "./Adbomination";
 
-const MONSTERS_PER_WAVE = 10;
-
 export default class Wave {
   wave: Adbomination[] = [];
   container: Empty;
@@ -18,11 +16,13 @@ export default class Wave {
   onComplete: () => void;
   #count: number = 0;
   #active: boolean = false;
+  #monstersPerWave: number = 10;
 
   constructor(
     container: Empty,
     map: WorldMap,
     player: Player,
+    monstersPerWave: number,
     onComplete: () => void,
     defaultWave?: Adbomination[]
   ) {
@@ -30,6 +30,7 @@ export default class Wave {
     this.worldMap = map;
     this.player = player;
     this.onComplete = onComplete;
+    this.#monstersPerWave = monstersPerWave;
     if (defaultWave) this.wave = defaultWave;
     chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
       transformStorage({
@@ -43,7 +44,7 @@ export default class Wave {
   }
 
   addEnemy(enemy: Adbomination) {
-    if (this.wave.length >= MONSTERS_PER_WAVE) return false;
+    if (this.wave.length >= this.#monstersPerWave) return false;
     this.wave.push(enemy);
     if (this.#active) {
       enemy.spawnAtRandomPoint(this.worldMap, this.player as Player);

@@ -25,9 +25,10 @@ export enum EnemyState {
   SENTRY,
   PROJECTILE_ATTACK,
   DEATH,
+  SPAWN,
 }
 
-interface KnockbackProps {
+export interface KnockbackProps {
   duration: number;
   direction: Vector;
   force: number;
@@ -58,6 +59,7 @@ export default class Adbomination extends RenderableGameObject {
   elapsedWalkTime: number = 0;
   scoreValue: number = 1;
   timers: Timer[] = [];
+  tagPosition: Vector | undefined;
 
   stunInfo = {
     stunDuration: 0,
@@ -168,6 +170,12 @@ export default class Adbomination extends RenderableGameObject {
   }
 
   onSpawn() {}
+
+  spawnAtFixedPoint(point: Vector, player: Player) {
+    this.position = point;
+    this.#playerRef = player;
+    this.onSpawn();
+  }
 
   spawnAtRandomPoint(worldMap: WorldMap, player: Player) {
     const tileOptions = worldMap.collectAvailableTiles(player.position);
@@ -375,6 +383,9 @@ export default class Adbomination extends RenderableGameObject {
 
       case EnemyState.ATTACK:
         this.attackUpdate(deltaTime);
+        break;
+
+      default:
         break;
     }
 

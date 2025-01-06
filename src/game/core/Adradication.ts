@@ -11,7 +11,9 @@ import WorldMap from "../map/WorldMap";
 import Empty from "../objects/Empty";
 import Adbomination from "../objects/enemy/Adbomination";
 import EyeP from "../objects/enemy/EyeP";
+import Grave from "../objects/enemy/Grave";
 import Sponspore from "../objects/enemy/Sponspore";
+import Stealaton from "../objects/enemy/Stealaton";
 import Wave from "../objects/enemy/Wave";
 import Player from "../objects/player/Player";
 import FloatingUpgradePickup from "../objects/player/upgrades/FloatingUpgradePickup";
@@ -167,7 +169,12 @@ export default class Adradication {
             id: `Monster-${this.monsterCount}`,
             size: new Vector(50, 50),
           };
-          const monsterChoice = [new Sponspore(props), new EyeP(props)];
+          const monsterChoice = [
+            // new Sponspore(props),
+            // new EyeP(props),
+            new Grave(props),
+            // new Stealaton(props),
+          ];
           const newMonster =
             monsterChoice[
               Math.round(Math.random() * (monsterChoice.length - 1))
@@ -181,7 +188,7 @@ export default class Adradication {
               font: "courier new",
               align: "center",
               color: new Color(150, 0, 0),
-              position: new Vector(25, 95),
+              position: newMonster.tagPosition || new Vector(25, 95),
             })
           );
           this.addMonster(newMonster);
@@ -210,6 +217,7 @@ export default class Adradication {
           monsterContainer,
           this.worldMap,
           player,
+          Math.min(10, 6 + this.currentWaveId * 2),
           () => this.onComplete(),
           [enemy]
         ),
@@ -231,6 +239,7 @@ export default class Adradication {
           monsterContainer,
           this.worldMap,
           player,
+          Math.min(10, 6 + this.currentWaveId * 2),
           () => this.onComplete(),
           [enemy]
         )
@@ -325,8 +334,12 @@ export default class Adradication {
     });
 
     this.waves = [
-      new Wave(monsterContainer, this.worldMap, player, () =>
-        this.onComplete()
+      new Wave(
+        monsterContainer,
+        this.worldMap,
+        player,
+        Math.min(10, 6 + this.currentWaveId * 2),
+        () => this.onComplete()
       ),
     ];
     this.waves[0].setActive();
