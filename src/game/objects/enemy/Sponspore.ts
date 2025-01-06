@@ -27,6 +27,20 @@ const ANIMATIONS: {
       cellSize: new Vector(150, 150),
     },
   },
+  [EnemyState.DEATH]: {
+    right: {
+      sheetPath: `res/enemy-sprites/Sponspore/DeathReversed.png`,
+      dimensions: new Vector(6, 1),
+      timeBetweenFrames: 0.15,
+      cellSize: new Vector(150, 150),
+    },
+    left: {
+      sheetPath: `res/enemy-sprites/Sponspore/Death.png`,
+      dimensions: new Vector(6, 1),
+      timeBetweenFrames: 0.15,
+      cellSize: new Vector(150, 150),
+    },
+  },
   [EnemyState.CHASE]: {
     right: {
       sheetPath: `res/enemy-sprites/Sponspore/RunReversed.png`,
@@ -177,11 +191,15 @@ export default class Sponspore extends Adbomination {
       return;
     this.#dir = dir === "right" ? 1 : -1;
     this.#sprite?.updateSheet(target);
+    return target.dimensions.x * target.timeBetweenFrames;
   }
 
   switchState(newState: EnemyState) {
     super.switchState(newState);
-    this.setAnimation(newState, this.walkDirection.x > 0 ? "right" : "left");
+    return this.setAnimation(
+      newState,
+      this.walkDirection.x > 0 ? "right" : "left"
+    );
   }
 
   walkDirectionUpdated() {
@@ -318,6 +336,7 @@ export default class Sponspore extends Adbomination {
   }
 
   onUpdate(deltaTime: number) {
+    this.timers.forEach((timer) => timer.service(deltaTime));
     if (
       this.state !== EnemyState.ATTACK &&
       this.attackInfo.attackCooldown > 0

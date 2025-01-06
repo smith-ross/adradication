@@ -24,6 +24,20 @@ const ANIMATIONS: {
       cellSize: new Vector(120, 80),
     },
   },
+  [EnemyState.DEATH]: {
+    right: {
+      sheetPath: `res/enemy-sprites/EyeP/DeathReversed.png`,
+      dimensions: new Vector(6, 1),
+      timeBetweenFrames: 0.1,
+      cellSize: new Vector(120, 80),
+    },
+    left: {
+      sheetPath: `res/enemy-sprites/EyeP/Death.png`,
+      dimensions: new Vector(6, 1),
+      timeBetweenFrames: 0.1,
+      cellSize: new Vector(120, 80),
+    },
+  },
   [EnemyState.CHASE]: {
     right: {
       sheetPath: `res/enemy-sprites/EyeP/IdleReversed.png`,
@@ -129,11 +143,15 @@ export default class EyeP extends Adbomination {
     )
       return;
     this.#sprite?.updateSheet(target);
+    return target.dimensions.x * target.timeBetweenFrames;
   }
 
   switchState(newState: EnemyState) {
     super.switchState(newState);
-    this.setAnimation(newState, this.walkDirection.x > 0 ? "right" : "left");
+    return this.setAnimation(
+      newState,
+      this.walkDirection.x > 0 ? "right" : "left"
+    );
   }
 
   walkDirectionUpdated() {

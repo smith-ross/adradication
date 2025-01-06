@@ -21,9 +21,9 @@ const Button = ({
     <button
       className={classNames([
         "adradication-button",
-        className || false,
         (disabled && "disabled") || false,
         buttonType || "secondary",
+        className || false,
       ])}
       onClick={(!disabled && onClick) || undefined}
     >

@@ -22,6 +22,8 @@ import GameObject from "../../types/GameObject";
 import Projectile from "../enemy/projectiles/Projectile";
 import PlayerUpgrades from "./upgrades/PlayerUpgrades";
 import Upgrade, { UpgradeTrigger } from "./upgrades/Upgrade";
+import { spawnEffect } from "../../../util/GameUtil";
+import TakeDamageEffect from "../generic-vfx/TakeDamageEffect";
 
 const {
   MOVE_SPEED,
@@ -398,6 +400,11 @@ export default class Player extends RenderableGameObject {
     const healthBar = this.getChild("PlayerHealthBar") as HealthBar;
     if (healthBar.currentHealth <= 0) return;
     healthBar.takeDamage(damage);
+    spawnEffect(
+      new TakeDamageEffect({
+        id: "TakeDamageEffect",
+      })
+    );
     if (healthBar.currentHealth <= 0) {
       this.switchState(PlayerState.DEAD);
       this.setAnimation(

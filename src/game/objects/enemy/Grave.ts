@@ -33,6 +33,20 @@ const ANIMATIONS: {
       cellSize: new Vector(50, 50),
     },
   },
+  [EnemyState.DEATH]: {
+    right: {
+      sheetPath: `res/enemy-sprites/Grave/Death.png`,
+      dimensions: new Vector(5, 1),
+      timeBetweenFrames: 0.1,
+      cellSize: new Vector(50, 50),
+    },
+    left: {
+      sheetPath: `res/enemy-sprites/Grave/Death.png`,
+      dimensions: new Vector(5, 1),
+      timeBetweenFrames: 0.1,
+      cellSize: new Vector(50, 50),
+    },
+  },
   [EnemyState.STUNNED]: {
     right: {
       sheetPath: `res/enemy-sprites/Sponspore/IdleReversed.png`,
@@ -147,11 +161,15 @@ export default class Grave extends Adbomination {
     )
       return;
     this.#sprite?.updateSheet(target);
+    return target.dimensions.x * target.timeBetweenFrames;
   }
 
   switchState(newState: EnemyState) {
     super.switchState(newState);
-    this.setAnimation(newState, this.walkDirection.x > 0 ? "right" : "left");
+    return this.setAnimation(
+      newState,
+      this.walkDirection.x > 0 ? "right" : "left"
+    );
   }
 
   onHit(damage: number, stunDuration: number, _?: KnockbackProps) {

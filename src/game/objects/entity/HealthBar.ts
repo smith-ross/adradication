@@ -80,7 +80,7 @@ export default class HealthBar extends RenderableGameObject {
       .mul(new Vector(this.currentHealth / this.#maxHealth, 1));
   }
 
-  takeDamage(damage: number) {
+  takeDamage(damage: number, dontKill?: boolean) {
     this.currentHealth = Math.max(this.currentHealth - damage, 0);
     const innerHealthBar = this.getDescendant(`${this.id}-inner-bar`);
     if (!innerHealthBar) return;
@@ -88,6 +88,7 @@ export default class HealthBar extends RenderableGameObject {
       .sub(VECTOR_INNER_BAR_OFFSET.mul(2))
       .mul(new Vector(this.currentHealth / this.#maxHealth, 1));
 
+    if (dontKill) return;
     if (this.currentHealth === 0 && this.#destroyOnZero) this.parent?.destroy();
   }
 

@@ -190,9 +190,10 @@ export default class Adbomination extends RenderableGameObject {
     this.onSpawn();
   }
 
-  switchState(newState: EnemyState) {
+  switchState(newState: EnemyState): number | undefined {
     if (this.#state !== EnemyState.STUNNED) this.previousState = this.#state;
     this.#state = newState;
+    return 0;
   }
 
   protected borderCheck() {
@@ -216,24 +217,30 @@ export default class Adbomination extends RenderableGameObject {
 
   onHit(damage: number, stunDuration: number, knockback?: KnockbackProps) {
     const healthBar = this.getChild("EnemyHealthBar") as HealthBar;
-    healthBar.takeDamage(damage);
+    healthBar.takeDamage(damage, true);
     this.stun(stunDuration);
     if (knockback) this.applyKnockback(knockback);
     else
       this.applyKnockback({ duration: 0, force: 0, direction: new Vector() });
     if (healthBar.currentHealth <= 0) {
-      this.#deathListeners.forEach((listener) => {
-        listener();
-      });
-      const scoreValue = this.scoreValue;
-      chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
-        transformStorage({
-          key: "pageScore-" + tabId.tab,
-          modifierFn(originalValue) {
-            return (originalValue || 0) + scoreValue;
-          },
+      const time = this.switchState(EnemyState.DEATH);
+      const newTimer = new Timer(time || 0, false, () => {
+        this.destroy();
+        this.timers = this.timers.filter((timer) => timer !== newTimer);
+        this.#deathListeners.forEach((listener) => {
+          listener();
+        });
+        const scoreValue = this.scoreValue;
+        chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
+          transformStorage({
+            key: "pageScore-" + tabId.tab,
+            modifierFn(originalValue) {
+              return (originalValue || 0) + scoreValue;
+            },
+          });
         });
       });
+      this.timers.push(newTimer);
     }
   }
 

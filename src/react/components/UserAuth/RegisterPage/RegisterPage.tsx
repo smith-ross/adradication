@@ -6,17 +6,67 @@ import { useCallback, useState } from "react";
 import { apiPost } from "../../../../util/FetchUtil";
 import { useAlertsContext } from "../../../context/AlertsContext";
 import ClickableText from "../../ClickableText/ClickableText";
+import { useGameContext } from "../../../context/GameContext";
+import { deleteStorage, setStorage } from "../../../../util/StorageUtil";
 
 const RegisterPage = ({ changePage }: PageProps) => {
-  const { addAlert } = useAlertsContext();
+  const { setLoggedIn } = useGameContext();
+  const { addAlert, clearAlerts } = useAlertsContext();
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [pending, setPending] = useState(false);
+
+  const loginAccount = useCallback(() => {
+    if (pending) return;
+    setPending(true);
+    apiPost("/auth/login", false, {
+      body: {
+        username: username,
+        password: password,
+      },
+    })
+      .then((response) => {
+        switch (response.status) {
+          case 200:
+            response.json().then((json) => {
+              setStorage("authToken", json.token).then(() => {
+                setLoggedIn(true);
+                clearAlerts();
+              });
+            });
+            break;
+
+          case 400:
+          case 401:
+          case 500:
+            response.json().then((json) => {
+              addAlert({ type: "error", content: json.error });
+            });
+            deleteStorage("authToken");
+            break;
+        }
+
+        setPending(false);
+      })
+      .catch((error) => {
+        addAlert({
+          type: "error",
+          content:
+            "Failed to log in. If the issue persists, try a different website.",
+        });
+      });
+  }, [password, username]);
 
   const registerAccount = useCallback(() => {
     if (pending) return;
     setPending(true);
+    if (confirmPassword !== password) {
+      addAlert({ type: "error", content: "Passwords don't match." });
+      setPending(false);
+      return;
+    }
     apiPost("/auth/register", false, {
       body: {
         username: username,
@@ -29,6 +79,7 @@ const RegisterPage = ({ changePage }: PageProps) => {
           case 201:
             response.json().then((json) => {
               addAlert({ type: "success", content: json.message });
+              loginAccount();
             });
             break;
 
@@ -50,7 +101,7 @@ const RegisterPage = ({ changePage }: PageProps) => {
             "Failed to register, If the issue persists, try a different website.",
         });
       });
-  }, [email, password, username]);
+  }, [email, password, username, confirmPassword]);
 
   return (
     <div id="register-page">
@@ -75,6 +126,13 @@ const RegisterPage = ({ changePage }: PageProps) => {
           placeholderText="Password"
           typeOverride="password"
           onChange={(event) => setPassword(event.target.value)}
+        />
+        <TextInput
+          className="register-field"
+          name="password"
+          placeholderText="Confirm Password"
+          typeOverride="password"
+          onChange={(event) => setConfirmPassword(event.target.value)}
           onEnter={() => {
             registerAccount();
           }}

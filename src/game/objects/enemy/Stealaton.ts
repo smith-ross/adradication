@@ -28,6 +28,20 @@ const ANIMATIONS: {
       cellSize: new Vector(150, 150),
     },
   },
+  [EnemyState.DEATH]: {
+    right: {
+      sheetPath: `res/enemy-sprites/Stealaton/DeathReversed.png`,
+      dimensions: new Vector(6, 1),
+      timeBetweenFrames: 0.15,
+      cellSize: new Vector(150, 150),
+    },
+    left: {
+      sheetPath: `res/enemy-sprites/Stealaton/Death.png`,
+      dimensions: new Vector(6, 1),
+      timeBetweenFrames: 0.15,
+      cellSize: new Vector(150, 150),
+    },
+  },
   [EnemyState.CHASE]: {
     right: {
       sheetPath: `res/enemy-sprites/Stealaton/WalkReversed.png`,
@@ -154,11 +168,38 @@ export default class Stealaton extends Adbomination {
       return;
     this.#dir = dir === "right" ? 1 : -1;
     this.#sprite?.updateSheet(target);
+    return target.dimensions.x * target.timeBetweenFrames;
   }
 
   switchState(newState: EnemyState) {
+    if (this.previousState === EnemyState.DEATH) return 0;
     super.switchState(newState);
-    this.setAnimation(newState, this.walkDirection.x > 0 ? "right" : "left");
+    return this.setAnimation(
+      newState,
+      this.walkDirection.x > 0 ? "right" : "left"
+    );
+  }
+
+  protected stunUpdate(deltaTime: number) {
+    const knockbackThreshold =
+      this.stunInfo.stunDuration - this.stunInfo.knockbackDuration;
+    if (this.stunInfo.activeDuration > knockbackThreshold) {
+      this.position = this.position.add(
+        this.stunInfo.knockbarDirection.mul(
+          this.stunInfo.knockbarForce *
+            (this.stunInfo.activeDuration / knockbackThreshold) *
+            deltaTime
+        )
+      );
+    }
+    this.stunInfo.activeDuration -= deltaTime;
+    if (this.stunInfo.activeDuration <= 0) {
+      this.switchState(
+        this.previousState === EnemyState.ATTACK
+          ? EnemyState.ATTACK
+          : EnemyState.CHASE
+      );
+    }
   }
 
   onSpawn() {
