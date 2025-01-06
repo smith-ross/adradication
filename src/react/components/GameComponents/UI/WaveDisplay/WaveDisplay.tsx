@@ -8,7 +8,14 @@ const WaveDisplay = () => {
   const [currentWave, totalWaves] = useEventVariable("waveData", [1, 1]);
   return (
     <span className="wave-display">
-      Wave: <span className="wave">{currentWave || 1}</span>/{totalWaves || 1}
+      {currentWave === "upgrade" ? (
+        "Select an Upgrade"
+      ) : (
+        <>
+          Wave: <span className="wave">{currentWave || 1}</span>/
+          {totalWaves || 1}
+        </>
+      )}
     </span>
   );
 };

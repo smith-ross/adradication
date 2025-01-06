@@ -161,6 +161,12 @@ export default class Grave extends Adbomination {
         position: this.position,
       })
     );
+    if (
+      this.#spawnedSkeletonRef &&
+      this.#spawnedSkeletonRef.state === EnemyState.IDLE
+    ) {
+      this.#spawnedSkeletonRef.switchState(EnemyState.CHASE);
+    }
     super.onHit(damage, stunDuration);
   }
 

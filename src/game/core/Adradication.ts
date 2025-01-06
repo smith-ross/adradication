@@ -90,6 +90,7 @@ export default class Adradication {
   }
 
   upgradeRound() {
+    setEventVariable("waveData", ["upgrade", this.totalWaveCount]);
     const upgradeOptions = this.generateUpgradeOptions();
     const upgradeContainer = new Empty({ id: "UpgradeContainer" });
     for (let i = 0; i < UPGRADE_AMOUNT; i++) {
