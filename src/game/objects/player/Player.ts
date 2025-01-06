@@ -495,7 +495,7 @@ export default class Player extends RenderableGameObject {
         break;
     }
 
-    // this.borderCheck();
+    this.borderCheck();
   }
 
   render(context: CanvasRenderingContext2D) {}
