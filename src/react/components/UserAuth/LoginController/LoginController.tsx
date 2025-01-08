@@ -13,6 +13,7 @@ import {
 } from "../../../context/AlertsContext";
 import "./LoginController.scss";
 import Loader from "../../Loader/Loader";
+import HelpPage from "../HelpPage/HelpPage";
 
 const LoginController = () => {
   const [isLoaded, setLoaded] = useState(false);
@@ -54,6 +55,7 @@ const LoginController = () => {
               pages={{
                 login: LoginPage,
                 register: RegisterPage,
+                help: HelpPage,
               }}
               startingPage="login"
             />

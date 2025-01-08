@@ -1,5 +1,5 @@
 #adradication-root {
-  #login-page {
+  #help-page {
     width: 600px;
     height: 450px;
     background-color: rgb(200, 200, 100);
@@ -7,13 +7,17 @@
     align-items: center;
     justify-content: center;
 
-    .login-page-register {
-      float: left;
-      font-size: 14px;
+    .help-page-body {
+      font-size: 12px;
       margin-top: 5px;
+      .help-page-body-header {
+        font-size: 14px;
+        font-weight: bold;
+        display: block;
+      }
     }
 
-    .login-card {
+    .help-card {
       border-radius: 10px;
       display: flex;
       background-color: white;
@@ -21,27 +25,30 @@
       justify-content: center;
       flex-direction: column;
       margin-bottom: 5px;
-      width: 350px;
-      height: 250px;
+      padding: 10px;
+      width: 500px;
+      height: auto;
       box-shadow: 0px 0px 20px rgb(96, 106, 25);
     }
 
-    .login-controls {
-      margin-top: 10px;
+    .help-page-link {
+      float: left;
+      font-size: 14px;
+      margin-top: 5px;
     }
 
-    .login-page-header {
+    .help-page-header {
       font-size: 32px;
     }
 
-    .login-button {
+    .help-button {
       margin: 7px;
       margin-bottom: 3px;
       width: 75px;
       text-align: center;
     }
 
-    .login-field {
+    .help-field {
       width: 75%;
     }
   }

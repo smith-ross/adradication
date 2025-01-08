@@ -158,6 +158,15 @@ const RegisterPage = ({ changePage }: PageProps) => {
             Register
           </Button>
         </span>
+        <div className="register-page-login">
+          <ClickableText
+            onClick={() => {
+              changePage("help");
+            }}
+          >
+            What is this?
+          </ClickableText>
+        </div>
       </div>
     </div>
   );
