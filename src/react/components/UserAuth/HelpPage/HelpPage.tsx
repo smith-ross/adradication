@@ -1,12 +1,5 @@
 import "./HelpPage.scss";
 import { PageProps } from "../../PageView/PageView";
-import Button from "../../Button/Button";
-import TextInput from "../../TextInput/TextInput";
-import { useCallback, useState } from "react";
-import { apiPost } from "../../../../util/FetchUtil";
-import { deleteStorage, setStorage } from "../../../../util/StorageUtil";
-import { useAlertsContext } from "../../../context/AlertsContext";
-import { useGameContext } from "../../../context/GameContext";
 import ClickableText from "../../ClickableText/ClickableText";
 
 const HelpPage = ({ changePage }: PageProps) => {

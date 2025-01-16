@@ -16,6 +16,7 @@ export default class InputService {
         event.target === document.body
       )
         event.preventDefault();
+      if (!event.key) return;
       InputService.#pressedKeys[event.key.toLowerCase()] = true;
     });
     document.body.addEventListener("keyup", (event: KeyboardEvent) => {
@@ -24,6 +25,7 @@ export default class InputService {
         event.target === document.body
       )
         event.preventDefault();
+      if (!event.key) return;
       InputService.#pressedKeys[event.key.toLowerCase()] = false;
     });
     InputService.#initialised = true;

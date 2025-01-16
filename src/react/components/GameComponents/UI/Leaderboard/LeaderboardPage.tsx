@@ -47,6 +47,7 @@ const LeaderboardPage = () => {
                 score={entry.score}
                 position={idx}
                 playerEntry={entry.username === playerEntry.username}
+                key={nextEntry.username}
               />
             ))}
           </ul>
@@ -58,6 +59,7 @@ const LeaderboardPage = () => {
                 score={nextEntry.score}
                 position={nextEntry.index === undefined ? 999 : nextEntry.index}
                 small={true}
+                key={"next-" + nextEntry.username}
               />
             ) : null}
             <LeaderboardEntry
@@ -67,6 +69,7 @@ const LeaderboardPage = () => {
                 playerEntry.index === undefined ? 999 : playerEntry.index
               }
               playerEntry={true}
+              key={"plr-" + playerEntry.username}
             />
 
             {prevEntry ? (
@@ -75,6 +78,7 @@ const LeaderboardPage = () => {
                 score={prevEntry.score}
                 position={prevEntry.index === undefined ? 999 : prevEntry.index}
                 small={true}
+                key={"prev-" + prevEntry.username}
               />
             ) : null}
           </ul>

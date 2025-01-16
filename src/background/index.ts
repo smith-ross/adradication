@@ -76,6 +76,7 @@ const onContentMessage = (
           });
         });
       });
+      sendResponse({});
       break;
 
     case "PAGE_UNLOADED":
