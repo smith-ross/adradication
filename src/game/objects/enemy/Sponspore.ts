@@ -132,6 +132,7 @@ export default class Sponspore extends Adbomination {
   constructor(enemyProps: ImplementedRenderableObjectProps) {
     super({
       ...enemyProps,
+      name: "Sponspore",
       size: new Vector(50, 65),
       moveSpeed: MOVE_SPEED,
       attackRange: 75,
@@ -326,6 +327,7 @@ export default class Sponspore extends Adbomination {
         position: projectilePosition,
         parent: this.parent,
         playerRef: this.playerRef,
+        spawner: this,
       })
     );
     this.attackInfo.projectileShot = true;

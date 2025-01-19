@@ -112,6 +112,7 @@ export default class Grave extends Adbomination {
         end: 0,
       },
       attackCooldown: 999,
+      name: "Grave",
       attackDamage: 0,
     });
     this.position = this.position.add(

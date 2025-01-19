@@ -52,8 +52,11 @@ const onContentMessage = (
 
     case "REPORT_RESULT":
       getFromStorage(`pageResult-${sender.tab?.id}-${url}`).then((value) => {
-        const result: string =
+        const rawResult: string | [string, string] =
           msg.value || value || (msg.monsterCount === 0 ? "win" : "flee");
+
+        const hitter = typeof rawResult === "object" ? rawResult[1] : "";
+        const result = typeof rawResult === "object" ? rawResult[0] : rawResult;
 
         if (result !== "flee") {
           chrome.tabs.sendMessage(sender.tab?.id || 0, {
@@ -68,6 +71,7 @@ const onContentMessage = (
             url: url || "",
             result: result,
             score: msg.score,
+            defeatedBy: hitter,
           },
         }).then(() => {
           if (!sender.tab) return;

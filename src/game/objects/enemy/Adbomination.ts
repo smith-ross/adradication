@@ -44,6 +44,7 @@ interface EnemyProps extends ImplementedRenderableObjectProps {
   attackCooldown: number;
   attackDamage: number;
   health?: number;
+  name: string;
 }
 
 export default class Adbomination extends RenderableGameObject {
@@ -60,6 +61,7 @@ export default class Adbomination extends RenderableGameObject {
   scoreValue: number = 1;
   timers: Timer[] = [];
   tagPosition: Vector | undefined;
+  name: string;
 
   stunInfo = {
     stunDuration: 0,
@@ -133,6 +135,7 @@ export default class Adbomination extends RenderableGameObject {
     this.#damageWindow = enemyProps.damageWindow;
     this.#lockOnDistance = enemyProps.lockOnDistance || LOCK_ON_DISTANCE;
     this.#attackDamage = enemyProps.attackDamage;
+    this.name = enemyProps.name;
   }
 
   get state() {
@@ -338,7 +341,7 @@ export default class Adbomination extends RenderableGameObject {
         chosenHitbox.intersectsWith(target.getChild("PlayerHurtbox") as Hitbox)
       ) {
         this.attackInfo.hit = true;
-        target.onHit(this.#attackDamage);
+        target.onHit(this.#attackDamage, this);
       }
     }
     this.attackInfo.attackDuration -= deltaTime;

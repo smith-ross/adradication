@@ -17,6 +17,7 @@ export interface ProjectileProps extends ImplementedRenderableObjectProps {
   speed: number;
   playerRef: Player;
   targets?: Adbomination[];
+  spawner?: Adbomination;
 }
 export default class Projectile extends RenderableGameObject {
   #direction: Vector;
@@ -25,6 +26,7 @@ export default class Projectile extends RenderableGameObject {
   #playerRef: Player;
   #targets: Adbomination[];
   playerSpawned: boolean = false;
+  spawner: Adbomination | undefined;
 
   constructor(projectileProps: ProjectileProps) {
     super({
@@ -45,6 +47,7 @@ export default class Projectile extends RenderableGameObject {
     this.#damage = projectileProps.damage;
     this.#playerRef = projectileProps.playerRef;
     this.#targets = projectileProps.targets || [];
+    this.spawner = projectileProps.spawner;
   }
 
   invertDirection(newTargets: Adbomination[], newDirection?: Vector) {
@@ -73,7 +76,7 @@ export default class Projectile extends RenderableGameObject {
       ) {
         this.destroy();
         this.spawnExplosion();
-        target.onHit(this.#damage);
+        target.onHit(this.#damage, this.spawner!);
       }
     } else {
       this.#targets.forEach((enemy) => {

@@ -269,18 +269,18 @@ export default class Adradication {
       enemyContainer: monsterContainer,
     });
 
-    player.addDeathListener(() => {
+    player.addDeathListener((hitter?: string) => {
       this.#hasResult = true;
       chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
         transformStorage({
           key: "pageResult-" + tabId.tab + "-" + window.location.href,
           modifierFn(originalValue) {
-            return "lose";
+            return ["lose", hitter];
           },
         }).then(() => {
           chrome.runtime.sendMessage({
             text: "REPORT_RESULT",
-            value: "lose",
+            value: ["lose", hitter],
             monsterCount: this.monsterCount,
             score: 0,
           });

@@ -98,6 +98,7 @@ export default class EyeP extends Adbomination {
       attackCooldown: 1,
       moveSpeedVariance: 15,
       attackDamage: 12,
+      name: "EyeP",
     });
 
     this.addChild(

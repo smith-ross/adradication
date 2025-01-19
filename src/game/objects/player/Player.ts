@@ -158,7 +158,7 @@ export default class Player extends RenderableGameObject {
   upgrades: PlayerUpgrades = new PlayerUpgrades(this);
   score: number = 0;
 
-  #deathListeners: (() => void)[] = [];
+  #deathListeners: ((hitter?: string) => void)[] = [];
 
   constructor(playerProps: PlayerProps) {
     const hitboxSize = playerProps.size?.mul(1.5).add(new Vector(30, -40));
@@ -396,7 +396,7 @@ export default class Player extends RenderableGameObject {
     }
   }
 
-  onHit(damage: number) {
+  onHit(damage: number, hitter: Adbomination) {
     const healthBar = this.getChild("PlayerHealthBar") as HealthBar;
     if (healthBar.currentHealth <= 0) return;
     healthBar.takeDamage(damage);
@@ -412,13 +412,13 @@ export default class Player extends RenderableGameObject {
         this.#lastDirection === 1 ? "right" : "left"
       );
       this.#deathListeners.forEach((listener) => {
-        listener();
+        listener(hitter.name);
       });
       chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
         transformStorage({
           key: "pageResult-" + tabId.tab + "-" + window.location.href,
           modifierFn(originalValue) {
-            return "lose";
+            return ["lose", hitter.name];
           },
         });
       });

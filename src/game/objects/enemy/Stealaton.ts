@@ -121,6 +121,7 @@ export default class Stealaton extends Adbomination {
       },
       attackCooldown: 1,
       moveSpeedVariance: 15,
+      name: "Stealaton",
       attackDamage: 10,
     });
 
