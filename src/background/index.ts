@@ -65,27 +65,44 @@ const onContentMessage = (
         rawResult.type = isFlee;
         const hitter = rawResult.defeatedBy || "";
         const result = rawResult.type;
-
-        if (isFlee !== "flee") {
-          chrome.tabs.sendMessage(sender.tab?.id || 0, {
-            text: "UPDATE_WIN_STATE",
-            value: result,
-            url: sender.tab?.url,
+        getFromStorage(`TrackerCounter-${sender.tab?.id}`).then((trackers) => {
+          const count: { [k: string]: number } = {};
+          (trackers as { url: string; origin: number }[]).forEach(
+            ({ url, origin }) => {
+              if (count[url] === undefined) count[url] = 0;
+              count[url] += 1;
+            }
+          );
+          const max = ["", 0];
+          Object.keys(count).forEach((key) => {
+            const value = count[key];
+            if (value > max[1]) {
+              max[0] = key;
+              max[1] = value;
+            }
           });
-        }
-        deleteStorage(`pageResult-${sender.tab?.id}-${url}`);
-        apiPost("/battle/reportResult", true, {
-          body: {
-            url: url || "",
-            result: result,
-            score: msg.score,
-            defeatedBy: hitter,
-            upgrades: rawResult.upgrades,
-          },
-        }).then(() => {
-          if (!sender.tab) return;
-          chrome.tabs.sendMessage(sender.tab?.id || 0, {
-            text: "LEADERBOARD_LOADED",
+          if (isFlee !== "flee") {
+            chrome.tabs.sendMessage(sender.tab?.id || 0, {
+              text: "UPDATE_WIN_STATE",
+              value: result,
+              url: sender.tab?.url,
+            });
+          }
+          deleteStorage(`pageResult-${sender.tab?.id}-${url}`);
+          apiPost("/battle/reportResult", true, {
+            body: {
+              url: url || "",
+              result: result,
+              score: msg.score,
+              defeatedBy: hitter,
+              upgrades: rawResult.upgrades,
+              mostCommonTracker: max[0],
+            },
+          }).then(() => {
+            if (!sender.tab) return;
+            chrome.tabs.sendMessage(sender.tab?.id || 0, {
+              text: "LEADERBOARD_LOADED",
+            });
           });
         });
       });
