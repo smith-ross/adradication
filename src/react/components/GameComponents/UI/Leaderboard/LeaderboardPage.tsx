@@ -47,7 +47,7 @@ const LeaderboardPage = () => {
                 score={entry.score}
                 position={idx}
                 playerEntry={entry.username === playerEntry.username}
-                key={nextEntry.username}
+                key={entry.username}
               />
             ))}
           </ul>
