@@ -25,17 +25,6 @@ const WinStatePage = ({
     setLeaderboard(true);
   }, [isLeaderboard]);
 
-  useEffect(() => {
-    chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-      switch (msg.text) {
-        case "LEADERBOARD_LOADED":
-          setUpdated(true);
-          break;
-      }
-      return true;
-    });
-  }, []);
-
   return (
     <>
       {!isLeaderboard ? (
