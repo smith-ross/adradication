@@ -24,6 +24,7 @@ export default class RightToErasure extends Upgrade {
   }
 
   onPickup(player: Player): void {
+    super.onPickup(player);
     Adradication.getGame().waves[0].wave.forEach((enemy) => {
       (enemy.getChild("EnemyHealthBar") as HealthBar).currentHealth = 10;
     });

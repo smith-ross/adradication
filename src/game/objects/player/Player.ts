@@ -25,6 +25,12 @@ import Upgrade, { UpgradeTrigger } from "./upgrades/Upgrade";
 import { spawnEffect } from "../../../util/GameUtil";
 import TakeDamageEffect from "../generic-vfx/TakeDamageEffect";
 
+export type PageResult = {
+  type: "win" | "flee" | "lose";
+  defeatedBy: string;
+  upgrades: string[];
+};
+
 const {
   MOVE_SPEED,
   ROLL_DURATION,
@@ -158,7 +164,7 @@ export default class Player extends RenderableGameObject {
   upgrades: PlayerUpgrades = new PlayerUpgrades(this);
   score: number = 0;
 
-  #deathListeners: ((hitter?: string) => void)[] = [];
+  #deathListeners: ((hitter: PageResult) => void)[] = [];
 
   constructor(playerProps: PlayerProps) {
     const hitboxSize = playerProps.size?.mul(1.5).add(new Vector(30, -40));
@@ -251,7 +257,7 @@ export default class Player extends RenderableGameObject {
     return new Vector(xMove, yMove).normalize();
   }
 
-  addDeathListener(listener: () => void) {
+  addDeathListener(listener: (hitter: PageResult) => void) {
     this.#deathListeners.push(listener);
   }
 
@@ -411,14 +417,27 @@ export default class Player extends RenderableGameObject {
         PlayerState.DEAD,
         this.#lastDirection === 1 ? "right" : "left"
       );
+      const upgrades = this.upgrades;
       this.#deathListeners.forEach((listener) => {
-        listener(hitter.name);
+        listener({
+          type: "lose",
+          defeatedBy: hitter.name,
+          upgrades: upgrades.appliedUpgrades.map(
+            (upgrade) => `${upgrade.getName()} [${upgrade.getStacks()}]`
+          ),
+        });
       });
       chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
         transformStorage({
           key: "pageResult-" + tabId.tab + "-" + window.location.href,
           modifierFn(originalValue) {
-            return ["lose", hitter.name];
+            return {
+              type: "lose",
+              defeatedBy: hitter.name,
+              upgrades: upgrades.appliedUpgrades.map(
+                (upgrade) => `${upgrade.getName()} [${upgrade.getStacks()}]`
+              ),
+            };
           },
         });
       });

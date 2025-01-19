@@ -22,6 +22,7 @@ export default class GDPRKit extends Upgrade {
   }
 
   onPickup(player: Player): void {
+    super.onPickup(player);
     const healthBar = player.getChild("PlayerHealthBar") as HealthBar;
     healthBar.heal(healthBar.getMaxHealth() - healthBar.currentHealth);
     spawnEffect(

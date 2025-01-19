@@ -23,6 +23,7 @@ export default class Cookies extends Upgrade {
   }
 
   onPickup(player: Player): void {
+    super.onPickup(player);
     const healthBar = player.getChild("PlayerHealthBar") as HealthBar;
     const gain = Math.round(healthBar.getMaxHealth() * 0.2);
     healthBar.setMaxHealth(healthBar.getMaxHealth() + gain);

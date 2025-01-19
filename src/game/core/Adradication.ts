@@ -15,7 +15,7 @@ import Grave from "../objects/enemy/Grave";
 import Sponspore from "../objects/enemy/Sponspore";
 import Stealaton from "../objects/enemy/Stealaton";
 import Wave from "../objects/enemy/Wave";
-import Player from "../objects/player/Player";
+import Player, { PageResult } from "../objects/player/Player";
 import FloatingUpgradePickup from "../objects/player/upgrades/FloatingUpgradePickup";
 import Upgrade from "../objects/player/upgrades/Upgrade";
 import Cookies from "../objects/player/upgrades/upgrade-variants/Cookies";
@@ -119,16 +119,29 @@ export default class Adradication {
     this.waves.splice(0, 1);
     if (!this.waves[0]) {
       this.#hasResult = true;
+      const upgrades = this.player?.upgrades!;
       chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
         transformStorage({
           key: "pageResult-" + tabId.tab + "-" + window.location.href,
           modifierFn(originalValue) {
-            return "win";
+            return {
+              type: "win",
+              defeatedBy: "",
+              upgrades: upgrades.appliedUpgrades.map(
+                (upgrade) => `${upgrade.getName()} [${upgrade.getStacks()}]`
+              ),
+            };
           },
         }).then(() => {
           chrome.runtime.sendMessage({
             text: "REPORT_RESULT",
-            value: "win",
+            value: {
+              type: "win",
+              defeatedBy: "",
+              upgrades: upgrades.appliedUpgrades.map(
+                (upgrade) => `${upgrade.getName()} [${upgrade.getStacks()}]`
+              ),
+            },
             monsterCount: this.monsterCount,
             score: this.player?.score,
           });
@@ -269,18 +282,22 @@ export default class Adradication {
       enemyContainer: monsterContainer,
     });
 
-    player.addDeathListener((hitter?: string) => {
+    player.addDeathListener((hitter: PageResult) => {
       this.#hasResult = true;
       chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
         transformStorage({
           key: "pageResult-" + tabId.tab + "-" + window.location.href,
           modifierFn(originalValue) {
-            return ["lose", hitter];
+            return {
+              type: "lose",
+              defeatedBy: hitter.defeatedBy,
+              upgrades: hitter.upgrades,
+            };
           },
         }).then(() => {
           chrome.runtime.sendMessage({
             text: "REPORT_RESULT",
-            value: ["lose", hitter],
+            value: hitter,
             monsterCount: this.monsterCount,
             score: 0,
           });
@@ -355,10 +372,18 @@ export default class Adradication {
       this.tabId = tabId.tab;
       window.addEventListener("beforeunload", () => {
         const monsterCount = this.monsterCount;
+        const upgrades = this.player?.upgrades!;
         chrome.runtime.sendMessage({
           text: "PAGE_UNLOADED",
           monsterCount: monsterCount,
           score: player.score,
+          value: {
+            type: "flee",
+            defeatedBy: "",
+            upgrades: upgrades.appliedUpgrades.map(
+              (upgrade) => `${upgrade.getName()} [${upgrade.getStacks()}]`
+            ),
+          },
           noResult: this.#hasResult,
         });
       });

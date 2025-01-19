@@ -1,3 +1,4 @@
+import { PageResult } from "../game/objects/player/Player";
 import { apiPost } from "../util/FetchUtil";
 import {
   deleteStorage,
@@ -52,13 +53,20 @@ const onContentMessage = (
 
     case "REPORT_RESULT":
       getFromStorage(`pageResult-${sender.tab?.id}-${url}`).then((value) => {
-        const rawResult: string | [string, string] =
-          msg.value || value || (msg.monsterCount === 0 ? "win" : "flee");
+        const rawResult: PageResult = msg.value || value;
 
-        const hitter = typeof rawResult === "object" ? rawResult[1] : "";
-        const result = typeof rawResult === "object" ? rawResult[0] : rawResult;
+        const isFlee =
+          msg.monsterCount === 0
+            ? rawResult.type === "flee"
+              ? "win"
+              : "flee"
+            : rawResult.type;
 
-        if (result !== "flee") {
+        rawResult.type = isFlee;
+        const hitter = rawResult.defeatedBy || "";
+        const result = rawResult.type;
+
+        if (isFlee !== "flee") {
           chrome.tabs.sendMessage(sender.tab?.id || 0, {
             text: "UPDATE_WIN_STATE",
             value: result,
@@ -72,6 +80,7 @@ const onContentMessage = (
             result: result,
             score: msg.score,
             defeatedBy: hitter,
+            upgrades: rawResult.upgrades,
           },
         }).then(() => {
           if (!sender.tab) return;
@@ -92,6 +101,7 @@ const onContentMessage = (
           text: "REPORT_RESULT",
           monsterCount: msg.monsterCount,
           score: msg.score,
+          value: msg.value,
         },
         sender,
         sendResponse

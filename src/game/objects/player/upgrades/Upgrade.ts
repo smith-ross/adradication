@@ -69,7 +69,7 @@ export default abstract class Upgrade {
   }
 
   onPickup(player: Player) {
-    if (this.#upgradeType === UpgradeType.STICKY) player.addUpgrade(this);
+    player.addUpgrade(this);
   }
 
   update(deltaTime: number) {}

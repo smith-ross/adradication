@@ -18,6 +18,7 @@ export default class DataHarvest extends Upgrade {
   }
 
   onPickup(player: Player): void {
+    super.onPickup(player);
     Adradication.getGame().waves[0].wave.forEach(
       (enemy) => (enemy.scoreValue *= 2)
     );
