@@ -24,6 +24,7 @@ export default class Projectile extends RenderableGameObject {
   #damage: number;
   #playerRef: Player;
   #targets: Adbomination[];
+  playerSpawned: boolean = false;
 
   constructor(projectileProps: ProjectileProps) {
     super({
@@ -66,7 +67,7 @@ export default class Projectile extends RenderableGameObject {
     }
     const chosenHitbox = this.getChild("ProjectileHitbox") as Hitbox;
     const target = this.#playerRef;
-    if (this.#targets.length === 0) {
+    if (this.#targets.length === 0 && !this.playerSpawned) {
       if (
         chosenHitbox.intersectsWith(target.getChild("PlayerHurtbox") as Hitbox)
       ) {
