@@ -58,13 +58,13 @@ const ANIMATIONS: {
   },
   [EnemyState.FADE_IN]: {
     right: {
-      sheetPath: `res/enemy-sprites/Harvester/FadeIn.png`,
+      sheetPath: `res/enemy-sprites/Harvester/FadeInReversed.png`,
       dimensions: new Vector(11, 1),
       timeBetweenFrames: 0.08,
       cellSize: new Vector(215, 93),
     },
     left: {
-      sheetPath: `res/enemy-sprites/Harvester/FadeInReversed.png`,
+      sheetPath: `res/enemy-sprites/Harvester/FadeIn.png`,
       dimensions: new Vector(11, 1),
       timeBetweenFrames: 0.08,
       cellSize: new Vector(215, 93),
@@ -280,26 +280,27 @@ export default class Harvester extends Adbomination {
   }
 
   teleport(position: Vector) {
-    const time =
-      ANIMATIONS[EnemyState.FADE_OUT].left.dimensions.x *
-      ANIMATIONS[EnemyState.FADE_OUT].left.timeBetweenFrames;
-    this.switchState(EnemyState.FADE_OUT);
-    const fadeInTimer = new Timer(time, false, () => {
-      this.timers = this.timers.filter((timer) => timer !== fadeInTimer);
-      this.position = position.sub(
-        new Vector(this.size.x / 2, this.size.y / 2)
-      );
-      this.refreshMoveVec();
-      this.switchState(EnemyState.FADE_IN);
-      const attackTimer = new Timer(time, false, (dt) => {
-        this.timers = this.timers.filter((timer) => timer !== attackTimer);
+    return new Promise<number>((resolve) => {
+      const time =
+        ANIMATIONS[EnemyState.FADE_OUT].left.dimensions.x *
+        ANIMATIONS[EnemyState.FADE_OUT].left.timeBetweenFrames;
+      this.switchState(EnemyState.FADE_OUT);
+      const fadeInTimer = new Timer(time, false, () => {
+        this.timers = this.timers.filter((timer) => timer !== fadeInTimer);
+        this.position = position.sub(
+          new Vector(this.size.x / 2, this.size.y / 2)
+        );
         this.refreshMoveVec();
-        this.switchState(EnemyState.ATTACK);
-        this.doAttack(dt);
+        this.switchState(EnemyState.FADE_IN);
+        const attackTimer = new Timer(time, false, (dt) => {
+          this.timers = this.timers.filter((timer) => timer !== attackTimer);
+          this.refreshMoveVec();
+          resolve(dt);
+        });
+        this.timers.push(attackTimer);
       });
-      this.timers.push(attackTimer);
+      this.timers.push(fadeInTimer);
     });
-    this.timers.push(fadeInTimer);
   }
 
   walkDirectionUpdated() {
@@ -345,7 +346,10 @@ export default class Harvester extends Adbomination {
             playerPos.x + (Math.random() > 0.5 ? -50 : 50),
             playerPos.y
           )
-        );
+        ).then((dt) => {
+          this.switchState(EnemyState.ATTACK);
+          this.doAttack(dt);
+        });
         break;
 
       case EnemyState.CHASE:

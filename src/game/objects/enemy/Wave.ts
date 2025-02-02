@@ -46,20 +46,20 @@ export default class Wave {
   addEnemy(enemy: Adbomination) {
     if (this.wave.length >= this.#monstersPerWave) return false;
     this.wave.push(enemy);
+    if (this.wave.filter((e) => e !== enemy && e.singleton).length > 0) {
+      this.#count++;
+      return true;
+    }
+    if (enemy.singleton) {
+      this.wave = this.wave.filter((e) => {
+        if (e !== enemy) {
+          this.container.removeChild(e);
+          this.#count++;
+        }
+        return e === enemy;
+      });
+    }
     if (this.#active) {
-      if (this.wave.filter((e) => e !== enemy && e.singleton).length > 0) {
-        this.#count++;
-        return true;
-      }
-      if (enemy.singleton) {
-        this.wave = this.wave.filter((e) => {
-          if (e !== enemy) {
-            this.container.removeChild(e);
-            this.#count++;
-          }
-          return e === enemy;
-        });
-      }
       enemy.spawnAtRandomPoint(this.worldMap, this.player as Player);
       const spawnAnimation = new SpawningEffect({
         id: "SpawnEffect",
