@@ -47,6 +47,19 @@ export default class Wave {
     if (this.wave.length >= this.#monstersPerWave) return false;
     this.wave.push(enemy);
     if (this.#active) {
+      if (this.wave.filter((e) => e !== enemy && e.singleton).length > 0) {
+        this.#count++;
+        return true;
+      }
+      if (enemy.singleton) {
+        this.wave = this.wave.filter((e) => {
+          if (e !== enemy) {
+            this.container.removeChild(e);
+            this.#count++;
+          }
+          return e === enemy;
+        });
+      }
       enemy.spawnAtRandomPoint(this.worldMap, this.player as Player);
       const spawnAnimation = new SpawningEffect({
         id: "SpawnEffect",
@@ -60,7 +73,7 @@ export default class Wave {
         this.container.addChild(enemy);
         enemy.addDeathListener(() => {
           this.#count++;
-          this.player.score++;
+          this.player.score += enemy.scoreValue;
           if (this.#count >= this.wave.length) this.onComplete();
         });
       });
@@ -70,15 +83,6 @@ export default class Wave {
   setActive() {
     this.worldMap.refreshEnemySpawns();
     this.#active = true;
-    // chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
-    //   transformStorage({
-    //     key: "pageWaves-" + tabId.tab,
-    //     modifierFn(originalValue) {
-    //       originalValue = originalValue ?? [0, 0];
-    //       return [originalValue[0] + 1, originalValue[1]];
-    //     },
-    //   });
-    // });
     this.wave.forEach((enemy) => {
       enemy.spawnAtRandomPoint(this.worldMap, this.player as Player);
       const spawnAnimation = new SpawningEffect({
@@ -93,7 +97,7 @@ export default class Wave {
         this.container.addChild(enemy);
         enemy.addDeathListener(() => {
           this.#count++;
-          this.player.score++;
+          this.player.score += enemy.scoreValue;
           if (this.#count >= this.wave.length) this.onComplete();
         });
       });

@@ -12,6 +12,7 @@ import Empty from "../objects/Empty";
 import Adbomination from "../objects/enemy/Adbomination";
 import EyeP from "../objects/enemy/EyeP";
 import Grave from "../objects/enemy/Grave";
+import Harvester from "../objects/enemy/Harvester";
 import Sponspore from "../objects/enemy/Sponspore";
 import Stealaton from "../objects/enemy/Stealaton";
 import Wave from "../objects/enemy/Wave";
@@ -184,9 +185,10 @@ export default class Adradication {
             size: new Vector(50, 50),
           };
           const monsterChoice = [
-            new Sponspore(props),
-            new EyeP(props),
-            new Grave(props),
+            // new Sponspore(props),
+            // new EyeP(props),
+            // new Grave(props),
+            new Harvester(props),
           ];
           const newMonster =
             monsterChoice[

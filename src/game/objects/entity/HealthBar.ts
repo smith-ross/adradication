@@ -63,6 +63,16 @@ export default class HealthBar extends RenderableGameObject {
     this.#healthBarSize = healthBarSize;
   }
 
+  addSize(vec: Vector) {
+    this.#healthBarSize = this.#healthBarSize.add(vec);
+    const container = this.getDescendant(`${this.id}-container`)!;
+    container.size = container.size.add(vec);
+    const inner = this.getDescendant(`${this.id}-inner-bar`)!;
+    inner.size = inner.size.add(vec);
+    const bg = this.getDescendant(`${this.id}-bg-bar`)!;
+    bg.size = bg.size.add(vec);
+  }
+
   setMaxHealth(value: number) {
     this.#maxHealth = value;
   }

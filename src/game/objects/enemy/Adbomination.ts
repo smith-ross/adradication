@@ -26,6 +26,8 @@ export enum EnemyState {
   PROJECTILE_ATTACK,
   DEATH,
   SPAWN,
+  FADE_OUT,
+  FADE_IN,
 }
 
 export interface KnockbackProps {
@@ -62,6 +64,7 @@ export default class Adbomination extends RenderableGameObject {
   timers: Timer[] = [];
   tagPosition: Vector | undefined;
   name: string;
+  singleton: boolean = false;
 
   stunInfo = {
     stunDuration: 0,
@@ -152,6 +155,10 @@ export default class Adbomination extends RenderableGameObject {
 
   get playerRef() {
     return this.#playerRef;
+  }
+
+  get attackRange() {
+    return this.#attackRange;
   }
 
   addDeathListener(listener: () => void) {

@@ -100,6 +100,10 @@ export default abstract class GameObject {
     return this.parent !== undefined;
   }
 
+  removeChild(child: GameObject) {
+    this.#children = this.children.filter((c) => c !== child);
+  }
+
   getChild(childId: string) {
     return this.children.find((value) => {
       return value.id == childId;

@@ -14,7 +14,7 @@ export default class Timer {
   service(deltaTime: number) {
     this.#timeRemaining -= deltaTime;
     if (this.#timeRemaining <= 0) {
-      this.#callback();
+      this.#callback(deltaTime);
       if (this.repeat) this.#timeRemaining = this.#baseTime;
     }
   }

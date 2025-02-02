@@ -73,7 +73,7 @@ const onContentMessage = (
               count[url] += 1;
             }
           );
-          const max = ["", 0];
+          const max: [string, number] = ["", 0];
           Object.keys(count).forEach((key) => {
             const value = count[key];
             if (value > max[1]) {
@@ -123,18 +123,6 @@ const onContentMessage = (
         sender,
         sendResponse
       );
-      // getFromStorage(`pageResult-${sender.tab?.id}-${url}`).then((value) => {
-      //   const result: string =
-      //     value || (msg.monsterCount === 0 ? "win" : "flee");
-      //   deleteStorage(`pageResult-${sender.tab?.id}-${url}`);
-      //   apiPost("/battle/reportResult", true, {
-      //     body: {
-      //       url: url || "",
-      //       result: result,
-      //       score: msg.score,
-      //     },
-      //   }).then(() => console.log("Sent result!"));
-      // });
       break;
   }
 };
@@ -144,7 +132,6 @@ chrome.runtime.onMessage.addListener(onContentMessage);
 chrome.tabs.onRemoved.addListener((tabId) => {
   deleteStorage(`TrackerCounter-${tabId}`);
   deleteStorage(`pageScore-${tabId}`);
-  // deleteStorage(`pageWaves-${tabId}`);
 });
 
 chrome.webRequest.onBeforeSendHeaders.addListener(
@@ -186,25 +173,6 @@ chrome.webRequest.onBeforeSendHeaders.addListener(
               },
             });
           }
-
-          // for (let tracker of getTrackerURLs()) {
-          //   if (requestInfo.url.includes(tracker)) {
-          //     console.log("DETECTED:", tracker, requestInfo.url);
-          //     transformStorage({
-          //       key: `TrackerCounter-${activeTab.id}`,
-          //       modifierFn: (originalValue) => {
-          //         console.log(requestInfo.requestHeaders);
-          //         return [
-          //           ...((originalValue || []) as TrackedEnemy[]),
-          //           {
-          //             origin: pageCount,
-          //           },
-          //         ];
-          //       },
-          //     });
-          //     break;
-          //   }
-          // }
         }
       }
     );
