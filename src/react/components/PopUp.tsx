@@ -16,8 +16,6 @@ const PopUp = () => {
   const enableCallback = useCallback(() => {
     console.log(gameVisible);
     setStorageRaw("GameEnabled", gameVisible === 1 ? 2 : 1).then(() => {
-      console.log(gameVisible);
-      getFromStorage("GameEnabled").then((v) => console.log("NOW:", v));
       chrome.tabs.query({}, (tabs) => {
         tabs.forEach((tab) => {
           if (tab.id) chrome.tabs.reload(tab.id);
