@@ -391,6 +391,11 @@ export default class Adradication {
       });
     });
 
+    const dummyHarvester = new Harvester({ id: "clickedFakeButton" });
+    document.addEventListener("clickedFakeButton", () => {
+      player.onHit(20, dummyHarvester);
+    });
+
     this.update(0); // Start game loop
   }
 

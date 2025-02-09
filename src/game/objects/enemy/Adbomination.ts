@@ -18,6 +18,7 @@ const LOCK_ON_DISTANCE = 150;
 
 export enum EnemyState {
   IDLE,
+  IDLE_NO_UPDATE,
   CHASE,
   STUNNED,
   ATTACK,
@@ -28,6 +29,7 @@ export enum EnemyState {
   SPAWN,
   FADE_OUT,
   FADE_IN,
+  CAST,
 }
 
 export interface KnockbackProps {

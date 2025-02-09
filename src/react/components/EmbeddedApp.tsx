@@ -15,9 +15,6 @@ const EmbeddedApp = () => {
           <FloatingWindow id="game" title="Adradication" draggable={true}>
             <App />
           </FloatingWindow>
-          <FakeAdContainer>
-            <FakeAd />
-          </FakeAdContainer>
         </>
       )}
     </div>

@@ -3,9 +3,6 @@
 
   .fake-ad-container {
     position: absolute;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 
     .fake-ad {
       width: 350px;
@@ -17,6 +14,7 @@
       flex-direction: column;
       border-top-left-radius: 5px;
       border-top-right-radius: 5px;
+      position: absolute;
   
       .fake-ad-banner {
         border-top-left-radius: 5px;

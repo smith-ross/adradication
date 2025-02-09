@@ -1,3 +1,4 @@
+import FakeAdContainer from "../FakeAd/FakeAdContainer";
 import HighScoreDisplay from "../HighScoreDisplay/HighScoreDisplay";
 import Logout from "../Logout/Logout";
 import NameDisplay from "../NameDisplay/NameDisplay";
@@ -12,6 +13,7 @@ const UILayout = () => {
       <NameDisplay />
       <ScoreDisplay />
       <HighScoreDisplay />
+      <FakeAdContainer />
       <WaveDisplay />
       <UpgradeInspect />
       <Logout />

@@ -1,37 +1,30 @@
 import { useMemo } from "react";
+import Vector from "../../../../../game/types/Vector";
+import { fireEvent } from "../../../../../util/GeneralUtil";
 
-interface FakeAdProps {
+export interface Ad {
   title: string;
-  body: string;
   imageUrl: string;
-  buttonText?: string;
+  body: string;
+  buttonText: string;
+  position: Vector;
 }
 
-const FAKE_ADS = [
-  {
-    title: "Get Rich NOW!!",
-    body: `I made over $1,000,000,000 using THIS SIMPLE TRICK and now I'm sharing it with you!
-This is a limited time offer!`,
-    imageUrl: chrome.runtime.getURL("res/fake-ad/scammer.png"),
-    buttonText: "Download",
-  },
+interface FakeAdProps {
+  setAds: (ads: Ad[] | ((a: Ad[]) => Ad[])) => void;
+  ad: Ad;
+  index: number;
+}
 
-  {
-    title: "MAJOR SECURITY ALERT",
-    body: `Our software has detected 496 VIRUSES ON YOUR PC! `,
-    imageUrl: chrome.runtime.getURL("res/fake-ad/danger.png"),
-    buttonText: "Clean",
-  },
-];
-
-const FakeAd = () => {
-  const { title, imageUrl, body, buttonText } = useMemo(
-    () => FAKE_ADS[Math.floor(Math.random() * FAKE_ADS.length)],
-    []
-  );
-
+const FakeAd = ({ setAds, ad, index }: FakeAdProps) => {
   return (
-    <div className="fake-ad">
+    <div
+      className="fake-ad"
+      style={{
+        left: ad.position.x,
+        top: ad.position.y,
+      }}
+    >
       <div className="fake-ad-banner">
         <div className="fake-ad-banner-container">
           <span className="fake-ad-title">
@@ -39,16 +32,29 @@ const FakeAd = () => {
               className="fake-ad-icon"
               src={chrome.runtime.getURL("res/upgrades/RightToErasure.png")}
             />
-            {title}
+            {ad.title}
           </span>
-          <button className="fake-ad-close">✖</button>
+          <button
+            className="fake-ad-close"
+            onClick={() => setAds((ads) => ads.filter((_, i) => i !== index))}
+          >
+            ✖
+          </button>
         </div>
       </div>
       <div className="fake-ad-body">
-        <img className="fake-ad-img" src={imageUrl} />
+        <img className="fake-ad-img" src={ad.imageUrl} />
         <div className="fake-ad-primary">
-          <span className="fake-ad-body-text">{body}</span>
-          <button className="fake-ad-button">{buttonText}</button>
+          <span className="fake-ad-body-text">{ad.body}</span>
+          <button
+            className="fake-ad-button"
+            onClick={() => {
+              fireEvent("clickedFakeButton", {});
+              setAds((ads) => ads.filter((_, i) => i !== index));
+            }}
+          >
+            {ad.buttonText}
+          </button>
         </div>
       </div>
     </div>
