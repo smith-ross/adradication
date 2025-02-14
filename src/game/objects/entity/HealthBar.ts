@@ -14,6 +14,7 @@ interface HealthBarProps extends ImplementedRenderableObjectProps {
 const { HEALTH_BAR_SIZE, INNER_HEALTH_BAR_OFFSET } = HealthConstants;
 const VECTOR_INNER_BAR_OFFSET = new Vector(...INNER_HEALTH_BAR_OFFSET);
 
+// Class for managing state and visuals of an entity's health
 export default class HealthBar extends RenderableGameObject {
   #maxHealth: number = 0;
   currentHealth: number = 0;
@@ -63,6 +64,7 @@ export default class HealthBar extends RenderableGameObject {
     this.#healthBarSize = healthBarSize;
   }
 
+  // Change size of healthbar, used for increased bars like boss fights.
   addSize(vec: Vector) {
     this.#healthBarSize = this.#healthBarSize.add(vec);
     const container = this.getDescendant(`${this.id}-container`)!;

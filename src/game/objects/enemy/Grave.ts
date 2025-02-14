@@ -200,7 +200,7 @@ export default class Grave extends Adbomination {
 
   onDeath() {
     if (this.#spawnedSkeletonRef) {
-      this.#spawnedSkeletonRef.onHit(999, 0);
+      this.#spawnedSkeletonRef.onHit(Number.MAX_SAFE_INTEGER, 0);
     }
   }
 

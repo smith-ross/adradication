@@ -15,7 +15,7 @@ import Grave from "../objects/enemy/Grave";
 import Harvester from "../objects/enemy/Harvester";
 import Sponspore from "../objects/enemy/Sponspore";
 import Stealaton from "../objects/enemy/Stealaton";
-import Wave from "../objects/enemy/Wave";
+import Wave, { BOSS_FIGHT_EVERY } from "../objects/enemy/Wave";
 import Player, { PageResult } from "../objects/player/Player";
 import FloatingUpgradePickup from "../objects/player/upgrades/FloatingUpgradePickup";
 import Upgrade from "../objects/player/upgrades/Upgrade";
@@ -25,6 +25,7 @@ import FirewallBall from "../objects/player/upgrades/upgrade-variants/FirewallBa
 import GDPRKit from "../objects/player/upgrades/upgrade-variants/GDPRKit";
 import ReverseProxy from "../objects/player/upgrades/upgrade-variants/ReverseProxy";
 import RightToErasure from "../objects/player/upgrades/upgrade-variants/RightToErasure";
+import TargetedAds from "../objects/player/upgrades/upgrade-variants/TargetedAds";
 import Sprite from "../objects/Sprite";
 import TextLabel from "../objects/TextLabel";
 import Layer from "../scene/Layer";
@@ -53,6 +54,7 @@ export default class Adradication {
   waves: Wave[] = [];
   currentPageCount: number = 0;
   player: Player | undefined;
+  difficultyScalar: number = 1;
 
   totalWaveCount: number = 0;
   currentWaveId: number = 0;
@@ -79,15 +81,29 @@ export default class Adradication {
     context.imageSmoothingEnabled = false;
   }
 
+  incrementDifficulty(amount: number) {
+    this.difficultyScalar += amount;
+  }
+
   private generateUpgradeOptions() {
-    return [
+    // Boss drop
+    if (this.currentWaveId % BOSS_FIGHT_EVERY === 0)
+      return [new TargetedAds(), new TargetedAds(), new TargetedAds()];
+
+    const upgrades = [
       new GDPRKit(),
-      new FirewallBall(),
       new ReverseProxy(),
       new Cookies(),
-      new RightToErasure(),
       new DataHarvest(),
     ];
+    if ((this.currentWaveId + 1) % BOSS_FIGHT_EVERY !== 0)
+      upgrades.push(new RightToErasure());
+
+    const firewallBall = this.player?.upgrades.find("Firewall Ball");
+    if (!firewallBall || firewallBall.getStacks() < 10)
+      upgrades.push(new FirewallBall());
+
+    return upgrades;
   }
 
   upgradeRound() {
@@ -185,10 +201,9 @@ export default class Adradication {
             size: new Vector(50, 50),
           };
           const monsterChoice = [
-            // new Sponspore(props),
-            // new EyeP(props),
-            // new Grave(props),
-            new Harvester(props),
+            new Sponspore(props),
+            new EyeP(props),
+            new Grave(props),
           ];
           const newMonster =
             monsterChoice[
@@ -229,11 +244,13 @@ export default class Adradication {
     if (!this.waves[0]) {
       this.waves = [
         new Wave(
+          this.totalWaveCount + 1,
           monsterContainer,
           this.worldMap,
           player,
           Math.min(10, 6 + this.currentWaveId * 2),
           () => this.onComplete(),
+          this.monsterCount,
           [enemy]
         ),
       ];
@@ -251,11 +268,13 @@ export default class Adradication {
     if (!success) {
       this.waves.push(
         new Wave(
+          this.totalWaveCount + 1,
           monsterContainer,
           this.worldMap,
           player,
           Math.min(10, 6 + this.currentWaveId * 2),
           () => this.onComplete(),
+          this.monsterCount,
           [enemy]
         )
       );
@@ -354,11 +373,13 @@ export default class Adradication {
 
     this.waves = [
       new Wave(
+        this.totalWaveCount + 1,
         monsterContainer,
         this.worldMap,
         player,
         Math.min(10, 6 + this.currentWaveId * 2),
-        () => this.onComplete()
+        () => this.onComplete(),
+        this.monsterCount
       ),
     ];
     this.waves[0].setActive();

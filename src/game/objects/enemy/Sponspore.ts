@@ -1,4 +1,5 @@
 import { load } from "../../../util/DrawUtil";
+import { difficulty } from "../../../util/GameUtil";
 import Color from "../../types/Color";
 import { ImplementedRenderableObjectProps } from "../../types/RenderableGameObject";
 import Vector from "../../types/Vector";
@@ -320,8 +321,8 @@ export default class Sponspore extends Adbomination {
       .mul(-1);
     this.parent?.addChild(
       new Spore({
-        damage: 8,
-        speed: 200,
+        damage: 8 * difficulty(),
+        speed: 200 * (1 + (difficulty() - 1) * 0.25),
         direction: angle,
         id: "Spore",
         position: projectilePosition,

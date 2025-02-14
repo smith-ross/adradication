@@ -1,3 +1,4 @@
+// Underlying coordinate class for all game objects
 export default class Vector {
   #x: number = 0;
   #y: number = 0;

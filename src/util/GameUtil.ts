@@ -11,3 +11,7 @@ export const layer = (layerId: string) => {
   if (!layer) throw `Failed to fetch layer with ID ${layer}`;
   return layer;
 };
+
+export const difficulty = () => {
+  return Adradication.getGame().difficultyScalar;
+};

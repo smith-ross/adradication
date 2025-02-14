@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 export const isDebugMode = () => {
   return process.env.REACT_APP_DEBUG_MODE === "True";

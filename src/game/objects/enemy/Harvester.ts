@@ -1,5 +1,5 @@
 import { load } from "../../../util/DrawUtil";
-import { spawnEffect } from "../../../util/GameUtil";
+import { difficulty, spawnEffect } from "../../../util/GameUtil";
 import { fireEvent } from "../../../util/GeneralUtil";
 import { GAME_SIZE } from "../../core/Adradication";
 import Color from "../../types/Color";
@@ -175,7 +175,7 @@ export default class Harvester extends Adbomination {
       moveSpeed: MOVE_SPEED,
       attackRange: 80,
       attackDuration: 1.4,
-      health: 1000,
+      health: 350,
       damageWindow: {
         start: 0.8,
         end: 0.05,
@@ -200,7 +200,7 @@ export default class Harvester extends Adbomination {
     healthBar.position = healthBar.position.add(new Vector(0, 5));
     healthBar.addSize(new Vector(0, 5));
 
-    this.tagPosition = new Vector(this.size.x / 2, this.size.y + 35);
+    this.tagPosition = new Vector(this.size.x / 2, this.size.y + 40);
 
     const spriteSize = new Vector(355, 183);
     this.#sprite = new AnimatedSprite({
@@ -249,28 +249,6 @@ export default class Harvester extends Adbomination {
       newState,
       this.walkDirection.x > 0 ? "right" : "left"
     );
-  }
-
-  protected stunUpdate(deltaTime: number) {
-    const knockbackThreshold =
-      this.stunInfo.stunDuration - this.stunInfo.knockbackDuration;
-    if (this.stunInfo.activeDuration > knockbackThreshold) {
-      this.position = this.position.add(
-        this.stunInfo.knockbarDirection.mul(
-          this.stunInfo.knockbarForce *
-            (this.stunInfo.activeDuration / knockbackThreshold) *
-            deltaTime
-        )
-      );
-    }
-    this.stunInfo.activeDuration -= deltaTime;
-    if (this.stunInfo.activeDuration <= 0) {
-      this.switchState(
-        this.previousState === EnemyState.ATTACK
-          ? EnemyState.ATTACK
-          : EnemyState.CHASE
-      );
-    }
   }
 
   onSpawn() {
@@ -363,11 +341,11 @@ export default class Harvester extends Adbomination {
               ).sub(new Vector(0, 40)),
             },
             this,
-            15
+            15 * (1 + (difficulty() - 1) * 0.5)
           )
         );
       });
-      const doneTimer = new Timer(time * amount, false, () => {
+      const doneTimer = new Timer(time * amount + 0.16, false, () => {
         this.timers = this.timers.filter(
           (timer) => timer !== doneTimer && timer !== castTimer
         );
@@ -391,20 +369,7 @@ export default class Harvester extends Adbomination {
 
   walkDirectionUpdated() {
     if (this.state === EnemyState.IDLE) {
-      if (this.walkDirection.eq(new Vector())) {
-        this.setAnimation(EnemyState.IDLE, this.#dir > 0 ? "right" : "left");
-      } else {
-        this.setAnimation(
-          EnemyState.CHASE,
-          this.walkDirection.x === 0
-            ? this.#dir > 0
-              ? "right"
-              : "left"
-            : this.walkDirection.x > 0
-            ? "right"
-            : "left"
-        );
-      }
+      this.setAnimation(EnemyState.IDLE, this.#dir > 0 ? "right" : "left");
       return;
     }
     if (this.walkDirection.x === 0) return;
@@ -418,6 +383,21 @@ export default class Harvester extends Adbomination {
       )
     )
       return;
+    if (this.state === EnemyState.CHASE) {
+      this.teleport(
+        () =>
+          new Vector(Math.random() * GAME_SIZE.x, Math.random() * GAME_SIZE.y)
+      ).then((dt) => {
+        this.switchState(EnemyState.IDLE_NO_UPDATE);
+        this.timers = [];
+        const chillTimer = new Timer(1, false, (dt) => {
+          this.timers = this.timers.filter((timer) => timer !== chillTimer);
+          this.refreshMoveVec();
+          this.switchState(EnemyState.IDLE);
+        });
+        this.timers.push(chillTimer);
+      });
+    }
     super.onHit(damage, stunDuration, knockback);
   }
 
@@ -480,7 +460,7 @@ export default class Harvester extends Adbomination {
               this.switchState(EnemyState.ATTACK);
               this.doAttack(dt);
               const chaseTimer = new Timer(7, false, () => {
-                if (this.state !== EnemyState.ATTACK) {
+                if (this.state === EnemyState.CHASE) {
                   this.timers = this.timers.filter(
                     (timer) => timer !== chaseTimer
                   );
@@ -515,7 +495,7 @@ export default class Harvester extends Adbomination {
                 this.timers = this.timers.filter(
                   (timer) => timer !== castTimer
                 );
-                this.spawnAds(5, 250);
+                this.spawnAds(Math.round(4 * difficulty()), 250);
                 this.switchState(EnemyState.IDLE_NO_UPDATE);
                 const chillTimer = new Timer(1, false, (dt) => {
                   this.timers = this.timers.filter(
@@ -531,7 +511,7 @@ export default class Harvester extends Adbomination {
             break;
 
           case "SPAWN_CLAWS":
-            this.projectileAttack(10);
+            this.projectileAttack(Math.round(8 * difficulty()));
 
           default:
             break;
@@ -540,10 +520,6 @@ export default class Harvester extends Adbomination {
 
       case EnemyState.CHASE:
         this.chaseUpdate(deltaTime);
-        break;
-
-      case EnemyState.STUNNED:
-        this.stunUpdate(deltaTime);
         break;
 
       case EnemyState.ATTACK:
