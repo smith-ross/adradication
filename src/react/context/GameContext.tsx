@@ -32,6 +32,10 @@ export interface GameContextType {
   setTotalWaves: (amount: number) => void;
   winState: WinState;
   setWinState: (state: WinState) => void;
+  mostCommonTracker?: string;
+  setMostCommonTracker: (trackerUrl?: string) => void;
+  trackersFound?: string;
+  setTrackersFound: (trackers: number) => void;
 }
 
 const defaultContext = {
@@ -39,11 +43,15 @@ const defaultContext = {
   score: 0,
   winState: "uninit",
   currentWave: 0,
+  trackersFound: 0,
+  mostCommonTracker: "",
   setLoggedIn: (value: boolean) => {},
   setScore: (amount: number) => {},
   setCurrentWave: (amount: number) => {},
   setTotalWaves: (amount: number) => {},
+  setTrackersFound: (amount: number) => {},
   setWinState: (state: WinState) => {},
+  setMostCommonTracker: (trackerUrl: string) => {},
 };
 
 const GameContext = createContext(defaultContext);
@@ -61,7 +69,9 @@ export const GameContextProvider = ({
   const [score, setScore] = useState(0);
   const [currentWave, setCurrentWave] = useState(0);
   const [totalWaves, setTotalWaves] = useState(0);
+  const [trackersFound, setTrackersFound] = useState(0);
   const [winState, setWinState] = useState("not_played");
+  const [mostCommonTracker, setMostCommonTracker] = useState<string>("");
   const updateScore = useCallback(
     (id: number) => {
       getFromStorage(`pageScore-${id}`).then((value) => {
@@ -146,6 +156,10 @@ export const GameContextProvider = ({
         setTotalWaves: setTotalWaves,
         winState: winState,
         setWinState: setWinState,
+        mostCommonTracker: mostCommonTracker,
+        setMostCommonTracker: setMostCommonTracker,
+        trackersFound: trackersFound,
+        setTrackersFound: setTrackersFound,
       }}
     >
       {children}

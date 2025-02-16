@@ -35,7 +35,16 @@ const WIN_STATE_MESSAGES = {
 const GameView = ({ game }: GameViewProps) => {
   const [isLoaded, setLoaded] = useState(false);
   const [isPreloaded, setPreloaded] = useState(false);
-  const { winState, setWinState, score, setScore } = useGameContext();
+  const {
+    winState,
+    setWinState,
+    score,
+    setScore,
+    mostCommonTracker,
+    setMostCommonTracker,
+    trackersFound,
+    setTrackersFound,
+  } = useGameContext();
 
   const gameStateRef: MutableRefObject<GameState> = useRef({
     currentGame: undefined,
@@ -57,8 +66,10 @@ const GameView = ({ game }: GameViewProps) => {
       switch (msg.text) {
         case "UPDATE_WIN_STATE":
           if (window.location.href !== msg.url) return;
+          setMostCommonTracker(msg.value.mostCommonTracker);
+          setTrackersFound(msg.value.trackersFound);
           setTimeout(
-            () => setWinState(msg.value),
+            () => setWinState(msg.value.result),
             msg.value === "lose" ? 3000 : 1
           );
           break;
@@ -85,6 +96,7 @@ const GameView = ({ game }: GameViewProps) => {
               setLoaded(true);
               setWinState(json.result);
               setScore(json.points);
+              setMostCommonTracker(json.mostCommonTracker);
               setPreloaded(true);
               break;
           }
@@ -120,7 +132,10 @@ const GameView = ({ game }: GameViewProps) => {
                 `res/character-sprites/WinState/${winState}.png`
               )}
               score={score}
+              state={winState}
               preloaded={isPreloaded}
+              mostCommonTracker={mostCommonTracker}
+              trackersFound={trackersFound}
             />
           )}
         </div>

@@ -195,8 +195,10 @@ export default class Adbomination extends RenderableGameObject {
     this.position = point;
     this.#playerRef = player;
     const healthBar = this.getChild("EnemyHealthBar") as HealthBar;
-    healthBar.setMaxHealth(healthBar.getMaxHealth() * difficulty());
-    healthBar.heal(healthBar.getMaxHealth());
+    if (healthBar.currentHealth !== 10) {
+      healthBar.setMaxHealth(healthBar.getMaxHealth() * difficulty());
+      healthBar.heal(healthBar.getMaxHealth());
+    }
     this.onSpawn();
   }
 
@@ -211,8 +213,10 @@ export default class Adbomination extends RenderableGameObject {
     this.position = newPosition;
     this.#playerRef = player;
     const healthBar = this.getChild("EnemyHealthBar") as HealthBar;
-    healthBar.setMaxHealth(healthBar.getMaxHealth() * difficulty());
-    healthBar.heal(healthBar.getMaxHealth());
+    if (healthBar.currentHealth !== 10) {
+      healthBar.setMaxHealth(healthBar.getMaxHealth() * difficulty());
+      healthBar.heal(healthBar.getMaxHealth());
+    }
     this.onSpawn();
   }
 
@@ -259,9 +263,6 @@ export default class Adbomination extends RenderableGameObject {
       const newTimer = new Timer(time || 0, false, () => {
         this.destroy();
         this.timers = this.timers.filter((timer) => timer !== newTimer);
-        this.#deathListeners.forEach((listener) => {
-          listener();
-        });
         const scoreValue = this.scoreValue;
         chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
           transformStorage({
@@ -270,6 +271,9 @@ export default class Adbomination extends RenderableGameObject {
               return (originalValue || 0) + scoreValue;
             },
           });
+        });
+        this.#deathListeners.forEach((listener) => {
+          listener();
         });
       });
       this.timers.push(newTimer);

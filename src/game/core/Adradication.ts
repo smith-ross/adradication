@@ -36,6 +36,7 @@ import Vector from "../types/Vector";
 export const GAME_SIZE = new Vector(600, 450);
 const MONSTER_WAVE_GAP = 5;
 const UPGRADE_AMOUNT = 3;
+const WIN_MUL = 1.5;
 export let GameInstance: Adradication | undefined;
 
 export default class Adradication {
@@ -132,12 +133,53 @@ export default class Adradication {
     waitForEvent("continueNextWave").then(() => upgradeContainer.destroy());
   }
 
+  async getUniqueTrackers() {
+    let value = (await getFromStorage(
+      `TrackerCounter-${Adradication.getGame().tabId}`
+    )) as { origin: number; url: string }[];
+    if (value === undefined) value = [];
+    return value
+      .filter(
+        (header: { origin: number; url: string }) =>
+          header.origin === Adradication.getGame().currentPageCount
+      )
+      .reduce((prev, value) => {
+        if (!prev.includes(value.url)) prev.push(value.url);
+        return prev;
+      }, [] as string[]).length;
+  }
+
+  async getMostCommonTracker() {
+    let value = await getFromStorage(
+      `TrackerCounter-${Adradication.getGame().tabId}`
+    );
+    if (value === undefined) value = [];
+    const totals: { [tracker: string]: number } = {};
+    value = value.filter(
+      (header: { origin: number; url: string }) =>
+        header.origin === Adradication.getGame().currentPageCount
+    );
+    for (let i = 0; i < value.length; i++) {
+      const url = value[i]?.url;
+      if (Object.keys(totals).includes(url)) totals[url] += 1;
+      else totals[url] = 1;
+    }
+    return Object.keys(totals).sort((a, b) => totals[b] - totals[a])[0];
+  }
+
   private onComplete() {
     this.waves.splice(0, 1);
+    const player = this.player!;
     if (!this.waves[0]) {
       this.#hasResult = true;
       const upgrades = this.player?.upgrades!;
       chrome.runtime.sendMessage({ text: "GET_TAB_ID" }, (tabId) => {
+        transformStorageOverwrite({
+          key: "pageScore-" + tabId.tab,
+          modifierFn(originalValue) {
+            return Math.floor(player.score * WIN_MUL);
+          },
+        });
         transformStorage({
           key: "pageResult-" + tabId.tab + "-" + window.location.href,
           modifierFn(originalValue) {
@@ -150,18 +192,24 @@ export default class Adradication {
             };
           },
         }).then(() => {
-          chrome.runtime.sendMessage({
-            text: "REPORT_RESULT",
-            value: {
-              type: "win",
-              defeatedBy: "",
-              upgrades: upgrades.appliedUpgrades.map(
-                (upgrade) => `${upgrade.getName()} [${upgrade.getStacks()}]`
-              ),
-            },
-            monsterCount: this.monsterCount,
-            score: this.player?.score,
-          });
+          this.getMostCommonTracker().then((tracker) =>
+            this.getUniqueTrackers().then((amount) =>
+              chrome.runtime.sendMessage({
+                text: "REPORT_RESULT",
+                value: {
+                  type: "win",
+                  defeatedBy: "",
+                  upgrades: upgrades.appliedUpgrades.map(
+                    (upgrade) => `${upgrade.getName()} [${upgrade.getStacks()}]`
+                  ),
+                },
+                mostCommonTracker: tracker,
+                monsterCount: this.monsterCount,
+                trackersFound: amount,
+                score: Math.floor(this.player?.score! * WIN_MUL),
+              })
+            )
+          );
         });
       });
     } else {
@@ -315,14 +363,20 @@ export default class Adradication {
               upgrades: hitter.upgrades,
             };
           },
-        }).then(() => {
-          chrome.runtime.sendMessage({
-            text: "REPORT_RESULT",
-            value: hitter,
-            monsterCount: this.monsterCount,
-            score: 0,
-          });
-        });
+        }).then(() =>
+          this.getMostCommonTracker().then((tracker) =>
+            this.getUniqueTrackers().then((amount) =>
+              chrome.runtime.sendMessage({
+                text: "REPORT_RESULT",
+                value: hitter,
+                mostCommonTracker: tracker,
+                monsterCount: this.monsterCount,
+                trackersFound: amount,
+                score: player.score,
+              })
+            )
+          )
+        );
       });
     });
 

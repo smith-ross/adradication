@@ -70,12 +70,6 @@ export default class Wave {
           if (Object.keys(totals).includes(url)) totals[url] += 1;
           else totals[url] = 1;
         }
-        console.log(
-          "TOTALS!\n" +
-            Object.keys(totals).join(", ") +
-            "\n" +
-            Object.values(totals)
-        );
         const name = Object.keys(totals).sort(
           (a, b) => totals[b] - totals[a]
         )[0];

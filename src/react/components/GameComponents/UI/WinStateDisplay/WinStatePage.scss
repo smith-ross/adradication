@@ -7,6 +7,18 @@
     justify-content: center;
     flex-direction: column;
     background-color: rgb(200, 200, 100);
+
+    .win-state-field {
+      .win-state-field-head {
+        display: block;
+        font-size: 14px;
+      }
+      .win-state-field-body {
+        font-size: 15px;
+        font-weight: bold;
+      }
+    }
+
     .win-state-sprite-container {
       background-color: rgb(200, 200, 100);
       width: 100%;
@@ -15,13 +27,16 @@
       align-items: center;
       justify-content: center;
       margin-bottom: -40px;
+      padding-top: 10px;
       .win-state-sprite {
         width: 200px;
         height: 200px;
+        margin-top: -60px;
+        // top: 10px;
+        // position: absolute;
       }
     }
     .adradication-win-state {
-      background-color: rgb(200, 200, 100);
       text-align: center;
       display: flex;
       flex-direction: column;
@@ -30,6 +45,9 @@
       padding: 20px;
       width: 387px;
       gap: 10px;
+      padding-bottom: 10px;
+      // position: absolute;
+      // top: 170px;
 
       .win-message {
         font-size: 24px;
@@ -42,6 +60,11 @@
         .score-number {
           font-size: 18px;
           font-weight: bolder;
+        }
+        .score-mul {
+          font-size: 12px;
+          display: block;
+          text-align: center;
         }
       }
 

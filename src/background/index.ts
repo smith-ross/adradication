@@ -52,66 +52,76 @@ const onContentMessage = (
       break;
 
     case "REPORT_RESULT":
-      getFromStorage(`pageResult-${sender.tab?.id}-${url}`).then((value) => {
-        const rawResult: PageResult = msg.value || value;
+      getFromStorage(`pageResult-${sender.tab?.id}-${url}`)
+        .then((value) => {
+          const rawResult: PageResult = msg.value || value;
 
-        const isFlee =
-          msg.monsterCount === 0
-            ? rawResult.type === "flee"
-              ? "win"
-              : "flee"
-            : rawResult.type;
+          const isFlee =
+            msg.monsterCount === 0
+              ? rawResult.type === "flee"
+                ? "win"
+                : "flee"
+              : rawResult.type;
 
-        rawResult.type = isFlee;
-        const hitter = rawResult.defeatedBy || "";
-        const result = rawResult.type;
-        getFromStorage(`TrackerCounter-${sender.tab?.id}`).then((trackers) => {
-          const count: { [k: string]: number } = {};
-          (trackers as { url: string; origin: number }[]).forEach(
-            ({ url, origin }) => {
-              if (count[url] === undefined) count[url] = 0;
-              count[url] += 1;
-            }
-          );
-          const max: [string, number] = ["", 0];
-          Object.keys(count).forEach((key) => {
-            const value = count[key];
-            if (value > max[1]) {
-              max[0] = key;
-              max[1] = value;
-            }
-          });
-          if (isFlee !== "flee") {
-            chrome.tabs.sendMessage(sender.tab?.id || 0, {
-              text: "UPDATE_WIN_STATE",
-              value: result,
-              url: sender.tab?.url,
-            });
-          }
-          deleteStorage(`pageResult-${sender.tab?.id}-${url}`);
-          apiPost("/battle/reportResult", true, {
-            body: {
-              url: url || "",
-              result: result,
-              score: msg.score,
-              defeatedBy: hitter,
-              upgrades: rawResult.upgrades,
-              mostCommonTracker: max[0],
-            },
-          }).then(() => {
-            if (!sender.tab) return;
-            chrome.tabs.sendMessage(sender.tab?.id || 0, {
-              text: "LEADERBOARD_LOADED",
-            });
-          });
-        });
-      });
+          rawResult.type = isFlee;
+          const hitter = rawResult.defeatedBy || "";
+          const result = rawResult.type;
+          getFromStorage(`TrackerCounter-${sender.tab?.id}`)
+            .then((trackers) => {
+              if (!trackers) trackers = [];
+              const count: { [k: string]: number } = {};
+              (trackers as { url: string; origin: number }[]).forEach(
+                ({ url, origin }) => {
+                  if (count[url] === undefined) count[url] = 0;
+                  count[url] += 1;
+                }
+              );
+              const max: [string, number] = ["", 0];
+              Object.keys(count).forEach((key) => {
+                const value = count[key];
+                if (value > max[1]) {
+                  max[0] = key;
+                  max[1] = value;
+                }
+              });
+              if (isFlee !== "flee") {
+                chrome.tabs.sendMessage(sender.tab?.id || 0, {
+                  text: "UPDATE_WIN_STATE",
+                  value: {
+                    result: result,
+                    mostCommonTracker: msg.mostCommonTracker,
+                    trackersFound: msg.trackersFound,
+                  },
+                  url: sender.tab?.url,
+                });
+              }
+              deleteStorage(`pageResult-${sender.tab?.id}-${url}`);
+              apiPost("/battle/reportResult", true, {
+                body: {
+                  url: url || "",
+                  result: result,
+                  score: msg.score,
+                  defeatedBy: hitter,
+                  upgrades: rawResult.upgrades,
+                  mostCommonTracker: max[0],
+                },
+              })
+                .then(() => {
+                  if (!sender.tab) return;
+                  chrome.tabs.sendMessage(sender.tab?.id || 0, {
+                    text: "LEADERBOARD_LOADED",
+                  });
+                })
+                .catch(() => {});
+            })
+            .catch(() => {});
+        })
+        .catch(() => {});
       sendResponse({});
       break;
 
     case "PAGE_UNLOADED":
       pageCount++;
-      // deleteStorage(`pageWaves-${sender.tab?.id}`);
       if (msg.noResult) return;
       onContentMessage(
         {

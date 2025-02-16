@@ -10,13 +10,28 @@ interface WinStateProps {
   message: string;
   spriteUrl: string;
   preloaded?: boolean;
+  state: string;
+  trackersFound?: number;
+  mostCommonTracker?: string;
 }
+
+const WinStateField = ({ title, value }: { title: string; value: string }) => {
+  return (
+    <div className="win-state-field">
+      <div className="win-state-field-head">{title}</div>
+      <div className="win-state-field-body">{value}</div>
+    </div>
+  );
+};
 
 const WinStatePage = ({
   message,
   score,
   spriteUrl,
   preloaded,
+  state,
+  mostCommonTracker,
+  trackersFound,
 }: WinStateProps) => {
   const hasScore = !!(score && score > 0);
   const [isLeaderboard, setLeaderboard] = useState(false);
@@ -48,8 +63,23 @@ const WinStatePage = ({
             {hasScore && (
               <span className="win-score">
                 Score: <span className="score-number">{score}</span>
+                {state === "win" ? (
+                  <b className="score-mul"> (1.5x Win Multiplier)</b>
+                ) : undefined}
               </span>
             )}
+            {mostCommonTracker && mostCommonTracker !== "" ? (
+              <WinStateField
+                title="Most Common Tracker"
+                value={mostCommonTracker}
+              />
+            ) : undefined}
+            {trackersFound && trackersFound > 0 ? (
+              <WinStateField
+                title="No. of Unique Trackers"
+                value={trackersFound.toString()}
+              />
+            ) : undefined}
             <span className="win-instruction">
               Navigate to another page to continue playing!
             </span>
