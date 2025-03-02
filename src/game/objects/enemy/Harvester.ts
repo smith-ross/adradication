@@ -175,7 +175,7 @@ export default class Harvester extends Adbomination {
       moveSpeed: MOVE_SPEED,
       attackRange: 80,
       attackDuration: 1.4,
-      health: 350,
+      health: 200,
       damageWindow: {
         start: 0.8,
         end: 0.05,
@@ -183,7 +183,7 @@ export default class Harvester extends Adbomination {
       attackCooldown: 1,
       moveSpeedVariance: 15,
       name: "Harvester",
-      attackDamage: 20,
+      attackDamage: 10,
       lockOnDistance: 5000,
     });
 
@@ -341,7 +341,7 @@ export default class Harvester extends Adbomination {
               ).sub(new Vector(0, 40)),
             },
             this,
-            15 * (1 + (difficulty() - 1) * 0.5)
+            10 * (1 + (difficulty() - 1) * 0.5)
           )
         );
       });
@@ -511,7 +511,9 @@ export default class Harvester extends Adbomination {
             break;
 
           case "SPAWN_CLAWS":
-            this.projectileAttack(Math.round(8 * difficulty()));
+            this.projectileAttack(
+              Math.round(5 * (1 + (1 - difficulty() * 0.66)))
+            );
 
           default:
             break;
